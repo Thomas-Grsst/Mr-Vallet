@@ -14,6 +14,7 @@ Tout ce qui est dans le prototype sans être écrit dans la spec.
 ## Cartes révélation
 
 - Carte 1 : « Une machine qui vient d'une autre agence voyage une demi-journée : elle doit être libre la veille du départ. » FR-034 / R26 ajoutée, test 24. Test 2 décalé du 15-16/10 au 16-17/10 : avec cette règle, MINI12 (Saint-Etienne) n'est plus proposée à Lyon Est le 15/10 car elle est réservée la veille (14/10).
+- Carte 2 : « Une réservation pour un grand compte n'est valable qu'avec un numéro de bon de commande. » FR-036 / R28 ajoutée, test 26. Liste des grands comptes limitée à BTP Rhone (seul nommé, DOC 6) : question ouverte pour Brice. Les réservations BTP Rhone reprises des Excel n'ont pas de bon de commande, elles deviennent des anomalies ; test 8, R10, FR-011 et FR-018 mis à jour en conséquence.
 
 ## Style
 

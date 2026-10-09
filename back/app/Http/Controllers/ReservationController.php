@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
 use App\Http\Requests\StoreReservationRequest;
+use App\Models\KeyAccount;
 use App\Models\Machine;
 use App\Models\Reservation;
 use App\Services\ReservationRules;
@@ -59,7 +60,12 @@ class ReservationController extends Controller
             ? $request->integer('agency_id')
             : $request->user()->agency_id;
 
-        $violations = $this->rules->check($machine, $from, $to, bookingAgencyId: $enteringAgencyId);
+        $purchaseOrder = $request->filled('purchase_order') ? $request->string('purchase_order')->trim()->toString() : null;
+
+        $violations = [
+            ...$this->rules->purchaseOrder($request->string('client')->toString(), $purchaseOrder),
+            ...$this->rules->check($machine, $from, $to, bookingAgencyId: $enteringAgencyId),
+        ];
 
         if ($violations !== []) {
             return response()->json([
@@ -69,7 +75,8 @@ class ReservationController extends Controller
         }
 
         $reservation = $machine->reservations()->create([
-            'client' => $request->string('client')->trim()->toString(),
+            'client' => KeyAccount::matching($request->string('client')->toString())?->name ?? $request->string('client')->trim()->toString(),
+            'purchase_order' => $purchaseOrder,
             'starts_at' => $from->toDateString(),
             'ends_at' => $to->toDateString(),
             'entered_by_agency_id' => $enteringAgencyId,
@@ -103,6 +110,7 @@ class ReservationController extends Controller
             'machine_type' => $reservation->machine->type,
             'machine_agency' => $reservation->machine->agency->name,
             'client' => $reservation->client,
+            'purchase_order' => $reservation->purchase_order,
             'starts_at' => $reservation->starts_at->toDateString(),
             'ends_at' => $reservation->ends_at->toDateString(),
             'entered_by' => $reservation->enteredBy->name,

@@ -13,7 +13,7 @@ class Reservation extends Model
 
     protected $dateFormat = 'Y-m-d';
 
-    protected $fillable = ['machine_id', 'client', 'starts_at', 'ends_at', 'entered_by_agency_id', 'cancelled_at', 'cancelled_by_agency_id'];
+    protected $fillable = ['machine_id', 'client', 'purchase_order', 'starts_at', 'ends_at', 'entered_by_agency_id', 'cancelled_at', 'cancelled_by_agency_id'];
 
     protected function casts(): array
     {

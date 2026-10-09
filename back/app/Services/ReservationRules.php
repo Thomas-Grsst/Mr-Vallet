@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\Violation;
+use App\Models\KeyAccount;
 use App\Models\Machine;
 use App\Models\Reservation;
 use App\Models\WorkshopPeriod;
@@ -84,6 +85,21 @@ class ReservationRules
             ])
             ->values()
             ->all();
+    }
+
+    /** @return list<array{code: string, message: string}> */
+    public function purchaseOrder(string $client, ?string $purchaseOrder): array
+    {
+        $keyAccount = KeyAccount::matching($client);
+
+        if ($keyAccount === null || ($purchaseOrder !== null && trim($purchaseOrder) !== '')) {
+            return [];
+        }
+
+        return [[
+            'code' => Violation::MissingPurchaseOrder->value,
+            'message' => "{$keyAccount->name} est un grand compte : le numéro de bon de commande est obligatoire",
+        ]];
     }
 
     /** @return list<array{code: string, message: string}> */

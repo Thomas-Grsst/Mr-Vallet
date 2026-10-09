@@ -148,8 +148,8 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
   - **Direction** (Brice Vallet) : tous les droits des trois autres profils (FR-032).
 - **FR-016**: Une action non autorisée pour le profil MUST être refusée avec un message, et le bouton correspondant n'est pas proposé.
 - **FR-017**: L'utilisateur MUST pouvoir se déconnecter.
-- **FR-011**: L'outil MUST lister les réservations actives qui violent R1, R2 ou R3 (double réservation, réservée pendant un passage en atelier, VGP non à jour).
-- **FR-018 (R10)**: Dans le planning, chaque réservation concernée par une anomalie de FR-011 MUST afficher sous sa machine un avertissement « Attention : anomalie » avec son type (double réservation, en atelier, VGP non à jour) (retour de Brice).
+- **FR-011**: L'outil MUST lister les réservations actives qui violent R1, R2, R3 ou R28 (double réservation, réservée pendant un passage en atelier, VGP non à jour, grand compte sans bon de commande).
+- **FR-018 (R10)**: Dans le planning, chaque réservation concernée par une anomalie de FR-011 MUST afficher sous sa machine un avertissement « Attention : anomalie » avec son type (double réservation, en atelier, VGP non à jour, sans bon de commande) (retour de Brice).
 - **FR-019 (R11)**: Le planning MUST pouvoir être filtré par client, choisi dans la liste des clients qui ont au moins une réservation ; « Tous les clients » réaffiche toutes les réservations (retour de Brice).
 - **FR-020 (R12)**: Le planning MUST aussi pouvoir être filtré par machine, par agence de la machine, par agence de saisie et par période (réservations qui chevauchent la période) ; les filtres se cumulent, un bouton « Réinitialiser les filtres » les vide tous, et le message « Aucune réservation ne correspond aux filtres » s'affiche si rien ne correspond (initiative du binôme, non demandée par Brice).
 - **FR-021 (R13)**: Pendant un chargement (onglet, recherche, réservation), l'outil MUST afficher un indicateur « Chargement… » et MUST NOT afficher « Aucune anomalie », « Aucune réservation » ni une liste vide tant que les données ne sont pas chargées ; un chargement en échec MUST afficher « Impossible de charger les données » avec un bouton « Réessayer », jamais un résultat vide (retour de Brice).
@@ -169,13 +169,14 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - **FR-033 (R25)**: En arrivant sur l'onglet « Rechercher », la recherche MUST être lancée automatiquement sur tous les types pour aujourd'hui, pour afficher tout le parc avec sa disponibilité du jour (initiative du binôme, non demandée par Brice).
 - **FR-034 (R26)**: Quand l'agence qui réserve n'est pas l'agence de la machine, la machine MUST aussi être libre la veille du départ (ni réservée, ni en atelier) ; sinon la réservation MUST être refusée avec « Transfert depuis <agence> impossible : la machine doit être libre la veille du départ (<date>) » suivi de ce qui l'occupe. La recherche d'un compte agence MUST appliquer la même règle ; le compte Direction y est soumis à la réservation, pour l'agence choisie (carte révélation 1).
 - **FR-035 (R27)**: Dans les résultats de recherche, chaque machine MUST afficher, sur les 60 prochains jours, ce qui l'occupe (réservations avec client, passages en atelier avec motif, date d'échéance VGP) et ses créneaux libres ; un créneau libre MUST être calculé avec les mêmes règles que la réservation pour l'agence connectée, de sorte que toute réservation comprise dans ce créneau soit acceptée ; « Libre à partir du … » s'affiche si le créneau dépasse l'horizon (initiative du binôme, non demandée par Brice).
+- **FR-036 (R28)**: Une réservation pour un grand compte MUST avoir un numéro de bon de commande. L'outil MUST connaître la liste des grands comptes (au départ : BTP Rhone, DOC 6) et la reconnaître sans tenir compte des majuscules ni des espaces autour, en enregistrant le client sous son nom de la liste ; sans numéro, la réservation MUST être refusée avec « <client> est un grand compte : le numéro de bon de commande est obligatoire ». Le numéro MUST s'afficher dans le planning et l'historique ; une réservation de grand compte existante sans numéro MUST apparaître dans les anomalies (carte révélation 2).
 
 ### Key Entities
 
 - **Agence** : une des 7 agences.
 - **Machine** : référence, type, agence de rattachement, date de dernière VGP réalisée (nacelles).
 - **Passage en atelier** : machine, date de début, date de fin, motif (facultatif) ; en cours ou prévu selon la date du jour.
-- **Réservation** : machine, client, date de début, date de fin, agence de saisie, date d'annulation et agence qui a annulé (si annulée).
+- **Réservation** : machine, client, n° de bon de commande (grands comptes), date de début, date de fin, agence de saisie, date d'annulation et agence qui a annulé (si annulée).
 - **Compte** : nom, e-mail, mot de passe, profil (agence, atelier, commercial, direction), agence (pour le profil agence).
 
 ## Ce que l'outil ne fait pas ce matin
@@ -187,6 +188,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - Pas de gestion des comptes : les comptes de démonstration sont créés au démarrage, sans création de compte, mot de passe oublié ni changement de mot de passe.
 - Sécurité limitée à la connexion : prototype en local, sans HTTPS ; à renforcer avant toute mise en service.
 - Question ouverte pour Brice : une agence peut-elle annuler une réservation saisie par une autre agence ? Ce matin, oui.
+- La liste des grands comptes ne contient que BTP Rhone (seul nommé dans le dossier) et ne se modifie pas dans l'outil : question à poser à Brice (quels sont les 40 grands comptes, qui tient la liste ?).
 - L'historique ne montre que les réservations, pas les actions de l'atelier (mises en atelier, VGP) : question à poser à Brice.
 - Une VGP prévue ne débloque pas la nacelle à l'avance : question à poser à Brice.
 - Pas de transfert physique de machine entre agences.
@@ -214,7 +216,7 @@ Tests ajoutés après la recette de Brice :
 
 6. Étant donné que NAC112 est indisponible sur la recherche du 16/10 au 17/10, quand Villeurbanne clique sur « Réserver à d'autres dates », choisit du 20/10 au 22/10 dans le formulaire et confirme pour Maconnerie Duclos, alors la réservation est acceptée sans avoir changé la recherche.
 7. Étant donné que NAC112 est réservée du 14/10 au 18/10, quand Villeurbanne choisit du 17/10 au 19/10 dans le formulaire de réservation, alors la réservation est refusée avec le motif « Période déjà occupée par BTP Rhone du 14/10/2026 au 18/10/2026 ».
-8. Étant donné que NAC112 est réservée deux fois en même temps (BTP Rhone et Maconnerie Duclos) et que NAC089 est réservée pour Facades Martin avec une VGP échue, quand on ouvre le planning, alors ces trois réservations affichent « Attention : anomalie » sous leur machine (double réservation pour les deux NAC112, VGP non à jour pour NAC089), et les autres réservations n'affichent rien.
+8. Étant donné que NAC112 est réservée deux fois en même temps (BTP Rhone et Maconnerie Duclos) et que NAC089 est réservée pour Facades Martin avec une VGP échue, quand on ouvre le planning, alors ces trois réservations affichent « Attention : anomalie » sous leur machine (double réservation pour les deux NAC112, VGP non à jour pour NAC089) ; depuis la carte révélation 2, les réservations BTP Rhone sans bon de commande (NAC112, NAC140) affichent aussi « grand compte sans bon de commande », et les autres réservations n'affichent rien.
 9. Étant donné que BTP Rhone a réservé NAC112 du 14/10 au 18/10 et NAC140 du 19/10 au 23/10, quand on choisit le client « BTP Rhone » dans le filtre du planning, alors seules ces deux réservations s'affichent.
 10. Étant donné que BTP Rhone a réservé NAC112 (Lyon Est) et NAC140 (Grenoble), quand on filtre le planning sur le client « BTP Rhone » et l'agence de la machine « Lyon Est », alors seule la réservation NAC112 du 14/10 au 18/10 s'affiche ; quand on filtre seulement sur la période du 19/10 au 19/10, alors s'affichent ECH40 (Constructions Alpes) et NAC140 (BTP Rhone).
 11. Étant donné que les anomalies mettent du temps à arriver, quand on ouvre l'onglet Anomalies, alors on voit « Chargement des anomalies… » et jamais « Aucune anomalie » tant qu'elles ne sont pas arrivées.
@@ -235,6 +237,7 @@ Tests ajoutés avec les cartes révélation :
 
 24. Étant donné que NAC140 (Grenoble) est réservée par BTP Rhone du 19/10 au 23/10, quand Villeurbanne la réserve du 24/10 au 25/10, alors c'est refusé avec « Transfert depuis Grenoble impossible : la machine doit être libre la veille du départ (23/10/2026) — Période déjà occupée par BTP Rhone du 19/10/2026 au 23/10/2026 » ; quand Grenoble la réserve sur les mêmes dates, c'est accepté (pas de transfert) ; quand Villeurbanne la réserve du 25/10 au 26/10, c'est accepté (la veille, le 24/10, est libre). De même, MINI07 (Lyon Est, en atelier jusqu'au 20/10) est refusée à Villeurbanne à partir du 21/10 mais acceptée pour Lyon Est.
 25. Étant donné que NAC140 (Grenoble) est réservée par BTP Rhone du 19/10 au 23/10, quand Villeurbanne lance une recherche, alors NAC140 affiche « Réservée du 19/10/2026 au 23/10/2026 · BTP Rhone », « Libre du 12/10/2026 au 18/10/2026 » et « Libre à partir du 25/10/2026 » ; pour Grenoble, le second créneau est « Libre à partir du 24/10/2026 ». NAC118 (VGP valable jusqu'au 15/10) affiche « Libre du 12/10/2026 au 14/10/2026 » et « VGP échue à partir du 15/10/2026 ».
+26. Étant donné que BTP Rhone est un grand compte, quand Lyon Est réserve COMP30 du 26/10 au 27/10 pour « btp rhone » sans bon de commande, alors c'est refusé avec « BTP Rhone est un grand compte : le numéro de bon de commande est obligatoire » ; avec le bon de commande « BC-2026-0412 », c'est accepté, enregistré au nom de « BTP Rhone », et le planning affiche « BC BC-2026-0412 » ; pour Facades Martin (pas grand compte), aucun bon de commande n'est demandé. Les deux réservations BTP Rhone reprises des Excel (NAC112, NAC140) apparaissent dans les anomalies comme « grand compte sans bon de commande ».
 
 ## Assumptions
 

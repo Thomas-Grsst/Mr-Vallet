@@ -10,7 +10,8 @@ class AnomaliesTest extends ValletTestCase
     {
         $anomalies = collect($this->getJson('/api/anomalies')->assertOk()->json());
 
-        $this->assertCount(2, $anomalies);
+        $this->assertCount(4, $anomalies);
+        $this->assertCount(2, $anomalies->where("code", "missing_purchase_order"));
         $this->assertTrue($anomalies->contains(fn ($anomaly) => $anomaly['code'] === 'overlap'
             && str_contains($anomaly['message'], 'BTP Rhone')
             && str_contains($anomaly['message'], 'Maconnerie Duclos')));

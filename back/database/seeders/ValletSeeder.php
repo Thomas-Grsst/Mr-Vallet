@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\UserRole;
 use App\Models\Agency;
+use App\Models\KeyAccount;
 use App\Models\Machine;
 use App\Models\Reservation;
 use App\Models\User;
@@ -30,6 +31,8 @@ class ValletSeeder extends Seeder
         ['ECH40', 'Echafaudage 40 m2', 'Lyon Est', null],
         ['ECH41', 'Echafaudage 40 m2', 'Valence', null],
     ];
+
+    private const KEY_ACCOUNTS = ['BTP Rhone'];
 
     private const WORKSHOP_PERIODS = [
         ['MINI07', '2026-10-01', '2026-10-20', 'verin casse'],
@@ -90,6 +93,10 @@ class ValletSeeder extends Seeder
             'password' => self::DEMO_PASSWORD,
             'role' => UserRole::Director,
         ]);
+
+        foreach (self::KEY_ACCOUNTS as $name) {
+            KeyAccount::query()->create(['name' => $name]);
+        }
 
         foreach (self::RESERVATIONS as [$ref, $client, $from, $to, $enteredBy]) {
             Reservation::query()->create([

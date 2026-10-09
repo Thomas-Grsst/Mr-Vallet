@@ -13,6 +13,7 @@ class StoreReservationRequest extends FormRequest
         $rules = [
             'machine_ref' => ['required', 'string', 'exists:machines,ref'],
             'client' => ['required', 'string', 'max:255'],
+            'purchase_order' => ['nullable', 'string', 'max:50'],
             'starts_at' => ['required', 'date_format:Y-m-d', 'after_or_equal:'.ReservationRules::today()->toDateString()],
             'ends_at' => ['required', 'date_format:Y-m-d', 'after_or_equal:starts_at'],
         ];

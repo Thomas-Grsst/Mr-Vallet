@@ -8,4 +8,5 @@ enum Violation: string
     case Workshop = 'workshop';
     case VgpExpired = 'vgp_expired';
     case Transfer = 'transfer';
+    case MissingPurchaseOrder = 'missing_purchase_order';
 }

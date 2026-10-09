@@ -32,7 +32,7 @@ class WorkshopAndVgpTest extends ValletTestCase
 
         $this->getJson('/api/anomalies')->assertJsonMissing(['code' => 'vgp_expired']);
 
-        $this->reserve('NAC089', 'BTP Rhone', '2026-11-02', '2026-11-05')->assertCreated();
+        $this->reserve('NAC089', 'Constructions Alpes', '2026-11-02', '2026-11-05')->assertCreated();
     }
 
     public function test_vgp_in_the_future_cannot_be_recorded_as_done(): void

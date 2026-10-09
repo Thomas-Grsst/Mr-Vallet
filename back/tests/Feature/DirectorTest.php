@@ -27,7 +27,7 @@ class DirectorTest extends ValletTestCase
     {
         $this->postJson('/api/reservations', [
             'machine_ref' => 'COMP30',
-            'client' => 'BTP Rhone',
+            'client' => 'Constructions Alpes',
             'starts_at' => '2026-10-20',
             'ends_at' => '2026-10-21',
             'agency_id' => $this->agencyId('Annecy'),
@@ -40,7 +40,7 @@ class DirectorTest extends ValletTestCase
     {
         $this->postJson('/api/reservations', [
             'machine_ref' => 'COMP30',
-            'client' => 'BTP Rhone',
+            'client' => 'Constructions Alpes',
             'starts_at' => '2026-10-20',
             'ends_at' => '2026-10-21',
         ])
@@ -68,7 +68,7 @@ class DirectorTest extends ValletTestCase
 
     public function test_agency_account_cannot_choose_another_agency(): void
     {
-        $this->reserve('COMP30', 'BTP Rhone', '2026-10-20', '2026-10-21', 'villeurbanne@vallet.test');
+        $this->reserve('COMP30', 'Constructions Alpes', '2026-10-20', '2026-10-21', 'villeurbanne@vallet.test');
 
         $this->assertSame('Villeurbanne', Reservation::query()->latest('id')->firstOrFail()->enteredBy->name);
     }

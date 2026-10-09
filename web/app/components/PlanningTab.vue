@@ -5,6 +5,7 @@ const anomalyLabels: Record<string, string> = {
   overlap: 'double réservation',
   vgp_expired: 'VGP non à jour',
   workshop: 'en atelier',
+  missing_purchase_order: 'grand compte sans bon de commande',
 }
 
 const { $api } = useNuxtApp()
@@ -84,7 +85,7 @@ const cancel = async (reservation: Reservation) => {
             </div>
           </td>
           <td>{{ reservation.machine_agency }}</td>
-          <td>{{ reservation.client }}</td>
+          <td>{{ reservation.client }}<div v-if="reservation.purchase_order" class="muted">BC {{ reservation.purchase_order }}</div></td>
           <td>{{ formatDate(reservation.starts_at) }}</td>
           <td>{{ formatDate(reservation.ends_at) }}</td>
           <td>{{ reservation.entered_by }}</td>

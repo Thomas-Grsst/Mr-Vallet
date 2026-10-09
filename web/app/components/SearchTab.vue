@@ -21,6 +21,17 @@ const reservationFrom = ref(today)
 const reservationTo = ref(today)
 const client = ref('')
 const enteringAgencyId = ref<number | null>(null)
+const purchaseOrder = ref('')
+
+const { data: keyAccounts } = useApiFetch<string[]>('/api/key-accounts', {
+  default: () => [],
+  immediate: !!user.value?.can_book,
+})
+
+const keyAccount = computed(() => {
+  const typed = client.value.trim().toLowerCase()
+  return keyAccounts.value.find((name) => name.toLowerCase() === typed) ?? null
+})
 
 const { data: agencies } = useApiFetch<Agency[]>('/api/agencies', {
   default: () => [],
@@ -90,11 +101,13 @@ const reserve = async () => {
         starts_at: reservationFrom.value,
         ends_at: reservationTo.value,
         agency_id: user.value?.chooses_entering_agency ? enteringAgencyId.value : undefined,
+        purchase_order: purchaseOrder.value || null,
       },
     })
     confirmation.value = `Réservation enregistrée : ${reservation.machine_ref} (${reservation.machine_agency}) pour ${reservation.client} du ${formatDate(reservation.starts_at)} au ${formatDate(reservation.ends_at)}.`
     selectedMachine.value = null
     client.value = ''
+    purchaseOrder.value = ''
     await search()
   }
   catch (error) {
@@ -202,6 +215,11 @@ const reserve = async () => {
         <label>
           Client
           <input v-model="client" type="text" placeholder="Nom du client">
+        </label>
+        <label v-if="keyAccount">
+          N° de bon de commande
+          <input v-model="purchaseOrder" type="text" placeholder="ex. BC-2026-0412">
+          <small class="muted">{{ keyAccount }} est un grand compte : obligatoire</small>
         </label>
         <label v-if="user?.chooses_entering_agency">
           Agence de saisie

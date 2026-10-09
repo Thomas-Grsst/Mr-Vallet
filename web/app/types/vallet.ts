@@ -54,6 +54,7 @@ export type Reservation = {
   machine_type: string
   machine_agency: string
   client: string
+  purchase_order: string | null
   starts_at: string
   ends_at: string
   entered_by: string

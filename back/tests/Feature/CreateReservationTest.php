@@ -35,7 +35,7 @@ class CreateReservationTest extends ValletTestCase
 
     public function test_nacelle_whose_vgp_expires_during_the_period_is_blocked(): void
     {
-        $this->reserve('NAC118', 'BTP Rhone', '2026-10-13', '2026-10-16')
+        $this->reserve('NAC118', 'Constructions Alpes', '2026-10-13', '2026-10-16')
             ->assertUnprocessable()
             ->assertJsonPath('violations.0.code', 'vgp_expired');
     }
@@ -107,7 +107,7 @@ class CreateReservationTest extends ValletTestCase
 
         $this->postJson('/api/reservations', [
             'machine_ref' => 'COMP30',
-            'client' => 'BTP Rhone',
+            'client' => 'Constructions Alpes',
             'starts_at' => '2026-10-20',
             'ends_at' => '2026-10-21',
             'agency_id' => 1,

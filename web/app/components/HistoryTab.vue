@@ -59,7 +59,7 @@ const resetAllFilters = () => {
         <tr v-for="reservation in visibleReservations" :key="reservation.id">
           <td><strong>{{ reservation.machine_ref }}</strong> <span class="muted">{{ reservation.machine_type }}</span></td>
           <td>{{ reservation.machine_agency }}</td>
-          <td>{{ reservation.client }}</td>
+          <td>{{ reservation.client }}<div v-if="reservation.purchase_order" class="muted">BC {{ reservation.purchase_order }}</div></td>
           <td>{{ formatDate(reservation.starts_at) }}</td>
           <td>{{ formatDate(reservation.ends_at) }}</td>
           <td>{{ reservation.entered_by }}</td>

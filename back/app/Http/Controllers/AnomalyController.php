@@ -47,6 +47,15 @@ class AnomalyController extends Controller
                 'message' => "{$reservation->machine->ref} : réservée pour {$reservation->client} du {$reservation->starts_at->format('d/m')} au {$reservation->ends_at->format('d/m')} pendant un passage en atelier {$period->describe()}",
             ]));
 
-        return response()->json($overlaps->concat($workshop)->concat($vgp)->values());
+        $purchaseOrders = $reservations
+            ->filter(fn (Reservation $reservation) => $this->rules->purchaseOrder($reservation->client, $reservation->purchase_order) !== [])
+            ->map(fn (Reservation $reservation) => [
+                'code' => Violation::MissingPurchaseOrder->value,
+                'machine_ref' => $reservation->machine->ref,
+                'reservation_ids' => [$reservation->id],
+                'message' => "{$reservation->machine->ref} : réservée pour {$reservation->client} du {$reservation->starts_at->format('d/m')} au {$reservation->ends_at->format('d/m')} sans bon de commande alors que c'est un grand compte",
+            ]);
+
+        return response()->json($overlaps->concat($workshop)->concat($vgp)->concat($purchaseOrders)->values());
     }
 }
