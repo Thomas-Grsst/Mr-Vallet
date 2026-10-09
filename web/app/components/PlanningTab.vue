@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import type { Reservation } from '~/types/vallet'
 
+const { $api } = useNuxtApp()
+const { user } = useAuth()
 const { formatDate } = useFormatDate()
 const { toMessages } = useApiErrors()
 const errors = ref<string[]>([])
 
-const { data: reservations, refresh } = await useFetch<Reservation[]>('/api/reservations', { default: () => [] })
+const { data: reservations, refresh } = await useApiFetch<Reservation[]>('/api/reservations', { default: () => [] })
 
 const cancel = async (reservation: Reservation) => {
   if (!confirm(`Annuler la réservation de ${reservation.machine_ref} pour ${reservation.client} ?`)) {
@@ -14,7 +16,7 @@ const cancel = async (reservation: Reservation) => {
 
   errors.value = []
   try {
-    await $fetch(`/api/reservations/${reservation.id}`, { method: 'DELETE' })
+    await $api(`/api/reservations/${reservation.id}`, { method: 'DELETE' })
     await refresh()
   }
   catch (error) {
@@ -37,7 +39,7 @@ const cancel = async (reservation: Reservation) => {
           <th>Du</th>
           <th>Au</th>
           <th>Saisie par</th>
-          <th />
+          <th v-if="user?.can_book" />
         </tr>
       </thead>
       <tbody>
@@ -48,7 +50,7 @@ const cancel = async (reservation: Reservation) => {
           <td>{{ formatDate(reservation.starts_at) }}</td>
           <td>{{ formatDate(reservation.ends_at) }}</td>
           <td>{{ reservation.entered_by }}</td>
-          <td><button type="button" class="button button--ghost" @click="cancel(reservation)">Annuler</button></td>
+          <td v-if="user?.can_book"><button type="button" class="button button--ghost" @click="cancel(reservation)">Annuler</button></td>
         </tr>
       </tbody>
     </table>

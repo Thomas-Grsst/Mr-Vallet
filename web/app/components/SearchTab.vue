@@ -2,7 +2,8 @@
 import type { Machine, Reservation } from '~/types/vallet'
 
 const today = useRuntimeConfig().public.today
-const currentAgencyId = useState<number | null>('currentAgencyId')
+const { $api } = useNuxtApp()
+const { user } = useAuth()
 const { formatDate } = useFormatDate()
 const { toMessages } = useApiErrors()
 
@@ -20,12 +21,12 @@ const reservationErrors = ref<string[]>([])
 const confirmation = ref<string | null>(null)
 const isSubmitting = ref(false)
 
-const { data: types } = await useFetch<string[]>('/api/machine-types', { default: () => [] })
+const { data: types } = await useApiFetch<string[]>('/api/machine-types', { default: () => [] })
 
 const search = async () => {
   searchErrors.value = []
   try {
-    machines.value = await $fetch<Machine[]>('/api/machines', {
+    machines.value = await $api<Machine[]>('/api/machines', {
       query: { type: type.value || undefined, from: from.value, to: to.value },
     })
     hasSearched.value = true
@@ -49,21 +50,15 @@ const reserve = async () => {
   reservationErrors.value = []
   confirmation.value = null
 
-  if (!currentAgencyId.value) {
-    reservationErrors.value = ['Choisissez votre agence en haut de la page.']
-    return
-  }
-
   isSubmitting.value = true
   try {
-    const reservation = await $fetch<Reservation>('/api/reservations', {
+    const reservation = await $api<Reservation>('/api/reservations', {
       method: 'POST',
       body: {
         machine_ref: selectedMachine.value.ref,
         client: client.value,
         starts_at: from.value,
         ends_at: to.value,
-        agency_id: currentAgencyId.value,
       },
     })
     confirmation.value = `Réservation enregistrée : ${reservation.machine_ref} (${reservation.machine_agency}) pour ${reservation.client} du ${formatDate(reservation.starts_at)} au ${formatDate(reservation.ends_at)}.`
@@ -116,7 +111,7 @@ const reserve = async () => {
             <th>Type</th>
             <th>Agence</th>
             <th>Disponibilité</th>
-            <th />
+            <th v-if="user?.can_book" />
           </tr>
         </thead>
         <tbody>
@@ -133,7 +128,7 @@ const reserve = async () => {
                 </ul>
               </template>
             </td>
-            <td>
+            <td v-if="user?.can_book">
               <button
                 type="button"
                 class="button"
@@ -154,6 +149,7 @@ const reserve = async () => {
 
     <form v-if="selectedMachine" class="card" @submit.prevent="reserve">
       <h2>Réserver {{ selectedMachine.ref }} ({{ selectedMachine.agency }}) du {{ formatDate(from) }} au {{ formatDate(to) }}</h2>
+      <p class="muted">Saisie par l'agence {{ user?.agency }}</p>
       <div class="form-row">
         <label>
           Client

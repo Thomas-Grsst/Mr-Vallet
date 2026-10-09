@@ -7,6 +7,7 @@ use App\Models\Machine;
 use App\Models\Reservation;
 use App\Services\ReservationRules;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 
@@ -27,6 +28,8 @@ class ReservationController extends Controller
 
     public function store(StoreReservationRequest $request): JsonResponse
     {
+        abort_unless($request->user()->role->canBook(), Response::HTTP_FORBIDDEN, 'Seules les agences peuvent réserver.');
+
         $machine = Machine::query()->where('ref', $request->string('machine_ref'))->firstOrFail();
         $from = Carbon::parse($request->string('starts_at'));
         $to = Carbon::parse($request->string('ends_at'));
@@ -44,7 +47,7 @@ class ReservationController extends Controller
             'client' => $request->string('client')->trim()->toString(),
             'starts_at' => $from->toDateString(),
             'ends_at' => $to->toDateString(),
-            'entered_by_agency_id' => $request->integer('agency_id'),
+            'entered_by_agency_id' => $request->user()->agency_id,
         ]);
 
         return response()->json(
@@ -53,8 +56,10 @@ class ReservationController extends Controller
         );
     }
 
-    public function destroy(Reservation $reservation): Response
+    public function destroy(Request $request, Reservation $reservation): Response
     {
+        abort_unless($request->user()->role->canBook(), Response::HTTP_FORBIDDEN, 'Seules les agences peuvent annuler une réservation.');
+
         $reservation->delete();
 
         return response()->noContent();

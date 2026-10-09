@@ -2,6 +2,7 @@
 import type { Machine } from '~/types/vallet'
 
 const today = useRuntimeConfig().public.today
+const { $api } = useNuxtApp()
 const { formatDate } = useFormatDate()
 const { toMessages } = useApiErrors()
 
@@ -10,12 +11,12 @@ const workshopUntil = ref<Record<string, string>>({})
 const workshopNote = ref<Record<string, string>>({})
 const vgpDate = ref<Record<string, string>>({})
 
-const { data: machines, refresh } = await useFetch<Machine[]>('/api/machines', { default: () => [] })
+const { data: machines, refresh } = await useApiFetch<Machine[]>('/api/machines', { default: () => [] })
 
 const save = async (url: string, body: Record<string, string | null>) => {
   errors.value = []
   try {
-    await $fetch(url, { method: 'PATCH', body })
+    await $api(url, { method: 'PATCH', body })
     await refresh()
   }
   catch (error) {

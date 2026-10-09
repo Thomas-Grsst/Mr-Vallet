@@ -12,3 +12,4 @@ Tout ce qui est dans le prototype sans être écrit dans la spec.
 
 - 09/10 : test n°2, période passée du 13/10–15/10 au 15/10–16/10. MINI12 est réservée par Artisan Ferreira du 13 au 14/10 dans les données, le test tel qu'écrit ne pouvait pas passer.
 - 09/10 : FR-002b, le bouton « Réserver » est grisé pour une machine indisponible (retour de recette du binôme). Remplace l'ancien ajout « bouton Réserver aussi sur les machines indisponibles ».
+- 09/10 : US6 et FR-014 à FR-017, connexion obligatoire et trois profils (agence, atelier, commercial). Initiative du binôme : sans connexion, n'importe qui connaissant l'adresse modifie le planning. Non demandé par Brice : à lui présenter et à confirmer.

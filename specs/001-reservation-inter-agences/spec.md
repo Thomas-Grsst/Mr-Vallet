@@ -90,6 +90,24 @@ En tant qu'atelier, je veux passer une machine « en atelier » jusqu'à une dat
 1. **Given** NAC089 a une VGP échue, **When** l'atelier enregistre une VGP au 12/10/2026, **Then** NAC089 peut être réservée du 20/10 au 31/10.
 2. **Given** COMP21 est en service, **When** l'atelier la passe en atelier jusqu'au 25/10, **Then** elle n'est plus proposée sur une période qui commence au plus tard le 25/10.
 
+---
+
+### User Story 6 - Se connecter (Priority: P1)
+
+En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que personne d'extérieur ne puisse réserver, annuler ou modifier une VGP, et que chaque réservation soit attribuée à la bonne agence.
+
+**Why this priority**: Sans connexion, toute personne qui connaît l'adresse peut modifier le planning ; la VGP engage la responsabilité légale de l'atelier (DOC 5).
+
+**Independent Test**: Ouvrir l'outil sans être connecté : seul l'écran de connexion est accessible.
+
+**Acceptance Scenarios**:
+
+1. **Given** je ne suis pas connecté, **When** j'ouvre l'outil ou j'appelle une de ses fonctions, **Then** je ne vois que l'écran de connexion et rien n'est modifiable.
+2. **Given** je suis connecté avec le compte de l'agence Villeurbanne, **When** je réserve une machine, **Then** la réservation est saisie par Villeurbanne, sans que je puisse choisir une autre agence.
+3. **Given** je suis connecté avec un compte agence, **When** je tente d'enregistrer une VGP ou de passer une machine en atelier, **Then** c'est refusé : seul l'atelier peut le faire.
+4. **Given** je suis connecté avec le compte atelier ou le compte commercial, **When** je tente de réserver ou d'annuler, **Then** c'est refusé : seules les agences réservent.
+5. **Given** je saisis un mauvais mot de passe, **When** je valide, **Then** la connexion est refusée avec le message « Identifiants incorrects ».
+
 ### Edge Cases
 
 - Réservation qui commence le jour où une autre se termine : c'est un chevauchement (dates incluses).
@@ -112,7 +130,14 @@ En tant qu'atelier, je veux passer une machine « en atelier » jusqu'à une dat
 - **FR-008 (R6)**: Une réservation MUST indiquer le client, la machine, les dates et l'agence qui l'a saisie.
 - **FR-009 (R7)**: Quand une réservation est refusée, l'outil MUST donner le motif : période occupée (avec le client et les dates), machine en atelier (avec la date de retour), ou « VGP non à jour, contacter l'atelier ».
 - **FR-002b**: Dans les résultats de recherche, le bouton « Réserver » MUST être grisé et non cliquable pour une machine indisponible ; seules les machines disponibles peuvent être réservées.
-- **FR-010**: L'utilisateur MUST pouvoir choisir son agence dans une liste ; elle est enregistrée comme agence de saisie.
+- **FR-010**: L'agence de saisie MUST être l'agence du compte connecté ; l'utilisateur ne peut pas la choisir.
+- **FR-014**: Toute l'application MUST exiger une connexion par e-mail et mot de passe ; sans connexion, rien n'est consultable ni modifiable.
+- **FR-015**: Il existe trois profils de compte :
+  - **Agence** (un compte par agence) : rechercher, réserver, annuler, consulter le planning et les anomalies.
+  - **Atelier** : rechercher, consulter, passer une machine en atelier, la remettre en service, enregistrer une VGP.
+  - **Commercial** (Julie Ferrand) : rechercher et consulter uniquement.
+- **FR-016**: Une action non autorisée pour le profil MUST être refusée avec un message, et le bouton correspondant n'est pas proposé.
+- **FR-017**: L'utilisateur MUST pouvoir se déconnecter.
 - **FR-011**: L'outil MUST lister les réservations existantes qui violent R1 ou R3.
 - **FR-012**: L'outil MUST permettre d'annuler une réservation.
 - **FR-013**: L'atelier MUST pouvoir passer une machine en atelier jusqu'à une date, la remettre en service, et enregistrer une date de dernière VGP.
@@ -122,6 +147,7 @@ En tant qu'atelier, je veux passer une machine « en atelier » jusqu'à une dat
 - **Agence** : une des 7 agences.
 - **Machine** : référence, type, agence de rattachement, date de dernière VGP (nacelles), en atelier jusqu'au (facultatif).
 - **Réservation** : machine, client, date de début, date de fin, agence de saisie.
+- **Compte** : nom, e-mail, mot de passe, profil (agence, atelier, commercial), agence (pour le profil agence).
 
 ## Ce que l'outil ne fait pas ce matin
 
@@ -129,7 +155,9 @@ En tant qu'atelier, je veux passer une machine « en atelier » jusqu'à une dat
 - Pas de tarifs, de bons de commande, de cautions ni de facturation.
 - Pas de photos d'état des lieux.
 - Pas de vente d'occasion.
-- Pas de comptes utilisateurs ni de mots de passe.
+- Pas de gestion des comptes : les comptes de démonstration sont créés au démarrage, sans création de compte, mot de passe oublié ni changement de mot de passe.
+- Sécurité limitée à la connexion : prototype en local, sans HTTPS ; à renforcer avant toute mise en service.
+- Question ouverte pour Brice : une agence peut-elle annuler une réservation saisie par une autre agence ? Ce matin, oui.
 - Pas de transfert physique de machine entre agences.
 
 ## Success Criteria *(mandatory)*

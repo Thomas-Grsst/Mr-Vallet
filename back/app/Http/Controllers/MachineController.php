@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateWorkshopRequest;
 use App\Models\Machine;
 use App\Services\ReservationRules;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 
 class MachineController extends Controller
@@ -47,6 +48,8 @@ class MachineController extends Controller
 
     public function updateWorkshop(UpdateWorkshopRequest $request, Machine $machine): JsonResponse
     {
+        abort_unless($request->user()->role->canMaintain(), Response::HTTP_FORBIDDEN, "Seul l'atelier peut passer une machine en atelier.");
+
         $machine->update([
             'workshop_until' => $request->input('until'),
             'workshop_note' => $request->input('until') ? $request->input('note') : null,
@@ -57,6 +60,8 @@ class MachineController extends Controller
 
     public function updateVgp(UpdateVgpRequest $request, Machine $machine): JsonResponse
     {
+        abort_unless($request->user()->role->canMaintain(), Response::HTTP_FORBIDDEN, "Seul l'atelier peut enregistrer une VGP.");
+
         $machine->update(['last_vgp_at' => $request->input('last_vgp_at')]);
 
         return response()->json($this->present($machine->load('agency')));

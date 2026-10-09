@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Anomaly } from '~/types/vallet'
 
-const { data: anomalies } = await useFetch<Anomaly[]>('/api/anomalies', { default: () => [] })
+const { data: anomalies } = await useApiFetch<Anomaly[]>('/api/anomalies', { default: () => [] })
 </script>
 
 <template>

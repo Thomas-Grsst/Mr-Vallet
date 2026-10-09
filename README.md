@@ -26,6 +26,16 @@ Prérequis : Docker Desktop. Rien d'autre à installer.
 
 La base est remise à zéro avec les données des consignes à chaque démarrage du back. Date du jour simulée : 12/10/2026.
 
+## Comptes de démonstration
+
+Mot de passe commun : `vallet-demo-2026` (comptes fictifs, recréés à chaque démarrage).
+
+| Profil | E-mail | Peut |
+|---|---|---|
+| Agence | `lyon-est@vallet.test`, `villeurbanne@vallet.test`, `grenoble@vallet.test`, `saint-etienne@vallet.test`, `clermont-ferrand@vallet.test`, `annecy@vallet.test`, `valence@vallet.test` | rechercher, réserver, annuler |
+| Atelier | `atelier@vallet.test` | rechercher, passer en atelier, enregistrer une VGP |
+| Commercial | `julie.ferrand@vallet.test` | rechercher et consulter |
+
 ## Tests
 
 ```bash

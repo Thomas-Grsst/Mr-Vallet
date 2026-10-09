@@ -1,21 +1,24 @@
 <script setup lang="ts">
-import type { Agency } from '~/types/vallet'
-
 type Tab = 'search' | 'planning' | 'anomalies' | 'workshop'
 
-const tabs: { key: Tab, label: string }[] = [
-  { key: 'search', label: 'Rechercher et réserver' },
-  { key: 'planning', label: 'Planning' },
-  { key: 'anomalies', label: 'Anomalies' },
-  { key: 'workshop', label: 'Atelier' },
-]
-
-const activeTab = ref<Tab>('search')
-const currentAgencyId = useState<number | null>('currentAgencyId', () => null)
+const { user, fetchCurrentUser, logout } = useAuth()
 const { formatDate } = useFormatDate()
 const today = useRuntimeConfig().public.today
 
-const { data: agencies } = await useFetch<Agency[]>('/api/agencies', { default: () => [] })
+await fetchCurrentUser()
+
+const tabs = computed(() => [
+  { key: 'search' as Tab, label: user.value?.can_book ? 'Rechercher et réserver' : 'Rechercher' },
+  { key: 'planning' as Tab, label: 'Planning' },
+  { key: 'anomalies' as Tab, label: 'Anomalies' },
+  ...(user.value?.can_maintain ? [{ key: 'workshop' as Tab, label: 'Atelier' }] : []),
+])
+
+const activeTab = ref<Tab>('search')
+
+watch(user, () => {
+  activeTab.value = 'search'
+})
 </script>
 
 <template>
@@ -25,15 +28,15 @@ const { data: agencies } = await useFetch<Agency[]>('/api/agencies', { default: 
         <h1 class="header__title">Vallet Location</h1>
         <p class="header__subtitle">Réservations des 7 agences · aujourd'hui : {{ formatDate(today) }}</p>
       </div>
-      <label class="header__agency">
-        Je suis :
-        <select v-model="currentAgencyId">
-          <option :value="null" disabled>Choisir mon agence</option>
-          <option v-for="agency in agencies" :key="agency.id" :value="agency.id">{{ agency.name }}</option>
-        </select>
-      </label>
+      <div v-if="user" class="header__user">
+        <span>{{ user.name }} · {{ user.role_label }}</span>
+        <button type="button" class="button button--ghost" @click="logout">Se déconnecter</button>
+      </div>
     </header>
 
+    <LoginForm v-if="!user" />
+
+    <template v-else>
     <nav class="tabs">
       <button
         v-for="tab in tabs"
@@ -53,6 +56,7 @@ const { data: agencies } = await useFetch<Agency[]>('/api/agencies', { default: 
       <AnomaliesTab v-else-if="activeTab === 'anomalies'" />
       <WorkshopTab v-else />
     </main>
+    </template>
   </div>
 </template>
 
@@ -104,7 +108,10 @@ body {
   color: var(--color-muted);
 }
 
-.header__agency {
+.header__user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   font-weight: 600;
 }
 

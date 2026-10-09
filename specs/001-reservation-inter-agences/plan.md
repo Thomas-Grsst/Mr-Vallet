@@ -54,6 +54,14 @@ Une classe `ReservationRules` renvoie la liste des violations pour une machine e
 
 La recherche et la réservation passent par la même classe ; les anomalies aussi (R1 entre réservations existantes, R3 sur chaque réservation de nacelle).
 
+## Connexion (US6)
+
+- Laravel Sanctum, jetons d'API. `POST /api/login` renvoie un jeton ; toutes les autres routes sont sous `auth:sanctum` ; `POST /api/logout`, `GET /api/me`.
+- Table `users` : ajout de `role` (enum `UserRole` : `agency`, `workshop`, `sales`) et `agency_id` (nullable).
+- Réserver et annuler : profil `agency` uniquement ; l'agence de saisie est `user.agency_id`. Atelier et VGP : profil `workshop` uniquement. Sinon 403 avec un message.
+- Comptes de démonstration créés par le seeder ; identifiants listés dans le README.
+- Web : jeton dans un cookie, ajouté en en-tête `Authorization` sur chaque appel ; écran de connexion tant qu'il n'y a pas de jeton valide ; les onglets et boutons non autorisés pour le profil sont masqués.
+
 ## Web
 
 Une page avec quatre onglets : **Rechercher et réserver**, **Planning**, **Anomalies**, **Atelier**. Sélecteur « Je suis : <agence> » en haut. Les messages de refus renvoyés par l'API sont affichés tels quels.

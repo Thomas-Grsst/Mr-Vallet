@@ -2,13 +2,18 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
 use App\Models\Agency;
 use App\Models\Machine;
 use App\Models\Reservation;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class ValletSeeder extends Seeder
 {
+    public const DEMO_PASSWORD = 'vallet-demo-2026';
+
     private const AGENCIES = ['Lyon Est', 'Villeurbanne', 'Grenoble', 'Saint-Etienne', 'Clermont-Ferrand', 'Annecy', 'Valence'];
 
     private const MACHINES = [
@@ -50,6 +55,28 @@ class ValletSeeder extends Seeder
                 'workshop_until' => $row[4],
                 'workshop_note' => $row[5],
             ])]);
+
+        $agencies->each(fn (Agency $agency) => User::query()->create([
+            'name' => $agency->name,
+            'email' => Str::slug($agency->name).'@vallet.test',
+            'password' => self::DEMO_PASSWORD,
+            'role' => UserRole::Agency,
+            'agency_id' => $agency->id,
+        ]));
+
+        User::query()->create([
+            'name' => 'Atelier',
+            'email' => 'atelier@vallet.test',
+            'password' => self::DEMO_PASSWORD,
+            'role' => UserRole::Workshop,
+        ]);
+
+        User::query()->create([
+            'name' => 'Julie Ferrand',
+            'email' => 'julie.ferrand@vallet.test',
+            'password' => self::DEMO_PASSWORD,
+            'role' => UserRole::Sales,
+        ]);
 
         foreach (self::RESERVATIONS as [$ref, $client, $from, $to, $enteredBy]) {
             Reservation::query()->create([

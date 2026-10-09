@@ -38,6 +38,15 @@
 - [x] T017 Onglet Rechercher et réserver
 - [x] T018 Onglets Planning, Anomalies, Atelier
 
+## Phase 6b — US6 Connexion (P1)
+
+- [x] T021 Installer Sanctum dans `back/`, migration `role` et `agency_id` sur `users`, enum `back/app/Enums/UserRole.php`
+- [x] T022 `back/app/Http/Controllers/AuthController.php` (login, logout, me) et routes protégées par `auth:sanctum`
+- [x] T023 Contrôles de profil sur réserver, annuler, atelier, VGP ; agence de saisie prise du compte
+- [x] T024 Comptes de démonstration dans `back/database/seeders/ValletSeeder.php`, identifiants dans `README.md`
+- [x] T025 Test `back/tests/Feature/AuthenticationTest.php` (scénarios US6) et adaptation des tests existants
+- [x] T026 `web/` : écran de connexion, jeton en cookie, déconnexion, onglets et boutons selon le profil
+
 ## Phase 7 — Recette
 
 - [x] T019 Lancer `php artisan test` dans `back/`

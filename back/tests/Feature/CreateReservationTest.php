@@ -6,7 +6,7 @@ class CreateReservationTest extends ValletTestCase
 {
     public function test_overlapping_reservation_is_refused_with_the_occupied_period(): void
     {
-        $this->reserve('NAC112', 'Maconnerie Duclos', '2026-10-16', '2026-10-17', 'Villeurbanne')
+        $this->reserve('NAC112', 'Maconnerie Duclos', '2026-10-16', '2026-10-17', 'villeurbanne@vallet.test')
             ->assertUnprocessable()
             ->assertJsonPath('violations.0.code', 'overlap')
             ->assertJsonPath('violations.0.message', 'Période déjà occupée par BTP Rhone du 14/10/2026 au 18/10/2026');
@@ -52,7 +52,7 @@ class CreateReservationTest extends ValletTestCase
 
     public function test_free_machine_is_reserved_and_visible_to_every_agency(): void
     {
-        $this->reserve('NAC140', 'Facades Martin', '2026-10-26', '2026-10-28', 'Lyon Est')
+        $this->reserve('NAC140', 'Facades Martin', '2026-10-26', '2026-10-28', 'lyon-est@vallet.test')
             ->assertCreated()
             ->assertJsonPath('machine_agency', 'Grenoble')
             ->assertJsonPath('entered_by', 'Lyon Est');
@@ -76,7 +76,7 @@ class CreateReservationTest extends ValletTestCase
             ->assertJsonValidationErrors('starts_at');
     }
 
-    public function test_client_and_agency_are_required(): void
+    public function test_client_is_required(): void
     {
         $this->postJson('/api/reservations', [
             'machine_ref' => 'COMP30',
@@ -84,6 +84,21 @@ class CreateReservationTest extends ValletTestCase
             'ends_at' => '2026-10-21',
         ])
             ->assertUnprocessable()
-            ->assertJsonValidationErrors(['client', 'agency_id']);
+            ->assertJsonValidationErrors('client');
+    }
+
+    public function test_entering_agency_is_the_logged_in_account_agency(): void
+    {
+        $this->actingAsAccount('villeurbanne@vallet.test');
+
+        $this->postJson('/api/reservations', [
+            'machine_ref' => 'COMP30',
+            'client' => 'BTP Rhone',
+            'starts_at' => '2026-10-20',
+            'ends_at' => '2026-10-21',
+            'agency_id' => 1,
+        ])
+            ->assertCreated()
+            ->assertJsonPath('entered_by', 'Villeurbanne');
     }
 }

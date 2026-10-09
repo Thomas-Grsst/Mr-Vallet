@@ -1,3 +1,13 @@
+export type User = {
+  name: string
+  email: string
+  role: 'agency' | 'workshop' | 'sales'
+  role_label: string
+  agency: string | null
+  can_book: boolean
+  can_maintain: boolean
+}
+
 export type Agency = {
   id: number
   name: string

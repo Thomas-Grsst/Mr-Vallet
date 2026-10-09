@@ -14,7 +14,6 @@ class StoreReservationRequest extends FormRequest
             'client' => ['required', 'string', 'max:255'],
             'starts_at' => ['required', 'date_format:Y-m-d', 'after_or_equal:'.ReservationRules::today()->toDateString()],
             'ends_at' => ['required', 'date_format:Y-m-d', 'after_or_equal:starts_at'],
-            'agency_id' => ['required', 'integer', 'exists:agencies,id'],
         ];
     }
 
@@ -28,8 +27,6 @@ class StoreReservationRequest extends FormRequest
             'starts_at.after_or_equal' => 'On ne peut pas réserver dans le passé : la date de début doit être le '.ReservationRules::today()->format('d/m/Y').' ou après.',
             'ends_at.required' => 'Indiquez la date de fin.',
             'ends_at.after_or_equal' => 'La date de fin doit être égale ou postérieure à la date de début.',
-            'agency_id.required' => 'Choisissez votre agence.',
-            'agency_id.exists' => 'Cette agence n\'existe pas.',
         ];
     }
 }

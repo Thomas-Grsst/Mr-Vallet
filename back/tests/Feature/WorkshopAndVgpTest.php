@@ -4,6 +4,13 @@ namespace Tests\Feature;
 
 class WorkshopAndVgpTest extends ValletTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAsAccount('atelier@vallet.test');
+    }
+
     public function test_new_vgp_makes_the_nacelle_reservable_again(): void
     {
         $this->patchJson('/api/machines/NAC089/vgp', ['last_vgp_at' => '2026-10-12'])
