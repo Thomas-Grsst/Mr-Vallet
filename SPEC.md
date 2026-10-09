@@ -31,6 +31,8 @@ Chaque agence tient son propre Excel de planning et personne ne connaît la disp
 - R11. Le planning se filtre par client, choisi dans la liste des clients qui ont une réservation, pour voir toutes les machines réservées par une entreprise ; « Tous les clients » réaffiche tout (retour de Brice).
 - R12. Le planning se filtre aussi par machine, par agence de la machine, par agence de saisie et par période (réservations qui chevauchent la période) ; les filtres se cumulent, un bouton « Réinitialiser les filtres » les vide tous, et le message « Aucune réservation ne correspond aux filtres » s'affiche si rien ne correspond (initiative du binôme, non demandée par Brice).
 - R13. Pendant un chargement (onglet, recherche, réservation), l'écran affiche un indicateur « Chargement… » ; tant que les données ne sont pas chargées, il n'affiche jamais « Aucune anomalie », « Aucune réservation » ni une liste vide. Si le chargement échoue, il affiche « Impossible de charger les données » avec un bouton « Réessayer », jamais un résultat vide (retour de Brice).
+- R14. Un onglet « Historique » liste toutes les réservations, y compris annulées, avec leur statut : « à venir » (début après aujourd'hui), « en cours » (aujourd'hui dans la période), « terminée » (fin avant aujourd'hui), « annulée » (avec la date et l'agence qui a annulé). Il a les mêmes filtres que le planning, plus un filtre par statut (retour de Brice).
+- R15. Annuler une réservation ne l'efface plus : elle est marquée annulée, disparaît du planning et des anomalies, et libère la machine ; une réservation déjà annulée ne peut pas l'être une seconde fois (retour de Brice, nécessaire à R14).
 - R8. Seules les agences réservent et annulent ; seul l'atelier passe une machine en atelier et enregistre une VGP ; la commerciale consulte.
 
 ## Ce que l'outil ne fait pas ce matin
@@ -38,6 +40,7 @@ Chaque agence tient son propre Excel de planning et personne ne connaît la disp
 - Pas de tarifs, bons de commande, cautions ni facturation.
 - Pas de photos d'état des lieux, pas de vente d'occasion, pas de transfert de machine entre agences.
 - Pas de gestion des comptes (comptes de démonstration fournis) ni de HTTPS : prototype local.
+- L'historique ne montre que les réservations, pas les actions de l'atelier (mises en atelier, VGP) : question à poser à Brice.
 
 ## Nos 5 tests
 1. Étant donné que NAC112 est réservée du 14/10 au 18/10 pour BTP Rhone, quand Villeurbanne cherche une « Nacelle 12 m » du 16/10 au 17/10, alors NAC112 apparaît indisponible avec le motif « Période déjà occupée par BTP Rhone du 14/10/2026 au 18/10/2026 » et son bouton affiche « Réserver à d'autres dates ».
@@ -54,3 +57,5 @@ Chaque agence tient son propre Excel de planning et personne ne connaît la disp
 10. Étant donné que BTP Rhone a réservé NAC112 (Lyon Est) et NAC140 (Grenoble), quand on filtre le planning sur le client « BTP Rhone » et l'agence de la machine « Lyon Est », alors seule la réservation NAC112 du 14/10 au 18/10 s'affiche ; quand on filtre seulement sur la période du 19/10 au 19/10, alors s'affichent ECH40 (Constructions Alpes) et NAC140 (BTP Rhone).
 11. Étant donné que les anomalies mettent du temps à arriver, quand on ouvre l'onglet Anomalies, alors on voit « Chargement des anomalies… » et jamais « Aucune anomalie » tant qu'elles ne sont pas arrivées.
 12. Étant donné que le serveur ne répond pas, quand on ouvre l'onglet Anomalies, alors on voit « Impossible de charger les données » avec un bouton « Réessayer », et pas « Aucune anomalie ».
+13. Étant donné qu'aujourd'hui est le 12/10/2026, quand on ouvre l'historique, alors ECH40 (Constructions Alpes, 06/10 → 24/10) et COMP21 (M. Pereira, 12/10 → 12/10) sont « en cours », et NAC112 (BTP Rhone, 14/10 → 18/10) est « à venir ».
+14. Étant donné que Lyon Est annule la réservation NAC112 de Maconnerie Duclos, quand on ouvre l'historique et qu'on filtre sur le statut « annulée », alors on voit cette réservation « annulée le 12/10/2026 par Lyon Est » ; elle n'apparaît plus dans le planning ni dans les anomalies.

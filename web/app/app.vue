@@ -1,5 +1,5 @@
 <script setup lang="ts">
-type Tab = 'search' | 'planning' | 'anomalies' | 'workshop'
+type Tab = 'search' | 'planning' | 'history' | 'anomalies' | 'workshop'
 
 const { user, fetchCurrentUser, logout } = useAuth()
 const { formatDate } = useFormatDate()
@@ -10,6 +10,7 @@ await fetchCurrentUser()
 const tabs = computed(() => [
   { key: 'search' as Tab, label: user.value?.can_book ? 'Rechercher et réserver' : 'Rechercher' },
   { key: 'planning' as Tab, label: 'Planning' },
+  { key: 'history' as Tab, label: 'Historique' },
   { key: 'anomalies' as Tab, label: 'Anomalies' },
   ...(user.value?.can_maintain ? [{ key: 'workshop' as Tab, label: 'Atelier' }] : []),
 ])
@@ -53,6 +54,7 @@ watch(user, () => {
     <main class="content">
       <SearchTab v-if="activeTab === 'search'" />
       <PlanningTab v-else-if="activeTab === 'planning'" />
+      <HistoryTab v-else-if="activeTab === 'history'" />
       <AnomaliesTab v-else-if="activeTab === 'anomalies'" />
       <WorkshopTab v-else />
     </main>

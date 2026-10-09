@@ -13,7 +13,7 @@ class AnomalyController extends Controller
 
     public function __invoke(): JsonResponse
     {
-        $reservations = Reservation::query()->with('machine')->orderBy('starts_at')->get();
+        $reservations = Reservation::query()->whereNull('cancelled_at')->with('machine')->orderBy('starts_at')->get();
 
         $overlaps = $reservations
             ->flatMap(fn (Reservation $first) => $reservations

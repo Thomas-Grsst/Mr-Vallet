@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\ReservationStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 class Reservation extends Model
 {
@@ -11,13 +13,14 @@ class Reservation extends Model
 
     protected $dateFormat = 'Y-m-d';
 
-    protected $fillable = ['machine_id', 'client', 'starts_at', 'ends_at', 'entered_by_agency_id'];
+    protected $fillable = ['machine_id', 'client', 'starts_at', 'ends_at', 'entered_by_agency_id', 'cancelled_at', 'cancelled_by_agency_id'];
 
     protected function casts(): array
     {
         return [
             'starts_at' => 'date:Y-m-d',
             'ends_at' => 'date:Y-m-d',
+            'cancelled_at' => 'date:Y-m-d',
         ];
     }
 
@@ -31,5 +34,26 @@ class Reservation extends Model
     public function enteredBy(): BelongsTo
     {
         return $this->belongsTo(Agency::class, 'entered_by_agency_id');
+    }
+
+    /** @return BelongsTo<Agency, $this> */
+    public function cancelledBy(): BelongsTo
+    {
+        return $this->belongsTo(Agency::class, 'cancelled_by_agency_id');
+    }
+
+    public function isCancelled(): bool
+    {
+        return $this->cancelled_at !== null;
+    }
+
+    public function statusOn(Carbon $today): ReservationStatus
+    {
+        return match (true) {
+            $this->isCancelled() => ReservationStatus::Cancelled,
+            $this->ends_at->lt($today) => ReservationStatus::Finished,
+            $this->starts_at->gt($today) => ReservationStatus::Upcoming,
+            default => ReservationStatus::Ongoing,
+        };
     }
 }

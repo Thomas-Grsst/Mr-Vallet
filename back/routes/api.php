@@ -18,6 +18,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('machines/{machine:ref}/workshop', [MachineController::class, 'updateWorkshop']);
     Route::patch('machines/{machine:ref}/vgp', [MachineController::class, 'updateVgp']);
     Route::get('reservations', [ReservationController::class, 'index']);
+    Route::get('reservation-history', [ReservationController::class, 'history']);
     Route::post('reservations', [ReservationController::class, 'store']);
     Route::delete('reservations/{reservation}', [ReservationController::class, 'destroy']);
     Route::get('anomalies', AnomalyController::class);

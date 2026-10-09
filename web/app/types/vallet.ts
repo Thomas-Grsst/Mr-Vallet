@@ -38,6 +38,15 @@ export type Reservation = {
   entered_by: string
 }
 
+export type ReservationStatus = 'upcoming' | 'ongoing' | 'finished' | 'cancelled'
+
+export type HistoryReservation = Reservation & {
+  status: ReservationStatus
+  status_label: string
+  cancelled_at: string | null
+  cancelled_by: string | null
+}
+
 export type Anomaly = {
   code: string
   machine_ref: string

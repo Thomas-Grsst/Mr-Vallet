@@ -147,6 +147,8 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - **FR-019 (R11)**: Le planning MUST pouvoir être filtré par client, choisi dans la liste des clients qui ont au moins une réservation ; « Tous les clients » réaffiche toutes les réservations (retour de Brice).
 - **FR-020 (R12)**: Le planning MUST aussi pouvoir être filtré par machine, par agence de la machine, par agence de saisie et par période (réservations qui chevauchent la période) ; les filtres se cumulent, un bouton « Réinitialiser les filtres » les vide tous, et le message « Aucune réservation ne correspond aux filtres » s'affiche si rien ne correspond (initiative du binôme, non demandée par Brice).
 - **FR-021 (R13)**: Pendant un chargement (onglet, recherche, réservation), l'outil MUST afficher un indicateur « Chargement… » et MUST NOT afficher « Aucune anomalie », « Aucune réservation » ni une liste vide tant que les données ne sont pas chargées ; un chargement en échec MUST afficher « Impossible de charger les données » avec un bouton « Réessayer », jamais un résultat vide (retour de Brice).
+- **FR-022 (R14)**: Un onglet « Historique » MUST lister toutes les réservations, y compris annulées, avec leur statut calculé par rapport à aujourd'hui : « à venir », « en cours », « terminée », ou « annulée » avec la date et l'agence qui a annulé ; il MUST proposer les mêmes filtres que le planning plus un filtre par statut (retour de Brice).
+- **FR-023 (R15)**: Annuler une réservation MUST la marquer annulée (date et agence) au lieu de l'effacer ; une réservation annulée n'apparaît plus dans le planning ni dans les anomalies et ne bloque plus la machine ; une réservation déjà annulée MUST NOT pouvoir être annulée à nouveau (retour de Brice, nécessaire à FR-022).
 - **FR-012**: L'outil MUST permettre d'annuler une réservation.
 - **FR-013**: L'atelier MUST pouvoir passer une machine en atelier jusqu'à une date, la remettre en service, et enregistrer une date de dernière VGP.
 
@@ -154,7 +156,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 
 - **Agence** : une des 7 agences.
 - **Machine** : référence, type, agence de rattachement, date de dernière VGP (nacelles), en atelier jusqu'au (facultatif).
-- **Réservation** : machine, client, date de début, date de fin, agence de saisie.
+- **Réservation** : machine, client, date de début, date de fin, agence de saisie, date d'annulation et agence qui a annulé (si annulée).
 - **Compte** : nom, e-mail, mot de passe, profil (agence, atelier, commercial), agence (pour le profil agence).
 
 ## Ce que l'outil ne fait pas ce matin
@@ -166,6 +168,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - Pas de gestion des comptes : les comptes de démonstration sont créés au démarrage, sans création de compte, mot de passe oublié ni changement de mot de passe.
 - Sécurité limitée à la connexion : prototype en local, sans HTTPS ; à renforcer avant toute mise en service.
 - Question ouverte pour Brice : une agence peut-elle annuler une réservation saisie par une autre agence ? Ce matin, oui.
+- L'historique ne montre que les réservations, pas les actions de l'atelier (mises en atelier, VGP) : question à poser à Brice.
 - Pas de transfert physique de machine entre agences.
 
 ## Success Criteria *(mandatory)*
@@ -196,6 +199,8 @@ Tests ajoutés après la recette de Brice :
 10. Étant donné que BTP Rhone a réservé NAC112 (Lyon Est) et NAC140 (Grenoble), quand on filtre le planning sur le client « BTP Rhone » et l'agence de la machine « Lyon Est », alors seule la réservation NAC112 du 14/10 au 18/10 s'affiche ; quand on filtre seulement sur la période du 19/10 au 19/10, alors s'affichent ECH40 (Constructions Alpes) et NAC140 (BTP Rhone).
 11. Étant donné que les anomalies mettent du temps à arriver, quand on ouvre l'onglet Anomalies, alors on voit « Chargement des anomalies… » et jamais « Aucune anomalie » tant qu'elles ne sont pas arrivées.
 12. Étant donné que le serveur ne répond pas, quand on ouvre l'onglet Anomalies, alors on voit « Impossible de charger les données » avec un bouton « Réessayer », et pas « Aucune anomalie ».
+13. Étant donné qu'aujourd'hui est le 12/10/2026, quand on ouvre l'historique, alors ECH40 (Constructions Alpes, 06/10 → 24/10) et COMP21 (M. Pereira, 12/10 → 12/10) sont « en cours », et NAC112 (BTP Rhone, 14/10 → 18/10) est « à venir ».
+14. Étant donné que Lyon Est annule la réservation NAC112 de Maconnerie Duclos, quand on ouvre l'historique et qu'on filtre sur le statut « annulée », alors on voit cette réservation « annulée le 12/10/2026 par Lyon Est » ; elle n'apparaît plus dans le planning ni dans les anomalies.
 
 ## Assumptions
 

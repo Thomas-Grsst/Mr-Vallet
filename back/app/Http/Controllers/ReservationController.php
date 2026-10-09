@@ -18,10 +18,30 @@ class ReservationController extends Controller
     public function index(): JsonResponse
     {
         $reservations = Reservation::query()
+            ->whereNull('cancelled_at')
             ->with(['machine.agency', 'enteredBy'])
             ->orderBy('starts_at')
             ->get()
             ->map(fn (Reservation $reservation) => $this->present($reservation));
+
+        return response()->json($reservations);
+    }
+
+    public function history(): JsonResponse
+    {
+        $today = ReservationRules::today();
+
+        $reservations = Reservation::query()
+            ->with(['machine.agency', 'enteredBy', 'cancelledBy'])
+            ->orderByDesc('starts_at')
+            ->get()
+            ->map(fn (Reservation $reservation) => [
+                ...$this->present($reservation),
+                'status' => $reservation->statusOn($today)->value,
+                'status_label' => $reservation->statusOn($today)->label(),
+                'cancelled_at' => $reservation->cancelled_at?->toDateString(),
+                'cancelled_by' => $reservation->cancelledBy?->name,
+            ]);
 
         return response()->json($reservations);
     }
@@ -59,8 +79,12 @@ class ReservationController extends Controller
     public function destroy(Request $request, Reservation $reservation): Response
     {
         abort_unless($request->user()->role->canBook(), Response::HTTP_FORBIDDEN, 'Seules les agences peuvent annuler une réservation.');
+        abort_if($reservation->isCancelled(), Response::HTTP_CONFLICT, 'Cette réservation est déjà annulée.');
 
-        $reservation->delete();
+        $reservation->update([
+            'cancelled_at' => ReservationRules::today()->toDateString(),
+            'cancelled_by_agency_id' => $request->user()->agency_id,
+        ]);
 
         return response()->noContent();
     }

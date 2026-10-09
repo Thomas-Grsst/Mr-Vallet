@@ -27,6 +27,7 @@ class ReservationRules
     public function overlaps(Machine $machine, Carbon $from, Carbon $to, ?int $ignoredReservationId = null): array
     {
         return $machine->reservations()
+            ->whereNull('cancelled_at')
             ->where('starts_at', '<=', $to->toDateString())
             ->where('ends_at', '>=', $from->toDateString())
             ->when($ignoredReservationId, fn ($query) => $query->whereKeyNot($ignoredReservationId))
