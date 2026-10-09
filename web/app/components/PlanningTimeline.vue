@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Machine, Reservation } from '~/types/vallet'
+import type { Machine, Reservation, WorkshopPeriod } from '~/types/vallet'
 
 type Bar = {
   key: string
@@ -10,6 +10,7 @@ type Bar = {
   row: number
   hasAnomaly: boolean
   reservation: Reservation | null
+  workshopPeriod: WorkshopPeriod | null
   continuesBefore: boolean
   continuesAfter: boolean
 }
@@ -22,9 +23,10 @@ const props = defineProps<{
   days: number
   today: string
   selectedId: number | null
+  selectedWorkshopId: number | null
 }>()
 
-const emit = defineEmits<{ select: [reservation: Reservation] }>()
+const emit = defineEmits<{ select: [reservation: Reservation], selectWorkshop: [machine: Machine, period: WorkshopPeriod] }>()
 
 const { addDays, daysBetween, weekday } = useIsoDate()
 const { formatDate } = useFormatDate()
@@ -79,6 +81,7 @@ const rows = computed(() => [...props.machines].sort((first, second) => first.re
         row: 1,
         hasAnomaly: false,
         reservation: null,
+        workshopPeriod: period,
         ...place,
       })
     }
@@ -96,6 +99,7 @@ const rows = computed(() => [...props.machines].sort((first, second) => first.re
         row: 1,
         hasAnomaly: false,
         reservation: null,
+        workshopPeriod: null,
         ...place,
       })
     }
@@ -135,6 +139,7 @@ const rows = computed(() => [...props.machines].sort((first, second) => first.re
       row: firstReservationRow + lane,
       hasAnomaly: !!anomalies,
       reservation,
+      workshopPeriod: null,
       ...place,
     })
   }
@@ -180,23 +185,24 @@ const rows = computed(() => [...props.machines].sort((first, second) => first.re
           :style="{ gridColumn: `${index + 2}`, gridRow: `1 / ${row.rowCount + 1}` }"
         />
         <component
-          :is="bar.reservation ? 'button' : 'div'"
+          :is="bar.reservation || bar.workshopPeriod ? 'button' : 'div'"
           v-for="bar in row.bars"
           :key="bar.key"
-          :type="bar.reservation ? 'button' : undefined"
+          :type="bar.reservation || bar.workshopPeriod ? 'button' : undefined"
           class="timeline__bar"
           :class="[
             `timeline__bar--${bar.kind}`,
             {
               'timeline__bar--anomaly': bar.hasAnomaly,
-              'timeline__bar--selected': bar.reservation && bar.reservation.id === selectedId,
+              'timeline__bar--selected': (bar.reservation && bar.reservation.id === selectedId)
+                || (bar.workshopPeriod && bar.workshopPeriod.id === selectedWorkshopId),
               'timeline__bar--cut-before': bar.continuesBefore,
               'timeline__bar--cut-after': bar.continuesAfter,
             },
           ]"
           :style="{ gridColumn: bar.column, gridRow: `${bar.row}` }"
           :title="bar.title"
-          @click="bar.reservation && emit('select', bar.reservation)"
+          @click="bar.reservation ? emit('select', bar.reservation) : bar.workshopPeriod && emit('selectWorkshop', row.machine, bar.workshopPeriod)"
         >
           {{ bar.label }}
         </component>

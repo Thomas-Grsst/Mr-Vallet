@@ -363,6 +363,11 @@ input:focus, select:focus {
   color: var(--color-ko);
 }
 
+.search-results--refreshing {
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
 .status-block--planned {
   background: #eff6ff;
   border-color: #2563eb;

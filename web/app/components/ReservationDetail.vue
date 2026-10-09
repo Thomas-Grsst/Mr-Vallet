@@ -62,9 +62,9 @@ const save = () => emit('save', {
         <dd>modifiée le {{ formatDate(reservation.modified_at) }} par {{ reservation.modified_by }}</dd>
       </template>
       <dt>Annulation</dt>
-      <dd :class="{ 'detail__locked': !reservation.cancellable }">
-        {{ reservation.cancellable ? `Annulable jusqu'au ${formatDate(reservation.cancellable_until)}` : 'Plus annulable (moins de 48 h avant le début)' }}
-      </dd>
+      <dd v-if="reservation.cancellable">Annulable jusqu'au {{ formatDate(reservation.cancellable_until) }}</dd>
+      <dd v-else-if="reservation.cancel_beyond_deadline" class="detail__beyond">Délai de 48 h dépassé : annulation possible par la Direction</dd>
+      <dd v-else class="detail__locked">Plus annulable (moins de 48 h avant le début)</dd>
     </dl>
 
     <div v-if="anomalies.length" class="status-block status-block--ko">
@@ -99,7 +99,7 @@ const save = () => emit('save', {
     <div v-else class="detail__actions">
       <button v-if="canEdit" type="button" class="button" @click="startEditing">Modifier</button>
       <button
-        v-if="canCancel && reservation.cancellable"
+        v-if="canCancel"
         type="button"
         class="button button--ghost"
         :disabled="isCancelling"
@@ -151,6 +151,11 @@ const save = () => emit('save', {
 
 .detail__list dd {
   margin: 0;
+}
+
+.detail__beyond {
+  color: #b45309;
+  font-weight: 600;
 }
 
 .detail__locked {

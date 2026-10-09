@@ -11,6 +11,7 @@ const statuses: { value: ReservationStatus, label: string }[] = [
 const { formatDate } = useFormatDate()
 
 const { data: reservations, status: loadStatus, refresh } = useApiFetch<HistoryReservation[]>('/api/reservation-history', { default: () => [] })
+const { isFirstLoading, hasError, hasLoaded } = useFirstLoad([loadStatus])
 
 const { filters, options, hasFilters, matches, resetFilters } = useReservationFilters(reservations)
 const statusFilter = ref<ReservationStatus | ''>('')
@@ -41,9 +42,9 @@ const resetAllFilters = () => {
         </select>
       </label>
     </ReservationFilters>
-    <LoadError v-if="loadStatus === 'error'" @retry="refresh()" />
-    <LoadingMessage v-else-if="loadStatus !== 'success'" label="Chargement de l'historique…" />
-    <table v-else>
+    <LoadError v-if="hasError" @retry="refresh()" />
+    <LoadingMessage v-if="isFirstLoading" label="Chargement de l'historique…" />
+    <table v-if="hasLoaded">
       <thead>
         <tr>
           <th>Machine</th>

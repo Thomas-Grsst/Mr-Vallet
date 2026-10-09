@@ -56,11 +56,42 @@ class CancellationDeadlineTest extends ValletTestCase
         $this->deleteJson("/api/reservations/{$pereira->id}")->assertUnprocessable();
     }
 
-    public function test_rule_applies_to_the_director_too(): void
+    public function test_director_cancels_within_48_hours(): void
     {
         $this->actingAsAccount('brice.vallet@vallet.test');
         $ferreira = $this->reservationOf('Artisan Ferreira', 'MINI12');
 
+        $this->getJson('/api/reservations')->assertJsonFragment([
+            'id' => $ferreira->id,
+            'cancellable' => false,
+            'can_cancel' => true,
+            'cancel_beyond_deadline' => true,
+        ]);
+
+        $this->deleteJson("/api/reservations/{$ferreira->id}")->assertNoContent();
+    }
+
+    public function test_director_cancels_an_ongoing_reservation(): void
+    {
+        $this->actingAsAccount('brice.vallet@vallet.test');
+
+        $this->deleteJson("/api/reservations/{$this->reservationOf('M. Pereira (particulier)', 'COMP21')->id}")->assertNoContent();
+    }
+
+    public function test_director_cannot_cancel_a_finished_reservation(): void
+    {
+        config(['vallet.today' => '2026-10-20']);
+        $this->actingAsAccount('brice.vallet@vallet.test');
+
+        $this->deleteJson("/api/reservations/{$this->reservationOf('Artisan Ferreira', 'MINI12')->id}")->assertUnprocessable();
+    }
+
+    public function test_agency_manager_stays_bound_by_the_deadline(): void
+    {
+        $this->actingAsAccount('responsable.saint-etienne@vallet.test');
+        $ferreira = $this->reservationOf('Artisan Ferreira', 'MINI12');
+
+        $this->getJson('/api/reservations')->assertJsonFragment(['id' => $ferreira->id, 'can_cancel' => false, 'cancel_beyond_deadline' => false]);
         $this->deleteJson("/api/reservations/{$ferreira->id}")->assertUnprocessable();
     }
 }

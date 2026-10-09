@@ -176,7 +176,8 @@ class ReservationController extends Controller
         abort_unless($request->user()->role->canBook(), Response::HTTP_FORBIDDEN, 'Seules les agences peuvent annuler une réservation.');
         abort_if($reservation->isCancelled(), Response::HTTP_CONFLICT, 'Cette réservation est déjà annulée.');
         abort_unless(
-            $reservation->isCancellableOn(ReservationRules::today()),
+            $reservation->isCancellableOn(ReservationRules::today())
+                || $this->permissions->ignoresCancellationDeadline($request->user(), $reservation),
             Response::HTTP_UNPROCESSABLE_ENTITY,
             "Annulation impossible : la location commence le {$reservation->starts_at->format('d/m/Y')}, il fallait annuler au plus tard le {$reservation->cancellableUntil()->format('d/m/Y')}. Le client doit garder la réservation.",
         );
@@ -199,21 +200,24 @@ class ReservationController extends Controller
         return response()->noContent();
     }
 
-    /** @return array{can_cancel: bool, can_modify: bool, cancel_denied_reason: ?string} */
+    /** @return array{can_cancel: bool, can_modify: bool, cancel_denied_reason: ?string, cancel_beyond_deadline: bool} */
     private function rightsOf(Reservation $reservation): array
     {
         $user = request()->user();
 
         if (! $user->role->canBook() || $reservation->isCancelled()) {
-            return ['can_cancel' => false, 'can_modify' => false, 'cancel_denied_reason' => null];
+            return ['can_cancel' => false, 'can_modify' => false, 'cancel_denied_reason' => null, 'cancel_beyond_deadline' => false];
         }
 
         $cancelDenial = $this->permissions->cancelDenial($user, $reservation);
+        $withinDeadline = $reservation->isCancellableOn(ReservationRules::today());
+        $beyondDeadline = ! $withinDeadline && $this->permissions->ignoresCancellationDeadline($user, $reservation);
 
         return [
-            'can_cancel' => $cancelDenial === null,
+            'can_cancel' => $cancelDenial === null && ($withinDeadline || $beyondDeadline),
             'can_modify' => $this->permissions->modifyDenial($user, $reservation) === null,
             'cancel_denied_reason' => $cancelDenial,
+            'cancel_beyond_deadline' => $cancelDenial === null && $beyondDeadline,
         ];
     }
 

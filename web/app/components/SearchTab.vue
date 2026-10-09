@@ -176,11 +176,11 @@ const reserve = async () => {
 
     <LoadError v-if="searchFailed" @retry="search()" />
 
-    <div v-if="isSearching" class="card">
+    <div v-if="isSearching && !hasSearched" class="card">
       <LoadingMessage label="Recherche dans les 7 agences…" />
     </div>
 
-    <div v-else-if="hasSearched && !searchFailed" class="card table-wrapper">
+    <div v-else-if="hasSearched && !searchFailed" class="card table-wrapper" :class="{ 'search-results--refreshing': isSearching }">
       <p class="muted">Du {{ formatDate(from) }} au {{ formatDate(to) }} · {{ machines.filter((machine) => machine.available).length }} disponible(s) sur {{ machines.length }}</p>
       <table>
         <thead>

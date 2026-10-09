@@ -22,6 +22,11 @@ class ReservationPermissions
             : "Annulation réservée au responsable de {$entering} (agence de saisie) ou de {$owner} (agence de la machine)";
     }
 
+    public function ignoresCancellationDeadline(User $user, Reservation $reservation): bool
+    {
+        return $user->role === UserRole::Director && ! $reservation->isFinishedOn(ReservationRules::today());
+    }
+
     public function modifyDenial(User $user, Reservation $reservation): ?string
     {
         $isEnteringAgency = $user->agency_id === $reservation->entered_by_agency_id;

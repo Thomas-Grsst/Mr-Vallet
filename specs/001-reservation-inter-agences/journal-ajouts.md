@@ -25,6 +25,14 @@ Tout ce qui est dans le prototype sans être écrit dans la spec.
 - Carte 5 : « Seul le responsable d'agence peut annuler une réservation saisie par une autre agence. » Profil « Responsable d'agence » ajouté (un par agence, Sandrine Morin à Lyon Est d'après DOC 2), les comptes existants deviennent des agents. FR-043 / R35 ajoutée, R8, FR-015 et la description des utilisateurs mises à jour, test 33. Tests 14, 29 et 31 corrigés : ils faisaient annuler par Lyon Est une réservation saisie par Villeurbanne, ce que la carte interdit ; ils sont maintenant joués par Villeurbanne. La modification n'est pas concernée : question à poser à Brice.
 - Carte 5, précisée par le binôme : annuler est réservé au responsable de l'agence de saisie ou de l'agence de la machine (et à la Direction), jamais à un agent ni au responsable d'une autre agence ; modifier est permis aux agents et au responsable de l'agence de saisie, au responsable de l'agence de la machine et à la Direction. R35 / FR-043, R34 / FR-042, R8 et FR-015 réécrites, test 33 réécrit, tests 14, 29 et 31 joués par le responsable de l'agence. La question ouverte sur la modification est levée.
 
+## Deuxième recette de Brice
+
+- Clic sur un passage en atelier dans la frise : panneau de détail avec les actions de l'atelier. FR-045 / R37, test 35.
+- Le DG doit pouvoir annuler : la Direction n'est plus soumise au délai de 48 h (question ouverte levée). FR-046 / R38, R33 / FR-041 adaptées, test 36.
+- Les listes ne doivent pas se recharger entièrement après une action : contenu gardé à sa place, message de confirmation. FR-047 / R39 (précise R13), test 37.
+- Date du jour pré-remplie pour « VGP réalisée le ». FR-048 / R40, test 38.
+- Calendrier ouvert au clic sur tout le champ de date. FR-049 / R41, test 38.
+
 ## Style
 
 - 09/10, demande du binôme : style revu sans changer aucune règle. Filtres présentés en barre homogène (Rechercher, Planning, Historique, Atelier), motifs d'indisponibilité alignés à gauche sans puces, bouton « Réserver à d'autres dates » sur une ligne, états VGP et passages en atelier présentés en blocs lisibles. Tests 19 et 21 reformulés : l'état VGP et sa date sont sur deux lignes au lieu d'être séparés par « · ».

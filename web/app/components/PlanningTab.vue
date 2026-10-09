@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Anomaly, Machine, Reservation, ReservationChanges } from '~/types/vallet'
+import type { Anomaly, Machine, Reservation, ReservationChanges, WorkshopPeriod } from '~/types/vallet'
 
 type View = 'timeline' | 'list'
 
@@ -18,16 +18,17 @@ const durations: { days: number, label: string, previous: string, next: string }
 
 const today = useRuntimeConfig().public.today
 const { $api } = useNuxtApp()
-const { user } = useAuth()
 const { formatDate } = useFormatDate()
 const { toMessages } = useApiErrors()
 const { addDays } = useIsoDate()
+const { notice, notify } = useActionNotice()
 
 const errors = ref<string[]>([])
 const view = ref<View>('timeline')
 const days = ref(14)
 const rangeStart = ref(today)
 const selectedId = ref<number | null>(null)
+const selectedWorkshop = ref<{ machineRef: string, periodId: number } | null>(null)
 const isCancelling = ref(false)
 const isSaving = ref(false)
 const editErrors = ref<string[]>([])
@@ -36,9 +37,7 @@ const { data: reservations, status: reservationsStatus, refresh } = useApiFetch<
 const { data: anomalies, status: anomaliesStatus, refresh: refreshAnomalies } = useApiFetch<Anomaly[]>('/api/anomalies', { default: () => [] })
 const { data: machines, status: machinesStatus, refresh: refreshMachines } = useApiFetch<Machine[]>('/api/machines', { default: () => [] })
 
-const statuses = computed(() => [reservationsStatus.value, anomaliesStatus.value, machinesStatus.value])
-const hasLoadError = computed(() => statuses.value.includes('error'))
-const isLoaded = computed(() => statuses.value.every((status) => status === 'success'))
+const { isFirstLoading, hasError, hasLoaded } = useFirstLoad([reservationsStatus, anomaliesStatus, machinesStatus])
 
 const reload = () => Promise.all([refresh(), refreshAnomalies(), refreshMachines()])
 
@@ -71,6 +70,12 @@ const anomaliesByReservation = computed(() => {
 
 const selected = computed(() => reservations.value.find((reservation) => reservation.id === selectedId.value) ?? null)
 
+const selectedWorkshopMachine = computed(() => machines.value.find((machine) => machine.ref === selectedWorkshop.value?.machineRef) ?? null)
+
+const selectedWorkshopPeriod = computed(() => selectedWorkshopMachine.value?.workshop_periods
+  .find((period) => period.id === selectedWorkshop.value?.periodId) ?? null)
+
+const hasDetail = computed(() => !!selected.value || !!selectedWorkshopPeriod.value)
 
 const selectedAnomalies = computed(() => anomalies.value
   .filter((anomaly) => selectedId.value !== null && anomaly.reservation_ids.includes(selectedId.value))
@@ -85,8 +90,20 @@ const move = (direction: number) => {
 }
 
 const select = (reservation: Reservation) => {
+  selectedWorkshop.value = null
   selectedId.value = reservation.id
   editErrors.value = []
+}
+
+const selectWorkshop = (machine: Machine, period: WorkshopPeriod) => {
+  selectedId.value = null
+  selectedWorkshop.value = { machineRef: machine.ref, periodId: period.id }
+  errors.value = []
+}
+
+const closeDetail = () => {
+  selectedId.value = null
+  selectedWorkshop.value = null
 }
 
 const saveSelected = async (changes: ReservationChanges) => {
@@ -99,6 +116,7 @@ const saveSelected = async (changes: ReservationChanges) => {
   try {
     await $api(`/api/reservations/${selected.value.id}`, { method: 'PATCH', body: changes })
     await reload()
+    notify(`Réservation modifiée : ${selected.value?.machine_ref} du ${formatDate(changes.starts_at)} au ${formatDate(changes.ends_at)}`)
   }
   catch (error) {
     editErrors.value = toMessages(error)
@@ -109,16 +127,52 @@ const saveSelected = async (changes: ReservationChanges) => {
 }
 
 const cancelSelected = async () => {
-  if (!selected.value || !confirm(`Annuler la réservation de ${selected.value.machine_ref} pour ${selected.value.client} ?`)) {
+  const reservation = selected.value
+
+  if (!reservation || !confirm(`Annuler la réservation de ${reservation.machine_ref} pour ${reservation.client} ?`)) {
     return
   }
 
   errors.value = []
   isCancelling.value = true
   try {
-    await $api(`/api/reservations/${selected.value.id}`, { method: 'DELETE' })
+    await $api(`/api/reservations/${reservation.id}`, { method: 'DELETE' })
     selectedId.value = null
     await reload()
+    notify(`Réservation annulée : ${reservation.machine_ref} pour ${reservation.client}`)
+  }
+  catch (error) {
+    errors.value = toMessages(error)
+  }
+  finally {
+    isCancelling.value = false
+  }
+}
+
+const endSelectedWorkshop = async () => {
+  const machine = selectedWorkshopMachine.value
+  const period = selectedWorkshopPeriod.value
+
+  if (!machine || !period) {
+    return
+  }
+
+  const isCurrent = period.status === 'current'
+  const question = isCurrent
+    ? `Remettre ${machine.ref} en service dès aujourd'hui ?`
+    : `Annuler le passage en atelier de ${machine.ref} du ${formatDate(period.starts_at)} au ${formatDate(period.ends_at)} ?`
+
+  if (!confirm(question)) {
+    return
+  }
+
+  errors.value = []
+  isCancelling.value = true
+  try {
+    await $api(`/api/workshop-periods/${period.id}`, { method: 'DELETE' })
+    selectedWorkshop.value = null
+    await reload()
+    notify(isCurrent ? `${machine.ref} remise en service` : `Passage en atelier de ${machine.ref} annulé`)
   }
   catch (error) {
     errors.value = toMessages(error)
@@ -131,6 +185,8 @@ const cancelSelected = async () => {
 
 <template>
   <section class="card">
+    <ActionNotice :message="notice" />
+
     <div v-if="errors.length" class="alert alert--ko">
       <ul><li v-for="message in errors" :key="message">{{ message }}</li></ul>
     </div>
@@ -155,10 +211,10 @@ const cancelSelected = async () => {
       </template>
     </div>
 
-    <LoadError v-if="hasLoadError" @retry="reload()" />
-    <LoadingMessage v-else-if="!isLoaded" label="Chargement du planning…" />
+    <LoadError v-if="hasError" @retry="reload()" />
+    <LoadingMessage v-if="isFirstLoading" label="Chargement du planning…" />
 
-    <div v-else class="planning-body" :class="{ 'planning-body--with-detail': selected }">
+    <div v-if="hasLoaded" class="planning-body" :class="{ 'planning-body--with-detail': hasDetail }">
       <div class="planning-main">
         <PlanningTimeline
           v-if="view === 'timeline'"
@@ -169,7 +225,9 @@ const cancelSelected = async () => {
           :days="days"
           :today="today"
           :selected-id="selectedId"
+          :selected-workshop-id="selectedWorkshop?.periodId ?? null"
           @select="select"
+          @select-workshop="selectWorkshop"
         />
 
         <div v-else class="table-wrapper">
@@ -222,9 +280,18 @@ const cancelSelected = async () => {
         :is-cancelling="isCancelling"
         :is-saving="isSaving"
         :edit-errors="editErrors"
-        @close="selectedId = null"
+        @close="closeDetail"
         @cancel="cancelSelected"
         @save="saveSelected"
+      />
+
+      <WorkshopPeriodDetail
+        v-else-if="selectedWorkshopMachine && selectedWorkshopPeriod"
+        :machine="selectedWorkshopMachine"
+        :period="selectedWorkshopPeriod"
+        :is-ending="isCancelling"
+        @close="closeDetail"
+        @end="endSelectedWorkshop"
       />
     </div>
   </section>

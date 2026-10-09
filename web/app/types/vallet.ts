@@ -66,6 +66,7 @@ export type Reservation = {
   can_cancel: boolean
   can_modify: boolean
   cancel_denied_reason: string | null
+  cancel_beyond_deadline: boolean
 }
 
 export type ReservationStatus = 'upcoming' | 'ongoing' | 'finished' | 'cancelled'

@@ -4,12 +4,14 @@ import type { KeyAccount } from '~/types/vallet'
 const { $api } = useNuxtApp()
 const { user } = useAuth()
 const { toMessages } = useApiErrors()
+const { notice, notify } = useActionNotice()
 
 const name = ref('')
 const errors = ref<string[]>([])
 const isSaving = ref(false)
 
 const { data: accounts, status, refresh } = useApiFetch<KeyAccount[]>('/api/key-accounts', { default: () => [] })
+const { isFirstLoading, hasError, hasLoaded } = useFirstLoad([status])
 
 const run = async (action: () => Promise<unknown>) => {
   errors.value = []
@@ -27,8 +29,9 @@ const run = async (action: () => Promise<unknown>) => {
 }
 
 const add = () => run(async () => {
-  await $api('/api/key-accounts', { method: 'POST', body: { name: name.value } })
+  const added = await $api<KeyAccount>('/api/key-accounts', { method: 'POST', body: { name: name.value } })
   name.value = ''
+  notify(`${added.name} ajouté aux grands comptes`)
 })
 
 const remove = (account: KeyAccount) => {
@@ -36,12 +39,16 @@ const remove = (account: KeyAccount) => {
     return
   }
 
-  return run(() => $api(`/api/key-accounts/${account.id}`, { method: 'DELETE' }))
+  return run(async () => {
+    await $api(`/api/key-accounts/${account.id}`, { method: 'DELETE' })
+    notify(`${account.name} retiré des grands comptes`)
+  })
 }
 </script>
 
 <template>
   <section class="card">
+    <ActionNotice :message="notice" />
     <p class="muted">Une réservation pour un grand compte n'est valable qu'avec un numéro de bon de commande.</p>
 
     <form v-if="user?.can_manage_key_accounts" class="filter-bar" @submit.prevent="add">
@@ -56,9 +63,9 @@ const remove = (account: KeyAccount) => {
       <ul><li v-for="message in errors" :key="message">{{ message }}</li></ul>
     </div>
 
-    <LoadError v-if="status === 'error'" @retry="refresh()" />
-    <LoadingMessage v-else-if="status !== 'success'" label="Chargement des grands comptes…" />
-    <table v-else>
+    <LoadError v-if="hasError" @retry="refresh()" />
+    <LoadingMessage v-if="isFirstLoading" label="Chargement des grands comptes…" />
+    <table v-if="hasLoaded">
       <thead>
         <tr>
           <th>Entreprise</th>

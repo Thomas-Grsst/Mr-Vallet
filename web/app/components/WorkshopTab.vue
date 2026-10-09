@@ -9,6 +9,7 @@ const today = useRuntimeConfig().public.today
 const { $api } = useNuxtApp()
 const { formatDate } = useFormatDate()
 const { toMessages } = useApiErrors()
+const { notice: actionNotice, notify } = useActionNotice()
 
 const errors = ref<string[]>([])
 const notice = ref<{ machine: string, impacted: string[] } | null>(null)
@@ -17,6 +18,7 @@ const vgpDate = ref<Record<string, string>>({})
 const savingRef = ref<string | null>(null)
 
 const { data: machines, status, refresh } = useApiFetch<Machine[]>('/api/machines', { default: () => [] })
+const { isFirstLoading, hasError, hasLoaded } = useFirstLoad([status])
 
 const nameFilter = ref('')
 const typeFilter = ref('')
@@ -39,6 +41,7 @@ const emptyDraft = (): PeriodDraft => ({ startsAt: today, endsAt: today, reason:
 watch(machines, (list) => {
   for (const machine of list) {
     drafts.value[machine.ref] ??= emptyDraft()
+    vgpDate.value[machine.ref] ??= today
   }
 }, { immediate: true })
 
@@ -77,17 +80,22 @@ const endPeriod = (machine: Machine, period: WorkshopPeriod) => {
     return
   }
 
-  return run(machine.ref, () => $api(`/api/workshop-periods/${period.id}`, { method: 'DELETE' }))
+  return run(machine.ref, async () => {
+    await $api(`/api/workshop-periods/${period.id}`, { method: 'DELETE' })
+    notify(period.status === 'current' ? `${machine.ref} remise en service` : `Passage en atelier de ${machine.ref} annulé`)
+  })
 }
 
-const recordVgp = (machine: Machine) => run(machine.ref, () => $api(`/api/machines/${machine.ref}/vgp`, {
-  method: 'PATCH',
-  body: { last_vgp_at: vgpDate.value[machine.ref] || today },
-}))
+const recordVgp = (machine: Machine) => run(machine.ref, async () => {
+  const date = vgpDate.value[machine.ref] || today
+  await $api(`/api/machines/${machine.ref}/vgp`, { method: 'PATCH', body: { last_vgp_at: date } })
+  notify(`VGP de ${machine.ref} mise à jour (réalisée le ${formatDate(date)})`)
+})
 </script>
 
 <template>
   <section class="card table-wrapper">
+    <ActionNotice :message="actionNotice" />
     <div v-if="errors.length" class="alert alert--ko">
       <ul><li v-for="message in errors" :key="message">{{ message }}</li></ul>
     </div>
@@ -111,9 +119,9 @@ const recordVgp = (machine: Machine) => run(machine.ref, () => $api(`/api/machin
         </select>
       </label>
     </div>
-    <LoadError v-if="status === 'error'" @retry="refresh()" />
-    <LoadingMessage v-else-if="status !== 'success'" label="Chargement des machines…" />
-    <table v-else>
+    <LoadError v-if="hasError" @retry="refresh()" />
+    <LoadingMessage v-if="isFirstLoading" label="Chargement des machines…" />
+    <table v-if="hasLoaded">
       <thead>
         <tr>
           <th>Machine</th>
