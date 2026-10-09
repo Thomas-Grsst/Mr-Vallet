@@ -60,6 +60,8 @@ const search = async () => {
   }
 }
 
+onMounted(search)
+
 const selectMachine = async (machine: Machine) => {
   selectedMachine.value = machine
   reservationFrom.value = from.value

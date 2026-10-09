@@ -166,6 +166,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - **FR-030 (R22)**: Dans l'onglet Atelier, les machines « VGP en retard » MUST apparaître en premier, puis les autres par type puis par nom ; l'ordre MUST être conservé avec les filtres (retour de Brice).
 - **FR-031 (R23)**: Dans l'onglet Atelier, l'action sur la VGP MUST s'appeler « Mettre à jour la VGP » (retour de Brice, remplace « Enregistrer la VGP »).
 - **FR-032 (R24)**: Un compte « Direction » (Brice Vallet) MUST voir tous les onglets et avoir tous les droits : réserver, annuler, gérer les passages en atelier, mettre à jour la VGP ; il MUST choisir l'agence de saisie dans le formulaire de réservation (refus sans agence) ; ses annulations MUST apparaître « par Direction » dans l'historique (retour de Brice).
+- **FR-033 (R25)**: En arrivant sur l'onglet « Rechercher », la recherche MUST être lancée automatiquement sur tous les types pour aujourd'hui, pour afficher tout le parc avec sa disponibilité du jour (initiative du binôme, non demandée par Brice).
 
 ### Key Entities
 
@@ -226,6 +227,7 @@ Tests ajoutés après la recette de Brice :
 20. Étant donné que NAC089 est la seule nacelle « VGP en retard », quand l'atelier ouvre l'onglet Atelier, alors NAC089 est la première ligne ; et quand il filtre sur le type « Nacelle 16 m » ou tape « nac », NAC089 reste en premier.
 21. Étant donné que la VGP de NAC089 est en retard, quand l'atelier saisit « VGP réalisée le 12/10/2026 » et clique sur « Mettre à jour la VGP », alors NAC089 affiche « VGP à jour · dernière VGP 12/10/2026, valable jusqu'au 12/04/2027 ».
 22. Étant donné que Brice est connecté avec le compte Direction, quand il ouvre l'outil, alors il voit les 5 onglets ; quand il réserve COMP30 du 20/10 au 21/10 pour BTP Rhone en choisissant l'agence « Annecy », alors la réservation est acceptée et saisie par Annecy (sans agence choisie, elle est refusée) ; quand il annule la réservation de Maconnerie Duclos, alors l'historique affiche « annulée le 12/10/2026 par Direction » ; et il peut prévoir un passage en atelier et mettre à jour une VGP.
+23. Étant donné qu'aujourd'hui est le 12/10/2026, quand un utilisateur se connecte et arrive sur l'onglet « Rechercher », alors les 12 machines du parc s'affichent sans clic, avec « Du 12/10/2026 au 12/10/2026 » ; COMP21 (réservée par M. Pereira ce jour-là), ECH40 (Constructions Alpes), MINI07 (en atelier) et NAC089 (VGP en retard) sont indisponibles, les 8 autres disponibles.
 
 ## Assumptions
 
