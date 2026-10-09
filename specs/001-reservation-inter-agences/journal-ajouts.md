@@ -10,6 +10,8 @@ Tout ce qui est dans le prototype sans être écrit dans la spec.
 | 4 | Filtres du planning par machine, agence de la machine, agence de saisie et période, avec « Réinitialiser les filtres » (R12) | Initiative du binôme pour retrouver vite une réservation, dans le prolongement du filtre client demandé par Brice | Non |
 | 5 | Recherche lancée automatiquement à l'arrivée sur l'onglet « Rechercher », tout le parc affiché pour aujourd'hui (R25) | Initiative du binôme : voir l'état du parc sans clic | Non |
 | 6 | Dans la recherche, ce qui occupe chaque machine et ses créneaux libres sur 60 jours (R27) | Initiative du binôme : éviter de relancer la recherche date après date pour trouver un créneau | Non |
+| 7 | Planning en frise par machine (design B choisi parmi 3 propositions), avec vue « Liste » conservée (R30) | Initiative du binôme : lecture du planning « comme sur Teams », proche des Excel d'agence (DOC 3) | Non |
+| 8 | Panneau de détail au clic sur une réservation, avec ses anomalies et l'annulation (R31) | Initiative du binôme | Non |
 
 ## Cartes révélation
 
