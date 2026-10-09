@@ -50,6 +50,8 @@ En tant qu'agence, je veux réserver une machine pour un client, afin que la ré
 1. **Given** NAC112 est réservée du 14/10 au 18/10 pour BTP Rhone, **When** Villeurbanne cherche une « Nacelle 12 m » du 16/10 au 17/10, **Then** NAC112 apparaît indisponible avec le motif « Période déjà occupée par BTP Rhone du 14/10/2026 au 18/10/2026 » et son bouton « Réserver » est grisé ; si la réservation est quand même envoyée, elle est refusée avec ce motif.
 2. **Given** la dernière VGP de NAC089 date du 05/03/2026, **When** une agence cherche une « Nacelle 16 m » du 02/11 au 05/11, **Then** NAC089 apparaît indisponible avec le motif « VGP non à jour, contacter l'atelier ».
 3. **Given** NAC140 (Grenoble) est libre du 26/10 au 28/10 et sa VGP est à jour, **When** Lyon Est la réserve pour Facades Martin, **Then** la réservation est acceptée et apparaît dans le planning vu par toutes les agences.
+4. **Given** NAC112 est indisponible sur la recherche du 16/10 au 17/10, **When** Villeurbanne clique sur « Réserver à d'autres dates », choisit du 20/10 au 22/10 dans le formulaire et confirme pour Maconnerie Duclos, **Then** la réservation est acceptée sans avoir changé la recherche.
+5. **Given** NAC112 est réservée du 14/10 au 18/10, **When** Villeurbanne choisit du 17/10 au 19/10 dans le formulaire de réservation, **Then** la réservation est refusée avec le motif « Période déjà occupée par BTP Rhone du 14/10/2026 au 18/10/2026 ».
 
 ---
 
@@ -129,7 +131,8 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - **FR-007 (R5)**: La date de début MUST être égale ou postérieure à la date du jour (12/10/2026).
 - **FR-008 (R6)**: Une réservation MUST indiquer le client, la machine, les dates et l'agence qui l'a saisie.
 - **FR-009 (R7)**: Quand une réservation est refusée, l'outil MUST donner le motif : période occupée (avec le client et les dates), machine en atelier (avec la date de retour), ou « VGP non à jour, contacter l'atelier ».
-- **FR-002b**: Dans les résultats de recherche, le bouton « Réserver » MUST être grisé et non cliquable pour une machine indisponible ; seules les machines disponibles peuvent être réservées.
+- **FR-002b**: Dans les résultats de recherche, une machine indisponible MUST afficher un bouton « Réserver à d'autres dates » à la place de « Réserver » (retour de Brice, remplace l'ancienne règle « bouton grisé »).
+- **FR-002c (R9)**: Le formulaire de réservation MUST pré-remplir les dates avec la période cherchée et permettre de les modifier sans relancer la recherche ; R1 à R5 sont revérifiées à l'envoi et un refus affiche son motif (retour de Brice).
 - **FR-010**: L'agence de saisie MUST être l'agence du compte connecté ; l'utilisateur ne peut pas la choisir.
 - **FR-014**: Toute l'application MUST exiger une connexion par e-mail et mot de passe ; sans connexion, rien n'est consultable ni modifiable.
 - **FR-015**: Il existe trois profils de compte :
@@ -173,11 +176,16 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 
 Identiques à `SPEC.md` à la racine (version une page au format des consignes).
 
-1. Étant donné que NAC112 est réservée du 14/10 au 18/10 pour BTP Rhone, quand Villeurbanne cherche une « Nacelle 12 m » du 16/10 au 17/10, alors NAC112 apparaît indisponible avec le motif « Période déjà occupée par BTP Rhone du 14/10/2026 au 18/10/2026 » et son bouton « Réserver » est grisé.
+1. Étant donné que NAC112 est réservée du 14/10 au 18/10 pour BTP Rhone, quand Villeurbanne cherche une « Nacelle 12 m » du 16/10 au 17/10, alors NAC112 apparaît indisponible avec le motif « Période déjà occupée par BTP Rhone du 14/10/2026 au 18/10/2026 » et son bouton affiche « Réserver à d'autres dates ».
 2. Étant donné que MINI07 est en atelier jusqu'au 20/10, quand une agence cherche une « Mini-pelle 1.8 t » du 15/10 au 16/10, alors MINI07 apparaît indisponible (en atelier) et MINI12 (Saint-Etienne) est proposée.
 3. Étant donné que la dernière VGP de NAC089 date du 05/03/2026, quand une agence cherche une « Nacelle 16 m » du 02/11 au 05/11, alors NAC089 apparaît indisponible avec le motif « VGP non à jour, contacter l'atelier ».
 4. Étant donné que NAC140 (Grenoble) est libre du 26/10 au 28/10 et que sa VGP est à jour, quand Lyon Est la réserve pour Facades Martin, alors la réservation est acceptée et apparaît dans le planning, saisie par Lyon Est.
 5. Étant donné que les réservations ont été reprises des Excel, quand on ouvre l'onglet Anomalies, alors on voit la double réservation NAC112 (BTP Rhone / Maconnerie Duclos) et NAC089 réservée pour Facades Martin avec une VGP échue.
+
+Tests ajoutés après la recette de Brice :
+
+6. Étant donné que NAC112 est indisponible sur la recherche du 16/10 au 17/10, quand Villeurbanne clique sur « Réserver à d'autres dates », choisit du 20/10 au 22/10 dans le formulaire et confirme pour Maconnerie Duclos, alors la réservation est acceptée sans avoir changé la recherche.
+7. Étant donné que NAC112 est réservée du 14/10 au 18/10, quand Villeurbanne choisit du 17/10 au 19/10 dans le formulaire de réservation, alors la réservation est refusée avec le motif « Période déjà occupée par BTP Rhone du 14/10/2026 au 18/10/2026 ».
 
 ## Assumptions
 

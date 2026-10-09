@@ -62,6 +62,20 @@ class CreateReservationTest extends ValletTestCase
             ->assertJsonFragment(['machine_ref' => 'NAC140', 'client' => 'Facades Martin', 'starts_at' => '2026-10-26']);
     }
 
+    public function test_unavailable_machine_can_be_booked_on_other_dates(): void
+    {
+        $this->reserve('NAC112', 'Maconnerie Duclos', '2026-10-20', '2026-10-22', 'villeurbanne@vallet.test')
+            ->assertCreated()
+            ->assertJsonPath('entered_by', 'Villeurbanne');
+    }
+
+    public function test_other_dates_still_overlapping_are_refused_with_the_reason(): void
+    {
+        $this->reserve('NAC112', 'Maconnerie Duclos', '2026-10-17', '2026-10-19', 'villeurbanne@vallet.test')
+            ->assertUnprocessable()
+            ->assertJsonFragment(['message' => 'Période déjà occupée par BTP Rhone du 14/10/2026 au 18/10/2026']);
+    }
+
     public function test_end_date_before_start_date_is_refused(): void
     {
         $this->reserve('COMP30', 'BTP Rhone', '2026-10-20', '2026-10-19')

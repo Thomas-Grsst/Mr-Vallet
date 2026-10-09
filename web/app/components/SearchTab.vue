@@ -16,6 +16,9 @@ const hasSearched = ref(false)
 const searchErrors = ref<string[]>([])
 
 const selectedMachine = ref<Machine | null>(null)
+const reservationForm = ref<HTMLFormElement | null>(null)
+const reservationFrom = ref(today)
+const reservationTo = ref(today)
 const client = ref('')
 const reservationErrors = ref<string[]>([])
 const confirmation = ref<string | null>(null)
@@ -36,10 +39,14 @@ const search = async () => {
   }
 }
 
-const selectMachine = (machine: Machine) => {
+const selectMachine = async (machine: Machine) => {
   selectedMachine.value = machine
+  reservationFrom.value = from.value
+  reservationTo.value = to.value
   reservationErrors.value = []
   confirmation.value = null
+  await nextTick()
+  reservationForm.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
 
 const reserve = async () => {
@@ -57,8 +64,8 @@ const reserve = async () => {
       body: {
         machine_ref: selectedMachine.value.ref,
         client: client.value,
-        starts_at: from.value,
-        ends_at: to.value,
+        starts_at: reservationFrom.value,
+        ends_at: reservationTo.value,
       },
     })
     confirmation.value = `Réservation enregistrée : ${reservation.machine_ref} (${reservation.machine_agency}) pour ${reservation.client} du ${formatDate(reservation.starts_at)} au ${formatDate(reservation.ends_at)}.`
@@ -131,12 +138,10 @@ const reserve = async () => {
             <td v-if="user?.can_book">
               <button
                 type="button"
-                class="button"
-                :disabled="!machine.available"
-                :title="machine.available ? undefined : 'Machine indisponible sur cette période'"
+                :class="machine.available ? 'button' : 'button button--ghost'"
                 @click="selectMachine(machine)"
               >
-                Réserver
+                {{ machine.available ? 'Réserver' : 'Réserver à d\'autres dates' }}
               </button>
             </td>
           </tr>
@@ -147,10 +152,18 @@ const reserve = async () => {
       </table>
     </div>
 
-    <form v-if="selectedMachine" class="card" @submit.prevent="reserve">
-      <h2>Réserver {{ selectedMachine.ref }} ({{ selectedMachine.agency }}) du {{ formatDate(from) }} au {{ formatDate(to) }}</h2>
+    <form v-if="selectedMachine" ref="reservationForm" class="card" @submit.prevent="reserve">
+      <h2>Réserver {{ selectedMachine.ref }} ({{ selectedMachine.type }}, {{ selectedMachine.agency }})</h2>
       <p class="muted">Saisie par l'agence {{ user?.agency }}</p>
       <div class="form-row">
+        <label>
+          Du
+          <input v-model="reservationFrom" type="date" :min="today" required>
+        </label>
+        <label>
+          Au
+          <input v-model="reservationTo" type="date" :min="reservationFrom" required>
+        </label>
         <label>
           Client
           <input v-model="client" type="text" placeholder="Nom du client">
