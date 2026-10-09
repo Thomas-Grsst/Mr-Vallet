@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Http\Requests\StoreReservationRequest;
 use App\Models\Machine;
 use App\Models\Reservation;
@@ -40,7 +41,7 @@ class ReservationController extends Controller
                 'status' => $reservation->statusOn($today)->value,
                 'status_label' => $reservation->statusOn($today)->label(),
                 'cancelled_at' => $reservation->cancelled_at?->toDateString(),
-                'cancelled_by' => $reservation->cancelledBy?->name,
+                'cancelled_by' => $reservation->isCancelled() ? ($reservation->cancelledBy?->name ?? UserRole::Director->label()) : null,
             ]);
 
         return response()->json($reservations);
@@ -67,7 +68,9 @@ class ReservationController extends Controller
             'client' => $request->string('client')->trim()->toString(),
             'starts_at' => $from->toDateString(),
             'ends_at' => $to->toDateString(),
-            'entered_by_agency_id' => $request->user()->agency_id,
+            'entered_by_agency_id' => $request->user()->role->choosesEnteringAgency()
+                ? $request->integer('agency_id')
+                : $request->user()->agency_id,
         ]);
 
         return response()->json(

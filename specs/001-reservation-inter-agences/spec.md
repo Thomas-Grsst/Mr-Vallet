@@ -139,12 +139,13 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - **FR-009 (R7)**: Quand une réservation est refusée, l'outil MUST donner le motif : période occupée (avec le client et les dates), machine en atelier (« Machine en atelier du … au … », avec le motif s'il existe), ou « VGP non à jour, contacter l'atelier ».
 - **FR-002b**: Dans les résultats de recherche, une machine indisponible MUST afficher un bouton « Réserver à d'autres dates » à la place de « Réserver » (retour de Brice, remplace l'ancienne règle « bouton grisé »).
 - **FR-002c (R9)**: Le formulaire de réservation MUST pré-remplir les dates avec la période cherchée et permettre de les modifier sans relancer la recherche ; R1 à R5 sont revérifiées à l'envoi et un refus affiche son motif (retour de Brice).
-- **FR-010**: L'agence de saisie MUST être l'agence du compte connecté ; l'utilisateur ne peut pas la choisir.
+- **FR-010**: L'agence de saisie MUST être l'agence du compte connecté ; un compte agence ne peut pas la choisir ; le compte Direction MUST la choisir dans le formulaire (FR-032).
 - **FR-014**: Toute l'application MUST exiger une connexion par e-mail et mot de passe ; sans connexion, rien n'est consultable ni modifiable.
-- **FR-015**: Il existe trois profils de compte :
+- **FR-015**: Il existe quatre profils de compte :
   - **Agence** (un compte par agence) : rechercher, réserver, annuler, consulter le planning et les anomalies.
   - **Atelier** : rechercher, consulter, déclarer et prévoir des passages en atelier, remettre en service, annuler un passage prévu, mettre à jour la VGP.
   - **Commercial** (Julie Ferrand) : rechercher et consulter uniquement.
+  - **Direction** (Brice Vallet) : tous les droits des trois autres profils (FR-032).
 - **FR-016**: Une action non autorisée pour le profil MUST être refusée avec un message, et le bouton correspondant n'est pas proposé.
 - **FR-017**: L'utilisateur MUST pouvoir se déconnecter.
 - **FR-011**: L'outil MUST lister les réservations actives qui violent R1, R2 ou R3 (double réservation, réservée pendant un passage en atelier, VGP non à jour).
@@ -164,6 +165,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - **FR-029 (R21)**: Dans l'onglet Atelier, l'état VGP d'une nacelle MUST être écrit en toutes lettres : « VGP en retard » si elle n'est plus valable aujourd'hui ou absente, sinon « VGP à jour », suivi de la date de la dernière VGP réalisée et de sa fin de validité ; la couleur seule ne suffit pas (retour de Brice).
 - **FR-030 (R22)**: Dans l'onglet Atelier, les machines « VGP en retard » MUST apparaître en premier, puis les autres par type puis par nom ; l'ordre MUST être conservé avec les filtres (retour de Brice).
 - **FR-031 (R23)**: Dans l'onglet Atelier, l'action sur la VGP MUST s'appeler « Mettre à jour la VGP » (retour de Brice, remplace « Enregistrer la VGP »).
+- **FR-032 (R24)**: Un compte « Direction » (Brice Vallet) MUST voir tous les onglets et avoir tous les droits : réserver, annuler, gérer les passages en atelier, mettre à jour la VGP ; il MUST choisir l'agence de saisie dans le formulaire de réservation (refus sans agence) ; ses annulations MUST apparaître « par Direction » dans l'historique (retour de Brice).
 
 ### Key Entities
 
@@ -171,7 +173,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - **Machine** : référence, type, agence de rattachement, date de dernière VGP réalisée (nacelles).
 - **Passage en atelier** : machine, date de début, date de fin, motif (facultatif) ; en cours ou prévu selon la date du jour.
 - **Réservation** : machine, client, date de début, date de fin, agence de saisie, date d'annulation et agence qui a annulé (si annulée).
-- **Compte** : nom, e-mail, mot de passe, profil (agence, atelier, commercial), agence (pour le profil agence).
+- **Compte** : nom, e-mail, mot de passe, profil (agence, atelier, commercial, direction), agence (pour le profil agence).
 
 ## Ce que l'outil ne fait pas ce matin
 
@@ -223,6 +225,7 @@ Tests ajoutés après la recette de Brice :
 19. Étant donné qu'aujourd'hui est le 12/10/2026 et que la VGP de NAC089 était valable jusqu'au 05/09/2026, quand l'atelier ouvre l'onglet Atelier, alors NAC089 affiche « VGP en retard · dernière VGP 05/03/2026, valable jusqu'au 05/09/2026 », et NAC112 affiche « VGP à jour · dernière VGP 10/07/2026, valable jusqu'au 10/01/2027 ».
 20. Étant donné que NAC089 est la seule nacelle « VGP en retard », quand l'atelier ouvre l'onglet Atelier, alors NAC089 est la première ligne ; et quand il filtre sur le type « Nacelle 16 m » ou tape « nac », NAC089 reste en premier.
 21. Étant donné que la VGP de NAC089 est en retard, quand l'atelier saisit « VGP réalisée le 12/10/2026 » et clique sur « Mettre à jour la VGP », alors NAC089 affiche « VGP à jour · dernière VGP 12/10/2026, valable jusqu'au 12/04/2027 ».
+22. Étant donné que Brice est connecté avec le compte Direction, quand il ouvre l'outil, alors il voit les 5 onglets ; quand il réserve COMP30 du 20/10 au 21/10 pour BTP Rhone en choisissant l'agence « Annecy », alors la réservation est acceptée et saisie par Annecy (sans agence choisie, elle est refusée) ; quand il annule la réservation de Maconnerie Duclos, alors l'historique affiche « annulée le 12/10/2026 par Direction » ; et il peut prévoir un passage en atelier et mettre à jour une VGP.
 
 ## Assumptions
 

@@ -84,6 +84,13 @@ class ValletSeeder extends Seeder
             'role' => UserRole::Sales,
         ]);
 
+        User::query()->create([
+            'name' => 'Brice Vallet',
+            'email' => 'brice.vallet@vallet.test',
+            'password' => self::DEMO_PASSWORD,
+            'role' => UserRole::Director,
+        ]);
+
         foreach (self::RESERVATIONS as [$ref, $client, $from, $to, $enteredBy]) {
             Reservation::query()->create([
                 'machine_id' => $machines[$ref]->id,

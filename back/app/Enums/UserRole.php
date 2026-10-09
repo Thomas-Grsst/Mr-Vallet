@@ -7,6 +7,7 @@ enum UserRole: string
     case Agency = 'agency';
     case Workshop = 'workshop';
     case Sales = 'sales';
+    case Director = 'director';
 
     public function label(): string
     {
@@ -14,16 +15,22 @@ enum UserRole: string
             self::Agency => 'Agence',
             self::Workshop => 'Atelier',
             self::Sales => 'Commercial',
+            self::Director => 'Direction',
         };
     }
 
     public function canBook(): bool
     {
-        return $this === self::Agency;
+        return $this === self::Agency || $this === self::Director;
     }
 
     public function canMaintain(): bool
     {
-        return $this === self::Workshop;
+        return $this === self::Workshop || $this === self::Director;
+    }
+
+    public function choosesEnteringAgency(): bool
+    {
+        return $this === self::Director;
     }
 }

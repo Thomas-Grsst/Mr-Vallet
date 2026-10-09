@@ -49,6 +49,7 @@ class AuthController extends Controller
             'agency' => $user->agency?->name,
             'can_book' => $user->role->canBook(),
             'can_maintain' => $user->role->canMaintain(),
+            'chooses_entering_agency' => $user->role->choosesEnteringAgency(),
         ];
     }
 }

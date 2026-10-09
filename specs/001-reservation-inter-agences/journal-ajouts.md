@@ -24,3 +24,4 @@ Tout ce qui est dans le prototype sans être écrit dans la spec.
 - 09/10, retour de Brice : écrire « en retard » plutôt que de compter sur la date en rouge. Interprété comme l'état VGP de l'onglet Atelier (seule date affichée en rouge). FR-029 / R21 ajoutée, test 19.
 - 09/10, retour de Brice : faire remonter en premier les machines en retard de VGP dans l'onglet Atelier. FR-030 / R22 ajoutée, test 20.
 - 09/10, retour de Brice : renommer « Enregistrer la VGP » en « Mettre à jour la VGP ». Libellé changé partout (spec, bouton, message d'erreur), FR-031 / R23 ajoutée, test 21.
+- 09/10, demande de Brice : un compte pour le DG qui voit tout et peut tout faire. Profil « Direction » ajouté, R6, R8, FR-010 et FR-015 adaptées, FR-032 / R24 ajoutée, test 22. Choix du binôme à valider : le DG n'appartenant à aucune agence, il choisit l'agence de saisie à chaque réservation, et ses annulations sont signées « Direction ».

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Machine, Reservation } from '~/types/vallet'
+import type { Agency, Machine, Reservation } from '~/types/vallet'
 
 const today = useRuntimeConfig().public.today
 const { $api } = useNuxtApp()
@@ -20,6 +20,12 @@ const reservationForm = ref<HTMLFormElement | null>(null)
 const reservationFrom = ref(today)
 const reservationTo = ref(today)
 const client = ref('')
+const enteringAgencyId = ref<number | null>(null)
+
+const { data: agencies } = useApiFetch<Agency[]>('/api/agencies', {
+  default: () => [],
+  immediate: !!user.value?.chooses_entering_agency,
+})
 const reservationErrors = ref<string[]>([])
 const confirmation = ref<string | null>(null)
 const isSubmitting = ref(false)
@@ -81,6 +87,7 @@ const reserve = async () => {
         client: client.value,
         starts_at: reservationFrom.value,
         ends_at: reservationTo.value,
+        agency_id: user.value?.chooses_entering_agency ? enteringAgencyId.value : undefined,
       },
     })
     confirmation.value = `Réservation enregistrée : ${reservation.machine_ref} (${reservation.machine_agency}) pour ${reservation.client} du ${formatDate(reservation.starts_at)} au ${formatDate(reservation.ends_at)}.`
@@ -179,7 +186,7 @@ const reserve = async () => {
 
     <form v-if="selectedMachine" ref="reservationForm" class="card" @submit.prevent="reserve">
       <h2>Réserver {{ selectedMachine.ref }} ({{ selectedMachine.type }}, {{ selectedMachine.agency }})</h2>
-      <p class="muted">Saisie par l'agence {{ user?.agency }}</p>
+      <p v-if="!user?.chooses_entering_agency" class="muted">Saisie par l'agence {{ user?.agency }}</p>
       <div class="form-row">
         <label>
           Du
@@ -192,6 +199,13 @@ const reserve = async () => {
         <label>
           Client
           <input v-model="client" type="text" placeholder="Nom du client">
+        </label>
+        <label v-if="user?.chooses_entering_agency">
+          Agence de saisie
+          <select v-model="enteringAgencyId">
+            <option :value="null" disabled>Choisir l'agence</option>
+            <option v-for="agency in agencies" :key="agency.id" :value="agency.id">{{ agency.name }}</option>
+          </select>
         </label>
         <button class="button" type="submit" :disabled="isSubmitting">{{ isSubmitting ? 'Enregistrement…' : 'Confirmer la réservation' }}</button>
         <button class="button button--ghost" type="button" @click="selectedMachine = null">Annuler</button>

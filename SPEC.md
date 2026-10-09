@@ -9,6 +9,7 @@ Chaque agence tient son propre Excel de planning et personne ne connaît la disp
 - **Agences** (Sandrine Morin, Lyon Est) : cherchent une machine dans les 7 agences et la réservent pour un client.
 - **Atelier** (Mehdi Arfaoui et ses techniciens) : déclarent et prévoient les passages en atelier, et mettent à jour les VGP.
 - **Commerciale grands comptes** (Julie Ferrand) : consulte en temps réel ce qui est disponible.
+- **Direction** (Brice Vallet, directeur général) : voit tout et peut tout faire (retour de Brice).
 
 ## Ce que l'outil permet
 1. En tant qu'agence, je veux chercher une machine par type et par période dans les 7 agences, afin de ne plus appeler les agences une par une (jusqu'à 30 min aujourd'hui, DOC 2).
@@ -24,9 +25,9 @@ Chaque agence tient son propre Excel de planning et personne ne connaît la disp
 - R3. Une nacelle n'est réservable que si sa dernière VGP réalisée, valable 6 mois, couvre toute la période ; sans VGP, elle n'est pas réservable (DOC 5 : « une nacelle sans VGP à jour ne doit pas sortir »).
 - R4. La date de fin est égale ou postérieure à la date de début.
 - R5. On ne réserve pas dans le passé (avant le 12/10/2026).
-- R6. Une réservation indique le client, la machine, les dates et l'agence qui l'a saisie ; l'agence est celle du compte connecté.
+- R6. Une réservation indique le client, la machine, les dates et l'agence qui l'a saisie ; l'agence est celle du compte connecté, sauf pour le compte Direction qui la choisit obligatoirement dans le formulaire de réservation (R24).
 - R7. Une machine indisponible affiche son motif (période occupée et par qui, « en atelier du … au … », « VGP non à jour, contacter l'atelier ») ; son bouton devient « Réserver à d'autres dates » (retour de Brice).
-- R8. Seules les agences réservent et annulent ; seul l'atelier gère les passages en atelier et met à jour les VGP ; la commerciale consulte.
+- R8. Seules les agences et la Direction réservent et annulent ; seuls l'atelier et la Direction gèrent les passages en atelier et mettent à jour les VGP ; la commerciale consulte.
 - R9. Dans le formulaire de réservation, les dates sont pré-remplies avec la période cherchée et modifiables sans relancer la recherche ; les règles R1 à R5 sont revérifiées à l'envoi et un refus affiche son motif (retour de Brice).
 - R10. Dans le planning, chaque réservation concernée par une anomalie (double réservation, VGP non à jour, machine en atelier) affiche sous sa machine un avertissement « Attention : anomalie » avec son type (retour de Brice).
 - R11. Le planning se filtre par client, choisi dans la liste des clients qui ont une réservation, pour voir toutes les machines réservées par une entreprise ; « Tous les clients » réaffiche tout (retour de Brice).
@@ -42,6 +43,7 @@ Chaque agence tient son propre Excel de planning et personne ne connaît la disp
 - R21. Dans l'onglet Atelier, l'état VGP d'une nacelle s'écrit en toutes lettres, pas seulement en couleur : « VGP en retard » (en rouge) si elle n'est plus valable aujourd'hui ou s'il n'y en a aucune, sinon « VGP à jour » (en vert), suivi de la date de la dernière VGP réalisée et de sa date de fin de validité (retour de Brice).
 - R22. Dans l'onglet Atelier, les machines « VGP en retard » apparaissent en premier, puis les autres dans l'ordre habituel (type puis nom) ; l'ordre est conservé quand on filtre (retour de Brice).
 - R23. Dans l'onglet Atelier, l'action sur la VGP s'appelle « Mettre à jour la VGP » : l'atelier indique la date de la VGP réalisée (aujourd'hui ou avant) et valide avec ce bouton (retour de Brice).
+- R24. Un compte « Direction » pour Brice Vallet voit tous les onglets (Rechercher et réserver, Planning, Historique, Anomalies, Atelier) et peut tout faire : réserver, annuler, gérer les passages en atelier, mettre à jour la VGP. Comme il n'appartient à aucune agence, il choisit l'agence de saisie dans le formulaire de réservation (obligatoire), et ses annulations apparaissent « par Direction » dans l'historique (retour de Brice).
 
 ## Ce que l'outil ne fait pas ce matin
 - Pas de réservation en ligne par les particuliers (étape 2, une fois la disponibilité fiable).
@@ -75,3 +77,4 @@ Chaque agence tient son propre Excel de planning et personne ne connaît la disp
 19. Étant donné qu'aujourd'hui est le 12/10/2026 et que la VGP de NAC089 était valable jusqu'au 05/09/2026, quand l'atelier ouvre l'onglet Atelier, alors NAC089 affiche « VGP en retard · dernière VGP 05/03/2026, valable jusqu'au 05/09/2026 », et NAC112 affiche « VGP à jour · dernière VGP 10/07/2026, valable jusqu'au 10/01/2027 ».
 20. Étant donné que NAC089 est la seule nacelle « VGP en retard », quand l'atelier ouvre l'onglet Atelier, alors NAC089 est la première ligne ; et quand il filtre sur le type « Nacelle 16 m » ou tape « nac », NAC089 reste en premier.
 21. Étant donné que la VGP de NAC089 est en retard, quand l'atelier saisit « VGP réalisée le 12/10/2026 » et clique sur « Mettre à jour la VGP », alors NAC089 affiche « VGP à jour · dernière VGP 12/10/2026, valable jusqu'au 12/04/2027 ».
+22. Étant donné que Brice est connecté avec le compte Direction, quand il ouvre l'outil, alors il voit les 5 onglets ; quand il réserve COMP30 du 20/10 au 21/10 pour BTP Rhone en choisissant l'agence « Annecy », alors la réservation est acceptée et saisie par Annecy (sans agence choisie, elle est refusée) ; quand il annule la réservation de Maconnerie Duclos, alors l'historique affiche « annulée le 12/10/2026 par Direction » ; et il peut prévoir un passage en atelier et mettre à jour une VGP.

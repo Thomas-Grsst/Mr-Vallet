@@ -6,6 +6,7 @@ export type User = {
   agency: string | null
   can_book: boolean
   can_maintain: boolean
+  chooses_entering_agency: boolean
 }
 
 export type Agency = {
