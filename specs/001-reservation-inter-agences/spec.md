@@ -18,7 +18,8 @@ Chaque agence tient son propre Excel de planning : personne ne connaît la dispo
 
 - **Agences** : des agents qui cherchent une machine dans les 7 agences et la réservent pour un client, et un responsable par agence (Sandrine Morin à Lyon Est, DOC 2).
 - **Atelier** (Mehdi Arfaoui et ses techniciens) : déclarent et prévoient les passages en atelier, et mettent à jour les VGP.
-- **Commerciale grands comptes** (Julie Ferrand) : consulte en temps réel ce qui est disponible pour ses clients.
+- **Commerciale grands comptes** (Julie Ferrand) : consulte en temps réel ce qui est disponible pour ses clients et tient la liste des grands comptes.
+- **Direction** (Brice Vallet, directeur général) : voit tout et peut tout faire.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -47,7 +48,7 @@ En tant qu'agence, je veux réserver une machine pour un client, afin que la ré
 
 **Acceptance Scenarios**:
 
-1. **Given** NAC112 est réservée du 14/10 au 18/10 pour BTP Rhone, **When** Villeurbanne cherche une « Nacelle 12 m » du 16/10 au 17/10, **Then** NAC112 apparaît indisponible avec le motif « Période déjà occupée par BTP Rhone du 14/10/2026 au 18/10/2026 » et son bouton « Réserver » est grisé ; si la réservation est quand même envoyée, elle est refusée avec ce motif.
+1. **Given** NAC112 est réservée du 14/10 au 18/10 pour BTP Rhone, **When** Villeurbanne cherche une « Nacelle 12 m » du 16/10 au 17/10, **Then** NAC112 apparaît indisponible avec le motif « Période déjà occupée par BTP Rhone du 14/10/2026 au 18/10/2026 » et son bouton affiche « Réserver à d'autres dates » ; si la réservation est quand même envoyée sur ces dates, elle est refusée avec ce motif.
 2. **Given** la dernière VGP de NAC089 date du 05/03/2026, **When** une agence cherche une « Nacelle 16 m » du 02/11 au 05/11, **Then** NAC089 apparaît indisponible avec le motif « VGP non à jour, contacter l'atelier ».
 3. **Given** NAC140 (Grenoble) est libre du 26/10 au 28/10 et sa VGP est à jour, **When** Lyon Est la réserve pour Facades Martin, **Then** la réservation est acceptée et apparaît dans le planning vu par toutes les agences.
 4. **Given** NAC112 est indisponible sur la recherche du 16/10 au 17/10, **When** Villeurbanne clique sur « Réserver à d'autres dates », choisit du 20/10 au 22/10 dans le formulaire et confirme pour Maconnerie Duclos, **Then** la réservation est acceptée sans avoir changé la recherche.
@@ -72,13 +73,15 @@ En tant qu'utilisateur, je veux voir les réservations reprises des Excel qui vi
 
 ### User Story 4 - Annuler une réservation (Priority: P2)
 
-En tant qu'agence, je veux annuler une réservation, afin de libérer la machine (par exemple pour résoudre une double réservation).
+En tant que responsable d'agence (de l'agence qui a saisi la réservation ou de celle à qui appartient la machine) ou Direction, je veux annuler une réservation, afin de libérer la machine (par exemple pour résoudre une double réservation) ; une réservation annulée reste dans l'historique (cartes 4 et 5, retours de Brice).
 
 **Independent Test**: Annuler la réservation Maconnerie Duclos sur NAC112 ; l'anomalie disparaît.
 
 **Acceptance Scenarios**:
 
-1. **Given** NAC112 a deux réservations qui se chevauchent, **When** on annule celle de Maconnerie Duclos, **Then** l'anomalie de chevauchement disparaît.
+1. **Given** NAC112 a deux réservations qui se chevauchent, **When** le responsable de Villeurbanne annule celle de Maconnerie Duclos, **Then** l'anomalie de chevauchement disparaît.
+2. **Given** MINI12 commence dans moins de 48 h, **When** un responsable veut l'annuler, **Then** c'est refusé ; la Direction, elle, peut l'annuler.
+3. **Given** je suis agent, **When** j'ouvre une réservation, **Then** je ne vois jamais le bouton « Annuler la réservation ».
 
 ---
 
@@ -112,8 +115,111 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 1. **Given** je ne suis pas connecté, **When** j'ouvre l'outil ou j'appelle une de ses fonctions, **Then** je ne vois que l'écran de connexion et rien n'est modifiable.
 2. **Given** je suis connecté avec le compte de l'agence Villeurbanne, **When** je réserve une machine, **Then** la réservation est saisie par Villeurbanne, sans que je puisse choisir une autre agence.
 3. **Given** je suis connecté avec un compte agence, **When** je tente de mettre à jour la VGP ou de passer une machine en atelier, **Then** c'est refusé : seul l'atelier peut le faire.
-4. **Given** je suis connecté avec le compte atelier ou le compte commercial, **When** je tente de réserver ou d'annuler, **Then** c'est refusé : seules les agences réservent.
+4. **Given** je suis connecté avec le compte atelier ou le compte commercial, **When** je tente de réserver ou d'annuler, **Then** c'est refusé : seules les agences et la Direction réservent.
 5. **Given** je saisis un mauvais mot de passe, **When** je valide, **Then** la connexion est refusée avec le message « Identifiants incorrects ».
+
+---
+
+### User Story 7 - Respecter les contraintes logistiques (Priority: P1)
+
+En tant qu'agence, je veux que l'outil refuse une machine qui ne peut pas physiquement être là à temps, afin de ne pas promettre une machine en transfert ou en nettoyage (cartes révélation 1 et 3).
+
+**Independent Test**: Réserver NAC140 (Grenoble) depuis Villeurbanne le lendemain de son retour.
+
+**Acceptance Scenarios**:
+
+1. **Given** NAC140 (Grenoble) est rendue le 23/10, **When** Villeurbanne la réserve à partir du 24/10, **Then** c'est refusé (transfert : la veille doit être libre) ; à partir du 25/10, c'est accepté (tests 24, 30).
+2. **Given** NAC140 est rendue le 23/10, **When** Grenoble la réserve à partir du 23/10, **Then** c'est refusé (nettoyage le jour du retour) ; à partir du 24/10, c'est accepté.
+
+---
+
+### User Story 8 - Réserver pour un grand compte (Priority: P1)
+
+En tant qu'agence, je veux que l'outil exige le bon de commande d'un grand compte et me signale qui en est un, afin qu'aucune réservation de grand compte ne soit invalide ; en tant que Direction ou commerciale, je veux tenir la liste des grands comptes (carte révélation 2).
+
+**Independent Test**: Réserver pour BTP Rhone sans puis avec bon de commande.
+
+**Acceptance Scenarios**:
+
+1. **Given** BTP Rhone est un grand compte, **When** on réserve sans bon de commande, **Then** c'est refusé ; avec, c'est accepté et le numéro s'affiche au planning (test 26).
+2. **Given** Julie ajoute Facades Martin à la liste, **When** on réserve pour Facades Martin, **Then** le bon de commande est exigé et ses réservations existantes sans bon deviennent des anomalies (test 27).
+
+---
+
+### User Story 9 - Modifier une réservation (Priority: P2)
+
+En tant qu'agent de l'agence qui a saisi la réservation, responsable de cette agence ou de l'agence de la machine, ou Direction, je veux décaler ou prolonger une réservation, afin de suivre la demande du client sans l'annuler (initiative du binôme).
+
+**Independent Test**: Décaler la réservation de Duclos du 16-17/10 au 20-22/10.
+
+**Acceptance Scenarios**:
+
+1. **Given** la réservation de Duclos (16-17/10), **When** l'agent de Villeurbanne la décale au 20-22/10, **Then** c'est accepté et la double réservation disparaît (test 32).
+2. **Given** MINI12 commence dans moins de 48 h, **When** on veut la raccourcir ou la décaler, **Then** c'est refusé ; la prolonger est accepté (test 32).
+
+---
+
+### User Story 10 - Lire le planning en frise (Priority: P2)
+
+En tant qu'utilisateur, je veux voir le planning par machine sur une frise, cliquer sur une réservation ou un passage en atelier pour en voir le détail, et filtrer par nom de machine, agence, client ou période, afin de voir d'un coup d'œil ce qui est libre et où sont les conflits (initiative du binôme, retours de Brice).
+
+**Independent Test**: Ouvrir le planning, cliquer sur la barre de Duclos puis sur celle de MINI07 en atelier.
+
+**Acceptance Scenarios**:
+
+1. **Given** les données de départ, **When** on ouvre le planning, **Then** la frise montre les 12 machines sur 2 semaines, avec les doubles réservations l'une sous l'autre (test 28).
+2. **Given** la frise, **When** on clique sur une réservation ou un passage en atelier, **Then** un panneau de détail s'ouvre avec les actions autorisées pour le profil (tests 29, 35).
+
+---
+
+### User Story 11 - Consulter l'historique (Priority: P2)
+
+En tant qu'utilisateur, je veux retrouver toutes les réservations, passées, en cours, à venir ou annulées, avec qui les a modifiées ou annulées et ce qui a changé, afin de savoir ce qui s'est passé sur une réservation (retour de Brice, initiative du binôme pour le suivi).
+
+**Independent Test**: Modifier puis annuler la réservation de Duclos et ouvrir l'historique.
+
+**Acceptance Scenarios**:
+
+1. **Given** aujourd'hui est le 12/10, **When** on ouvre l'historique, **Then** chaque réservation a son statut « à venir », « en cours », « terminée » ou « annulée » (test 13).
+2. **Given** Duclos a été décalée deux fois puis annulée, **When** on ouvre l'historique, **Then** le suivi liste les trois actions avec la personne et les dates avant/après (test 34).
+
+---
+
+### User Story 12 - Trouver un créneau libre (Priority: P2)
+
+En tant qu'agence, je veux voir pour chaque machine ce qui l'occupe et ses créneaux libres sur 60 jours, afin de ne pas relancer la recherche date après date (initiative du binôme).
+
+**Independent Test**: Lancer une recherche depuis Villeurbanne et lire la ligne « À venir » de NAC140.
+
+**Acceptance Scenarios**:
+
+1. **Given** NAC140 est réservée du 19/10 au 23/10, **When** Villeurbanne cherche, **Then** elle voit « Libre du 12/10/2026 au 18/10/2026 » et « Libre à partir du 25/10/2026 » (test 25).
+
+---
+
+### User Story 13 - Répartir les droits par profil (Priority: P1)
+
+En tant que Direction, je veux que seuls les bons profils puissent annuler, modifier, gérer l'atelier ou la liste des grands comptes, et pouvoir moi-même tout faire, afin que chacun reste dans son rôle (retours de Brice, carte révélation 5).
+
+**Independent Test**: Ouvrir la réservation de Duclos avec chaque profil.
+
+**Acceptance Scenarios**:
+
+1. **Given** la réservation de Duclos (saisie par Villeurbanne, machine de Lyon Est), **When** chaque profil l'ouvre, **Then** l'agent de Villeurbanne peut seulement modifier, l'agent de Lyon Est rien, Sandrine Morin modifier et annuler (test 33).
+2. **Given** Brice est connecté, **When** il ouvre l'outil, **Then** il voit tous les onglets, choisit l'agence de saisie et peut annuler même à moins de 48 h (tests 22, 36).
+
+---
+
+### User Story 14 - Travailler sans perdre le fil (Priority: P3)
+
+En tant qu'utilisateur, je veux que l'écran reste en place après une action et me confirme ce qui a été fait, que l'outil ne m'affiche jamais un faux « tout va bien » pendant un chargement, et que les dates se saisissent facilement, afin de travailler vite et sans erreur (retours de Brice).
+
+**Independent Test**: Modifier une réservation en bas du planning.
+
+**Acceptance Scenarios**:
+
+1. **Given** le planning est défilé vers le bas, **When** on modifie une réservation, **Then** la frise reste affichée et « Réservation modifiée » s'affiche (test 37).
+2. **Given** les anomalies chargent lentement, **When** on ouvre l'onglet, **Then** « Chargement des anomalies… » s'affiche, jamais « Aucune anomalie » (tests 11, 12).
 
 ### Edge Cases
 
@@ -123,6 +229,11 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - Date de fin avant la date de début, ou date de début avant le 12/10/2026 : refusée.
 - Machine en atelier : réservable seulement sur une période qui ne chevauche aucun de ses passages en atelier.
 - Passage en atelier déclaré sur une machine déjà réservée : accepté (une panne ne se refuse pas), la réservation devient une anomalie.
+- Machine d'une autre agence : la veille du départ doit être libre (transfert d'une demi-journée).
+- Jour du retour : la machine est nettoyée et contrôlée, une nouvelle location ne commence que le lendemain.
+- Grand compte saisi avec d'autres majuscules (« btp rhone ») : reconnu, et enregistré sous son nom de la liste.
+- Annulation à moins de 48 h du début : refusée, sauf pour la Direction tant que la location n'est pas terminée.
+- Réservation modifiée ou annulée par une action refusée : aucune trace dans le suivi.
 
 ## Requirements *(mandatory)*
 
@@ -216,7 +327,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - **SC-001**: Trouver une machine disponible dans les 7 agences prend moins d'1 minute, contre jusqu'à 30 minutes aujourd'hui (DOC 2).
 - **SC-002**: Zéro double réservation enregistrée par l'outil.
 - **SC-003**: Zéro nacelle réservée avec une VGP non valable sur la période.
-- **SC-004**: Les 5 tests de la spec passent sur le prototype.
+- **SC-004**: Les 39 tests de la spec (les 5 tests initiaux, puis ceux ajoutés après les recettes et les cartes révélation) passent sur le prototype, et les 106 tests automatiques du back passent.
 
 ## Nos 5 tests
 

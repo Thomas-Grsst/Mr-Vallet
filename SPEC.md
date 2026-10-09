@@ -12,9 +12,9 @@ Chaque agence tient son propre Excel de planning et personne ne connaît la disp
 - **Direction** (Brice Vallet, directeur général) : voit tout et peut tout faire (retour de Brice).
 
 ## Ce que l'outil permet
-1. En tant qu'agence, je veux chercher une machine par type et par période dans les 7 agences, afin de ne plus appeler les agences une par une (jusqu'à 30 min aujourd'hui, DOC 2).
+1. En tant qu'agence, je veux chercher une machine par nom, par type et par période dans les 7 agences, et voir ses créneaux libres, afin de ne plus appeler les agences une par une (jusqu'à 30 min aujourd'hui, DOC 2).
 2. En tant qu'agence, je veux réserver une machine pour un client, sur la période cherchée ou à d'autres dates choisies depuis le bouton « Réserver », afin que toutes les agences voient la réservation immédiatement.
-3. En tant qu'agence, je veux annuler une réservation, afin de libérer la machine et corriger une double réservation.
+3. En tant qu'agence, je veux modifier une réservation, et en tant que responsable d'agence ou Direction l'annuler, afin de suivre la demande du client et de libérer la machine ; l'historique garde qui a modifié ou annulé quoi.
 4. En tant qu'atelier, je veux déclarer ou prévoir un passage en atelier avec une date de début et de fin, et mettre à jour la VGP, afin qu'on ne promette plus une machine en panne, en entretien ou non conforme (DOC 5).
 5. En tant qu'utilisateur, je veux voir les réservations qui violent une règle, afin de les traiter.
 6. En tant qu'utilisateur, je dois me connecter, afin que personne d'extérieur ne puisse modifier le planning ou une VGP.

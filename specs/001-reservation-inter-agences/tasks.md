@@ -51,3 +51,40 @@
 
 - [x] T019 Lancer `php artisan test` dans `back/`
 - [x] T020 Jouer les 5 tests de la spec sur le prototype dans le navigateur
+
+## Phase 8 — Retours de Brice (première recette)
+
+- [x] T027 Bouton « Réserver à d'autres dates » sur une machine indisponible (US2)
+- [x] T028 Performance : images Docker de production, OPcache, 4 processus PHP, sans partage de fichiers Windows
+- [x] T029 Avertissement d'anomalie dans le planning, filtres par paramètre (nom, agence, client, saisie par, période) via `web/app/composables/useReservationFilters.ts` et `web/app/components/ReservationFilters.vue`
+- [x] T030 Messages de chargement (`useFirstLoad`, `LoadingMessage.vue`) : jamais de faux « Aucune anomalie » (tests 11, 12)
+- [x] T031 Table `workshop_periods`, `POST /api/machines/{ref}/workshop-periods`, `DELETE /api/workshop-periods/{id}`, onglet Atelier (début, fin, prévus, filtres, « en retard » en premier), « Mettre à jour la VGP » ; test `back/tests/Feature/WorkshopAndVgpTest.php` (remplace T015)
+- [x] T032 `GET /api/reservation-history`, enum `ReservationStatus`, onglet Historique ; test `back/tests/Feature/HistoryTest.php` (US11)
+- [x] T033 Profil Direction (`director`) : tous les onglets, choix de l'agence de saisie ; test `back/tests/Feature/DirectorTest.php`
+- [x] T034 Toutes les machines affichées dès l'ouverture de la recherche ; identifiants de démonstration dans `README.md`
+
+## Phase 9 — Cartes révélation
+
+- [x] T035 Carte 1, transfert : `ReservationRules::transfer`, la veille doit être libre ; test `back/tests/Feature/TransferTest.php` (US7)
+- [x] T036 Frise par machine et créneaux libres sur 60 jours : `back/app/Services/MachineTimeline.php`, `web/app/components/MachineTimeline.vue` ; test `back/tests/Feature/MachineTimelineTest.php` (US12)
+- [x] T037 Carte 2, grands comptes : table `key_accounts`, colonne `purchase_order`, `ReservationRules::purchaseOrder`, routes `key-accounts` et `clients`, onglet Grands comptes ; tests `PurchaseOrderTest.php`, `KeyAccountManagementTest.php` (US8)
+- [x] T038 Planning en frise (`PlanningTimeline.vue`) et panneaux de détail (`ReservationDetail.vue`, `WorkshopPeriodDetail.vue`) (US10)
+- [x] T039 Carte 3, jour de nettoyage : le jour du retour est occupé ; test `back/tests/Feature/CleaningDayTest.php` (US7)
+- [x] T040 Carte 4, délai d'annulation de 48 h (version du binôme) : `Reservation::cancellableUntil`, `isCancellableOn` ; test `back/tests/Feature/CancellationDeadlineTest.php`
+- [x] T041 Modifier une réservation : `PATCH /api/reservations/{id}`, `UpdateReservationRequest`, pas de raccourcissement ni de décalage à moins de 48 h ; test `back/tests/Feature/UpdateReservationTest.php` (US9)
+- [x] T042 Carte 5, responsables d'agence : rôle `agency_manager`, un compte par agence, `back/app/Services/ReservationPermissions.php` (annuler, modifier, motifs de refus) ; test `back/tests/Feature/AgencyManagerTest.php` (US13)
+- [x] T043 Suivi des modifications et annulations : table `reservation_events`, `ReservationEvent::describe()`, affichage dans l'historique ; test `back/tests/Feature/ReservationEventsTest.php` (US11)
+
+## Phase 10 — Deuxième recette de Brice
+
+- [x] T044 Détail au clic dans l'onglet Atelier
+- [x] T045 La Direction annule même à moins de 48 h, tant que la location n'est pas terminée (`ReservationPermissions::ignoresCancellationDeadline`)
+- [x] T046 Listes rechargées après chaque action sans perdre la position, message de confirmation (`useActionNotice`, `ActionNotice.vue`) (US14)
+- [x] T047 Date du jour proposée par défaut pour la VGP ; sélecteur de date ouvert au clic (plugin client)
+- [x] T048 Recherche par nom de machine dans Rechercher et réserver, Planning et Historique
+
+## Phase 11 — Recette finale
+
+- [x] T049 `php artisan test` dans `back/` : 106 tests passent
+- [x] T050 Les 39 tests de la spec joués sur le prototype dans le navigateur, données réinitialisées ensuite
+- [x] T051 Spec, plan, tâches, checklist et constitution remis à jour

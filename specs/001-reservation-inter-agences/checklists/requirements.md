@@ -32,3 +32,6 @@
 ## Notes
 
 - Toutes les règles R1 à R7 viennent du dossier, de la fiche besoin ou des consignes ; aucune ne vient de l'IA.
+- Revalidée le 2026-10-09 après la deuxième recette de Brice. La spec couvre 14 user stories, les exigences FR-001 à FR-050, les règles R1 à R42 et 39 tests.
+- Chaque règle ajoutée a une origine tracée : « retour de Brice », « carte révélation N » ou « initiative du binôme, non demandée par Brice ». Les initiatives sont listées dans [journal-ajouts.md](../journal-ajouts.md).
+- Les questions encore ouvertes sont listées dans « Ce que l'outil ne fait pas ce matin » : ce sont des choix de périmètre assumés, pas des [NEEDS CLARIFICATION].
