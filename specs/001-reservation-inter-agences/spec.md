@@ -160,6 +160,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - **FR-025 (R17)**: L'atelier MUST pouvoir prévoir un passage dans le futur (par exemple une VGP) ; une VGP prévue MUST NOT compter comme réalisée pour FR-005 (retour de Brice).
 - **FR-026 (R18)**: Un passage en cours MUST pouvoir être terminé (« Remettre en service » : la machine est disponible dès aujourd'hui) et un passage prévu MUST pouvoir être annulé (« Annuler ce passage ») (retour de Brice).
 - **FR-027 (R19)**: Un passage en atelier MAY chevaucher une réservation existante ; l'atelier MUST alors voir la liste des réservations concernées, et chacune MUST apparaître dans les anomalies (conséquence de FR-024).
+- **FR-028 (R20)**: L'onglet Atelier MUST pouvoir être filtré par nom de machine (saisie libre, correspondance partielle, sans tenir compte des majuscules) et par type de machine (liste) ; les filtres se cumulent et « Aucune machine ne correspond » s'affiche si rien ne correspond (retour de Brice).
 
 ### Key Entities
 
@@ -215,6 +216,7 @@ Tests ajoutés après la recette de Brice :
 15. Étant donné que NAC201 (Villeurbanne) est libre, quand l'atelier prévoit un passage « VGP » du 02/11 au 03/11, alors l'onglet Atelier affiche ce passage « prévu du 02/11/2026 au 03/11/2026 », NAC201 reste réservable du 26/10 au 30/10, et une recherche du 02/11 au 05/11 la montre indisponible avec le motif « Machine en atelier du 02/11/2026 au 03/11/2026 (VGP) ».
 16. Étant donné que MINI07 est en atelier du 01/10 au 20/10, quand l'atelier clique sur « Remettre en service », alors MINI07 devient réservable dès le 12/10 ; et quand l'atelier annule un passage prévu, la machine redevient réservable sur cette période.
 17. Étant donné que NAC140 est réservée par BTP Rhone du 19/10 au 23/10, quand l'atelier déclare un passage du 20/10 au 21/10 (« panne moteur »), alors le passage est enregistré, l'atelier voit « Réservation concernée : BTP Rhone du 19/10/2026 au 23/10/2026 », et la réservation apparaît dans les anomalies comme « réservée pendant un passage en atelier ».
+18. Étant donné le parc de 12 machines, quand l'atelier tape « nac1 » dans le filtre par nom, alors seules NAC112, NAC118 et NAC140 s'affichent ; quand il choisit en plus le type « Nacelle 12 m », les trois restent ; quand il choisit seulement le type « Compacteur », alors seules COMP21 et COMP30 s'affichent ; quand il tape « XYZ », alors « Aucune machine ne correspond » s'affiche.
 
 ## Assumptions
 
