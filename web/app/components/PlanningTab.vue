@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import type { Reservation } from '~/types/vallet'
+import type { Anomaly, Reservation } from '~/types/vallet'
+
+const anomalyLabels: Record<string, string> = {
+  overlap: 'double réservation',
+  vgp_expired: 'VGP non à jour',
+}
 
 const { $api } = useNuxtApp()
 const { user } = useAuth()
@@ -8,6 +13,21 @@ const { toMessages } = useApiErrors()
 const errors = ref<string[]>([])
 
 const { data: reservations, refresh } = useApiFetch<Reservation[]>('/api/reservations', { default: () => [] })
+const { data: anomalies, refresh: refreshAnomalies } = useApiFetch<Anomaly[]>('/api/anomalies', { default: () => [] })
+
+const anomaliesByReservation = computed(() => {
+  const labels = new Map<number, Set<string>>()
+
+  for (const anomaly of anomalies.value) {
+    for (const reservationId of anomaly.reservation_ids) {
+      const reservationLabels = labels.get(reservationId) ?? new Set<string>()
+      reservationLabels.add(anomalyLabels[anomaly.code] ?? anomaly.code)
+      labels.set(reservationId, reservationLabels)
+    }
+  }
+
+  return labels
+})
 
 const cancel = async (reservation: Reservation) => {
   if (!confirm(`Annuler la réservation de ${reservation.machine_ref} pour ${reservation.client} ?`)) {
@@ -17,7 +37,7 @@ const cancel = async (reservation: Reservation) => {
   errors.value = []
   try {
     await $api(`/api/reservations/${reservation.id}`, { method: 'DELETE' })
-    await refresh()
+    await Promise.all([refresh(), refreshAnomalies()])
   }
   catch (error) {
     errors.value = toMessages(error)
@@ -44,7 +64,12 @@ const cancel = async (reservation: Reservation) => {
       </thead>
       <tbody>
         <tr v-for="reservation in reservations" :key="reservation.id">
-          <td><strong>{{ reservation.machine_ref }}</strong> <span class="muted">{{ reservation.machine_type }}</span></td>
+          <td>
+            <strong>{{ reservation.machine_ref }}</strong> <span class="muted">{{ reservation.machine_type }}</span>
+            <div v-if="anomaliesByReservation.has(reservation.id)" class="planning-anomaly">
+              ⚠ Attention : anomalie ({{ [...anomaliesByReservation.get(reservation.id)!].join(', ') }})
+            </div>
+          </td>
           <td>{{ reservation.machine_agency }}</td>
           <td>{{ reservation.client }}</td>
           <td>{{ formatDate(reservation.starts_at) }}</td>
@@ -56,3 +81,16 @@ const cancel = async (reservation: Reservation) => {
     </table>
   </section>
 </template>
+
+<style scoped>
+.planning-anomaly {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--color-ko-bg);
+  color: var(--color-ko);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+</style>

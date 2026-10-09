@@ -27,6 +27,7 @@ Chaque agence tient son propre Excel de planning et personne ne connaît la disp
 - R6. Une réservation indique le client, la machine, les dates et l'agence qui l'a saisie ; l'agence est celle du compte connecté.
 - R7. Une machine indisponible affiche son motif (période occupée et par qui, en atelier jusqu'au…, « VGP non à jour, contacter l'atelier ») ; son bouton devient « Réserver à d'autres dates » (retour de Brice).
 - R9. Dans le formulaire de réservation, les dates sont pré-remplies avec la période cherchée et modifiables sans relancer la recherche ; les règles R1 à R5 sont revérifiées à l'envoi et un refus affiche son motif (retour de Brice).
+- R10. Dans le planning, chaque réservation concernée par une anomalie (double réservation ou VGP non à jour) affiche sous sa machine un avertissement « Attention : anomalie » avec son type (retour de Brice).
 - R8. Seules les agences réservent et annulent ; seul l'atelier passe une machine en atelier et enregistre une VGP ; la commerciale consulte.
 
 ## Ce que l'outil ne fait pas ce matin
@@ -45,3 +46,4 @@ Chaque agence tient son propre Excel de planning et personne ne connaît la disp
 ## Tests ajoutés après la recette de Brice
 6. Étant donné que NAC112 est indisponible sur la recherche du 16/10 au 17/10, quand Villeurbanne clique sur « Réserver à d'autres dates », choisit du 20/10 au 22/10 dans le formulaire et confirme pour Maconnerie Duclos, alors la réservation est acceptée sans avoir changé la recherche.
 7. Étant donné que NAC112 est réservée du 14/10 au 18/10, quand Villeurbanne choisit du 17/10 au 19/10 dans le formulaire de réservation, alors la réservation est refusée avec le motif « Période déjà occupée par BTP Rhone du 14/10/2026 au 18/10/2026 ».
+8. Étant donné que NAC112 est réservée deux fois en même temps (BTP Rhone et Maconnerie Duclos) et que NAC089 est réservée pour Facades Martin avec une VGP échue, quand on ouvre le planning, alors ces trois réservations affichent « Attention : anomalie » sous leur machine (double réservation pour les deux NAC112, VGP non à jour pour NAC089), et les autres réservations n'affichent rien.
