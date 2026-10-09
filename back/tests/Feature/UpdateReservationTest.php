@@ -111,7 +111,7 @@ class UpdateReservationTest extends ValletTestCase
     public function test_cancelled_reservation_cannot_be_modified(): void
     {
         $duclos = $this->reservationOf('Maconnerie Duclos', 'NAC112');
-        $this->actingAsAccount('villeurbanne@vallet.test');
+        $this->actingAsAccount('responsable.villeurbanne@vallet.test');
         $this->deleteJson("/api/reservations/{$duclos->id}")->assertNoContent();
 
         $this->move($duclos, '2026-10-20', '2026-10-22')->assertConflict();

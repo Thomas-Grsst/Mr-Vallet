@@ -8,7 +8,6 @@ export type User = {
   can_maintain: boolean
   chooses_entering_agency: boolean
   can_manage_key_accounts: boolean
-  can_cancel_other_agencies: boolean
 }
 
 export type Agency = {
@@ -64,6 +63,9 @@ export type Reservation = {
   cancellable: boolean
   modified_at: string | null
   modified_by: string | null
+  can_cancel: boolean
+  can_modify: boolean
+  cancel_denied_reason: string | null
 }
 
 export type ReservationStatus = 'upcoming' | 'ongoing' | 'finished' | 'cancelled'

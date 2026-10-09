@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateReservationRequest;
 use App\Models\KeyAccount;
 use App\Models\Machine;
 use App\Models\Reservation;
+use App\Services\ReservationPermissions;
 use App\Services\ReservationRules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ use Illuminate\Support\Carbon;
 
 class ReservationController extends Controller
 {
-    public function __construct(private ReservationRules $rules) {}
+    public function __construct(private ReservationRules $rules, private ReservationPermissions $permissions) {}
 
     public function index(): JsonResponse
     {
@@ -92,6 +93,8 @@ class ReservationController extends Controller
     public function update(UpdateReservationRequest $request, Reservation $reservation): JsonResponse
     {
         abort_unless($request->user()->role->canBook(), Response::HTTP_FORBIDDEN, 'Seules les agences et la Direction peuvent modifier une réservation.');
+        $denial = $this->permissions->modifyDenial($request->user(), $reservation);
+        abort_if($denial !== null, Response::HTTP_FORBIDDEN, (string) $denial);
         abort_if($reservation->isCancelled(), Response::HTTP_CONFLICT, 'Une réservation annulée ne peut pas être modifiée.');
 
         $today = ReservationRules::today();
@@ -155,11 +158,8 @@ class ReservationController extends Controller
             Response::HTTP_UNPROCESSABLE_ENTITY,
             "Annulation impossible : la location commence le {$reservation->starts_at->format('d/m/Y')}, il fallait annuler au plus tard le {$reservation->cancellableUntil()->format('d/m/Y')}. Le client doit garder la réservation.",
         );
-        abort_unless(
-            $request->user()->role->canCancelOtherAgencies() || $reservation->entered_by_agency_id === $request->user()->agency_id,
-            Response::HTTP_FORBIDDEN,
-            "Seul un responsable d'agence peut annuler une réservation saisie par une autre agence (saisie par {$reservation->enteredBy->name})",
-        );
+        $denial = $this->permissions->cancelDenial($request->user(), $reservation);
+        abort_if($denial !== null, Response::HTTP_FORBIDDEN, (string) $denial);
 
         $reservation->update([
             'cancelled_at' => ReservationRules::today()->toDateString(),
@@ -167,6 +167,24 @@ class ReservationController extends Controller
         ]);
 
         return response()->noContent();
+    }
+
+    /** @return array{can_cancel: bool, can_modify: bool, cancel_denied_reason: ?string} */
+    private function rightsOf(Reservation $reservation): array
+    {
+        $user = request()->user();
+
+        if (! $user->role->canBook() || $reservation->isCancelled()) {
+            return ['can_cancel' => false, 'can_modify' => false, 'cancel_denied_reason' => null];
+        }
+
+        $cancelDenial = $this->permissions->cancelDenial($user, $reservation);
+
+        return [
+            'can_cancel' => $cancelDenial === null,
+            'can_modify' => $this->permissions->modifyDenial($user, $reservation) === null,
+            'cancel_denied_reason' => $cancelDenial,
+        ];
     }
 
     /** @return array<string, mixed> */
@@ -184,6 +202,7 @@ class ReservationController extends Controller
             'entered_by' => $reservation->enteredBy->name,
             'cancellable_until' => $reservation->cancellableUntil()->toDateString(),
             'cancellable' => $reservation->isCancellableOn(ReservationRules::today()),
+            ...$this->rightsOf($reservation),
             'modified_at' => $reservation->modified_at?->toDateString(),
             'modified_by' => $reservation->modified_at ? ($reservation->modifiedBy?->name ?? UserRole::Director->label()) : null,
         ];

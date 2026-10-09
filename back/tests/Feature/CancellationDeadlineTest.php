@@ -24,7 +24,7 @@ class CancellationDeadlineTest extends ValletTestCase
             'cancellable' => true,
         ]);
 
-        $this->actingAsAccount('villeurbanne@vallet.test');
+        $this->actingAsAccount('responsable.villeurbanne@vallet.test');
         $this->deleteJson("/api/reservations/{$duclos->id}")->assertNoContent();
     }
 
@@ -32,6 +32,7 @@ class CancellationDeadlineTest extends ValletTestCase
     {
         $btp = $this->reservationOf('BTP Rhone', 'NAC112');
 
+        $this->actingAsAccount('responsable.lyon-est@vallet.test');
         $this->deleteJson("/api/reservations/{$btp->id}")->assertNoContent();
     }
 

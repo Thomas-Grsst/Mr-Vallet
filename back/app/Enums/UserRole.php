@@ -26,11 +26,6 @@ enum UserRole: string
         return in_array($this, [self::Agency, self::AgencyManager, self::Director], true);
     }
 
-    public function canCancelOtherAgencies(): bool
-    {
-        return $this === self::AgencyManager || $this === self::Director;
-    }
-
     public function canMaintain(): bool
     {
         return $this === self::Workshop || $this === self::Director;

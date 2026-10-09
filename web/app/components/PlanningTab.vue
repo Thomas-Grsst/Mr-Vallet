@@ -71,13 +71,6 @@ const anomaliesByReservation = computed(() => {
 
 const selected = computed(() => reservations.value.find((reservation) => reservation.id === selectedId.value) ?? null)
 
-const cancelBlockedReason = computed(() => {
-  if (!selected.value || !user.value?.can_book || user.value.can_cancel_other_agencies || selected.value.entered_by === user.value.agency) {
-    return null
-  }
-
-  return `Annulation réservée à un responsable d'agence (réservation saisie par ${selected.value.entered_by})`
-})
 
 const selectedAnomalies = computed(() => anomalies.value
   .filter((anomaly) => selectedId.value !== null && anomaly.reservation_ids.includes(selectedId.value))
@@ -223,9 +216,9 @@ const cancelSelected = async () => {
         v-if="selected"
         :reservation="selected"
         :anomalies="selectedAnomalies"
-        :can-cancel="!!user?.can_book && !cancelBlockedReason"
-        :cancel-blocked-reason="cancelBlockedReason"
-        :can-edit="!!user?.can_book"
+        :can-cancel="selected.can_cancel"
+        :cancel-blocked-reason="selected.cancel_denied_reason"
+        :can-edit="selected.can_modify"
         :is-cancelling="isCancelling"
         :is-saving="isSaving"
         :edit-errors="editErrors"

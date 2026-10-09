@@ -39,7 +39,7 @@ class AnomaliesTest extends ValletTestCase
     {
         $duclos = Reservation::query()->where('client', 'Maconnerie Duclos')->firstOrFail();
 
-        $this->actingAsAccount('villeurbanne@vallet.test');
+        $this->actingAsAccount('responsable.villeurbanne@vallet.test');
         $this->deleteJson("/api/reservations/{$duclos->id}")->assertNoContent();
 
         $this->getJson('/api/anomalies')

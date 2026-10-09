@@ -52,6 +52,7 @@ class HistoryTest extends ValletTestCase
     {
         $btp = Reservation::query()->where('client', 'BTP Rhone')->orderBy('starts_at')->firstOrFail();
 
+        $this->actingAsAccount('responsable.lyon-est@vallet.test');
         $this->deleteJson("/api/reservations/{$btp->id}")->assertNoContent();
 
         $this->reserve('NAC112', 'Facades Martin', '2026-10-14', '2026-10-15')->assertCreated();
@@ -61,7 +62,7 @@ class HistoryTest extends ValletTestCase
     {
         $duclos = Reservation::query()->where('client', 'Maconnerie Duclos')->firstOrFail();
 
-        $this->actingAsAccount('villeurbanne@vallet.test');
+        $this->actingAsAccount('responsable.villeurbanne@vallet.test');
         $this->deleteJson("/api/reservations/{$duclos->id}")->assertNoContent();
         $this->deleteJson("/api/reservations/{$duclos->id}")->assertConflict();
     }
