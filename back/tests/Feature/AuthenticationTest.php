@@ -43,7 +43,7 @@ class AuthenticationTest extends ValletTestCase
     public function test_agency_cannot_maintain_machines(): void
     {
         $this->patchJson('/api/machines/NAC089/vgp', ['last_vgp_at' => '2026-10-12'])->assertForbidden();
-        $this->patchJson('/api/machines/COMP21/workshop', ['until' => '2026-10-25'])->assertForbidden();
+        $this->postJson('/api/machines/COMP21/workshop-periods', ['starts_at' => '2026-10-20', 'ends_at' => '2026-10-25'])->assertForbidden();
     }
 
     public function test_workshop_and_sales_cannot_book_or_cancel(): void

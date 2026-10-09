@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import type { Machine } from '~/types/vallet'
+import type { Machine, WorkshopPeriod } from '~/types/vallet'
+
+type PeriodDraft = { startsAt: string, endsAt: string, reason: string }
+
+type StoreResponse = { impacted_reservations: string[] }
 
 const today = useRuntimeConfig().public.today
 const { $api } = useNuxtApp()
@@ -7,39 +11,76 @@ const { formatDate } = useFormatDate()
 const { toMessages } = useApiErrors()
 
 const errors = ref<string[]>([])
-const workshopUntil = ref<Record<string, string>>({})
-const workshopNote = ref<Record<string, string>>({})
+const notice = ref<{ machine: string, impacted: string[] } | null>(null)
+const drafts = ref<Record<string, PeriodDraft>>({})
 const vgpDate = ref<Record<string, string>>({})
+const savingRef = ref<string | null>(null)
 
 const { data: machines, status, refresh } = useApiFetch<Machine[]>('/api/machines', { default: () => [] })
 
-const save = async (url: string, body: Record<string, string | null>) => {
+const emptyDraft = (): PeriodDraft => ({ startsAt: today, endsAt: today, reason: '' })
+
+watch(machines, (list) => {
+  for (const machine of list) {
+    drafts.value[machine.ref] ??= emptyDraft()
+  }
+}, { immediate: true })
+
+const run = async (machineRef: string, action: () => Promise<void>) => {
   errors.value = []
+  notice.value = null
+  savingRef.value = machineRef
   try {
-    await $api(url, { method: 'PATCH', body })
+    await action()
     await refresh()
   }
   catch (error) {
     errors.value = toMessages(error)
   }
+  finally {
+    savingRef.value = null
+  }
 }
 
-const putInWorkshop = (machine: Machine) => save(`/api/machines/${machine.ref}/workshop`, {
-  until: workshopUntil.value[machine.ref] || null,
-  note: workshopNote.value[machine.ref] || null,
+const planPeriod = (machine: Machine) => run(machine.ref, async () => {
+  const draft = drafts.value[machine.ref]!
+  const response = await $api<StoreResponse>(`/api/machines/${machine.ref}/workshop-periods`, {
+    method: 'POST',
+    body: { starts_at: draft.startsAt, ends_at: draft.endsAt, reason: draft.reason || null },
+  })
+  drafts.value[machine.ref] = emptyDraft()
+  notice.value = { machine: machine.ref, impacted: response.impacted_reservations }
 })
 
-const backInService = (machine: Machine) => save(`/api/machines/${machine.ref}/workshop`, { until: null })
+const endPeriod = (machine: Machine, period: WorkshopPeriod) => {
+  const question = period.status === 'current'
+    ? `Remettre ${machine.ref} en service dès aujourd'hui ?`
+    : `Annuler le passage en atelier de ${machine.ref} du ${formatDate(period.starts_at)} au ${formatDate(period.ends_at)} ?`
 
-const recordVgp = (machine: Machine) => save(`/api/machines/${machine.ref}/vgp`, {
-  last_vgp_at: vgpDate.value[machine.ref] || today,
-})
+  if (!confirm(question)) {
+    return
+  }
+
+  return run(machine.ref, () => $api(`/api/workshop-periods/${period.id}`, { method: 'DELETE' }))
+}
+
+const recordVgp = (machine: Machine) => run(machine.ref, () => $api(`/api/machines/${machine.ref}/vgp`, {
+  method: 'PATCH',
+  body: { last_vgp_at: vgpDate.value[machine.ref] || today },
+}))
 </script>
 
 <template>
   <section class="card table-wrapper">
     <div v-if="errors.length" class="alert alert--ko">
       <ul><li v-for="message in errors" :key="message">{{ message }}</li></ul>
+    </div>
+    <div v-if="notice" :class="notice.impacted.length ? 'alert alert--ko' : 'alert alert--ok'">
+      <template v-if="notice.impacted.length">
+        <strong>Passage en atelier enregistré pour {{ notice.machine }}. Réservation(s) concernée(s), à traiter avec les agences :</strong>
+        <ul><li v-for="line in notice.impacted" :key="line">{{ line }}</li></ul>
+      </template>
+      <template v-else>Passage en atelier enregistré pour {{ notice.machine }}. Aucune réservation concernée.</template>
     </div>
     <LoadError v-if="status === 'error'" @retry="refresh()" />
     <LoadingMessage v-else-if="status !== 'success'" label="Chargement des machines…" />
@@ -48,7 +89,7 @@ const recordVgp = (machine: Machine) => save(`/api/machines/${machine.ref}/vgp`,
         <tr>
           <th>Machine</th>
           <th>Agence</th>
-          <th>Atelier</th>
+          <th>Passages en atelier</th>
           <th>VGP</th>
         </tr>
       </thead>
@@ -57,26 +98,51 @@ const recordVgp = (machine: Machine) => save(`/api/machines/${machine.ref}/vgp`,
           <td><strong>{{ machine.ref }}</strong><br><span class="muted">{{ machine.type }}</span></td>
           <td>{{ machine.agency }}</td>
           <td>
-            <template v-if="machine.workshop_until">
-              <span class="badge badge--ko">En atelier jusqu'au {{ formatDate(machine.workshop_until) }}</span>
-              <span v-if="machine.workshop_note" class="muted"> {{ machine.workshop_note }}</span>
-              <br>
-              <button type="button" class="button button--ghost" @click="backInService(machine)">Remettre en service</button>
-            </template>
-            <div v-else class="form-row">
-              <input v-model="workshopUntil[machine.ref]" type="date" :min="today" aria-label="En atelier jusqu'au">
-              <input v-model="workshopNote[machine.ref]" type="text" placeholder="Motif" aria-label="Motif">
-              <button type="button" class="button button--ghost" :disabled="!workshopUntil[machine.ref]" @click="putInWorkshop(machine)">Passer en atelier</button>
+            <ul v-if="machine.workshop_periods.length" class="workshop-periods">
+              <li v-for="period in machine.workshop_periods" :key="period.id">
+                <span :class="period.status === 'current' ? 'badge badge--ko' : 'badge workshop-planned'">
+                  {{ period.status === 'current' ? 'En atelier' : 'Prévu' }} du {{ formatDate(period.starts_at) }} au {{ formatDate(period.ends_at) }}
+                </span>
+                <span v-if="period.reason" class="muted"> {{ period.reason }}</span>
+                <button
+                  type="button"
+                  class="button button--ghost workshop-action"
+                  :disabled="savingRef === machine.ref"
+                  @click="endPeriod(machine, period)"
+                >
+                  {{ period.status === 'current' ? 'Remettre en service' : 'Annuler ce passage' }}
+                </button>
+              </li>
+            </ul>
+            <div v-if="drafts[machine.ref]" class="form-row">
+              <label>
+                Début
+                <input v-model="drafts[machine.ref].startsAt" type="date" :min="today">
+              </label>
+              <label>
+                Fin
+                <input v-model="drafts[machine.ref].endsAt" type="date" :min="drafts[machine.ref].startsAt">
+              </label>
+              <label>
+                Motif
+                <input v-model="drafts[machine.ref].reason" type="text" placeholder="ex. VGP, vérin cassé">
+              </label>
+              <button type="button" class="button button--ghost" :disabled="savingRef === machine.ref" @click="planPeriod(machine)">
+                {{ savingRef === machine.ref ? 'Enregistrement…' : 'Prévoir le passage en atelier' }}
+              </button>
             </div>
           </td>
           <td>
             <template v-if="machine.requires_vgp">
               <span :class="machine.vgp_ok_today ? 'badge badge--ok' : 'badge badge--ko'">
-                {{ machine.last_vgp_at ? `Dernière VGP ${formatDate(machine.last_vgp_at)}, valable jusqu'au ${formatDate(machine.vgp_expires_at)}` : 'Aucune VGP' }}
+                {{ machine.last_vgp_at ? `Dernière VGP réalisée ${formatDate(machine.last_vgp_at)}, valable jusqu'au ${formatDate(machine.vgp_expires_at)}` : 'Aucune VGP' }}
               </span>
               <div class="form-row">
-                <input v-model="vgpDate[machine.ref]" type="date" :max="today" aria-label="Date de la nouvelle VGP">
-                <button type="button" class="button button--ghost" @click="recordVgp(machine)">Enregistrer une VGP</button>
+                <label>
+                  VGP réalisée le
+                  <input v-model="vgpDate[machine.ref]" type="date" :max="today">
+                </label>
+                <button type="button" class="button button--ghost" :disabled="savingRef === machine.ref" @click="recordVgp(machine)">Enregistrer la VGP</button>
               </div>
             </template>
             <span v-else class="muted">Non soumise</span>
@@ -86,3 +152,25 @@ const recordVgp = (machine: Machine) => save(`/api/machines/${machine.ref}/vgp`,
     </table>
   </section>
 </template>
+
+<style scoped>
+.workshop-periods {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.workshop-planned {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.workshop-action {
+  margin-left: 8px;
+  padding: 2px 8px;
+  font-size: 0.85rem;
+}
+</style>

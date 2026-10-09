@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\Violation;
 use App\Models\Machine;
+use App\Models\WorkshopPeriod;
 use Illuminate\Support\Carbon;
 
 class ReservationRules
@@ -18,7 +19,7 @@ class ReservationRules
     {
         return [
             ...$this->overlaps($machine, $from, $to, $ignoredReservationId),
-            ...$this->workshop($machine, $from),
+            ...$this->workshop($machine, $from, $to),
             ...$this->vgp($machine, $to),
         ];
     }
@@ -42,18 +43,16 @@ class ReservationRules
     }
 
     /** @return list<array{code: string, message: string}> */
-    public function workshop(Machine $machine, Carbon $from): array
+    public function workshop(Machine $machine, Carbon $from, Carbon $to): array
     {
-        if ($machine->workshop_until === null || $from->gt($machine->workshop_until)) {
-            return [];
-        }
-
-        $note = $machine->workshop_note ? " ({$machine->workshop_note})" : '';
-
-        return [[
-            'code' => Violation::Workshop->value,
-            'message' => "Machine en atelier jusqu'au {$machine->workshop_until->format('d/m/Y')}{$note}",
-        ]];
+        return $machine->workshopPeriods
+            ->filter(fn (WorkshopPeriod $period) => $period->overlaps($from, $to))
+            ->map(fn (WorkshopPeriod $period) => [
+                'code' => Violation::Workshop->value,
+                'message' => "Machine en atelier {$period->describe()}",
+            ])
+            ->values()
+            ->all();
     }
 
     /** @return list<array{code: string, message: string}> */

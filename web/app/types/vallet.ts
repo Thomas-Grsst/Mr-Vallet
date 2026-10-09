@@ -13,6 +13,14 @@ export type Agency = {
   name: string
 }
 
+export type WorkshopPeriod = {
+  id: number
+  starts_at: string
+  ends_at: string
+  reason: string | null
+  status: 'current' | 'planned'
+}
+
 export type Machine = {
   ref: string
   type: string
@@ -21,8 +29,7 @@ export type Machine = {
   last_vgp_at: string | null
   vgp_expires_at: string | null
   vgp_ok_today: boolean
-  workshop_until: string | null
-  workshop_note: string | null
+  workshop_periods: WorkshopPeriod[]
   available: boolean | null
   reasons: string[]
 }

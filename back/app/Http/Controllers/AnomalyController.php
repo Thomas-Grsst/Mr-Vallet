@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\Violation;
 use App\Models\Reservation;
+use App\Models\WorkshopPeriod;
 use App\Services\ReservationRules;
 use Illuminate\Http\JsonResponse;
 
@@ -13,7 +14,7 @@ class AnomalyController extends Controller
 
     public function __invoke(): JsonResponse
     {
-        $reservations = Reservation::query()->whereNull('cancelled_at')->with('machine')->orderBy('starts_at')->get();
+        $reservations = Reservation::query()->whereNull('cancelled_at')->with('machine.workshopPeriods')->orderBy('starts_at')->get();
 
         $overlaps = $reservations
             ->flatMap(fn (Reservation $first) => $reservations
@@ -37,6 +38,15 @@ class AnomalyController extends Controller
                 'message' => "{$reservation->machine->ref} : réservée pour {$reservation->client} du {$reservation->starts_at->format('d/m')} au {$reservation->ends_at->format('d/m')} alors que sa VGP n'est pas à jour",
             ]);
 
-        return response()->json($overlaps->concat($vgp)->values());
+        $workshop = $reservations->flatMap(fn (Reservation $reservation) => $reservation->machine->workshopPeriods
+            ->filter(fn (WorkshopPeriod $period) => $period->overlaps($reservation->starts_at, $reservation->ends_at))
+            ->map(fn (WorkshopPeriod $period) => [
+                'code' => Violation::Workshop->value,
+                'machine_ref' => $reservation->machine->ref,
+                'reservation_ids' => [$reservation->id],
+                'message' => "{$reservation->machine->ref} : réservée pour {$reservation->client} du {$reservation->starts_at->format('d/m')} au {$reservation->ends_at->format('d/m')} pendant un passage en atelier {$period->describe()}",
+            ]));
+
+        return response()->json($overlaps->concat($workshop)->concat($vgp)->values());
     }
 }

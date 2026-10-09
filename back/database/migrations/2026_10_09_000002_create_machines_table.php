@@ -14,8 +14,6 @@ return new class extends Migration
             $table->string('type');
             $table->foreignId('agency_id')->constrained();
             $table->date('last_vgp_at')->nullable();
-            $table->date('workshop_until')->nullable();
-            $table->string('workshop_note')->nullable();
         });
     }
 

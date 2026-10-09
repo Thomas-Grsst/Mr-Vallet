@@ -13,13 +13,12 @@ class Machine extends Model
 
     protected $dateFormat = 'Y-m-d';
 
-    protected $fillable = ['ref', 'type', 'agency_id', 'last_vgp_at', 'workshop_until', 'workshop_note'];
+    protected $fillable = ['ref', 'type', 'agency_id', 'last_vgp_at'];
 
     protected function casts(): array
     {
         return [
             'last_vgp_at' => 'date:Y-m-d',
-            'workshop_until' => 'date:Y-m-d',
         ];
     }
 
@@ -33,6 +32,12 @@ class Machine extends Model
     public function reservations(): HasMany
     {
         return $this->hasMany(Reservation::class);
+    }
+
+    /** @return HasMany<WorkshopPeriod, $this> */
+    public function workshopPeriods(): HasMany
+    {
+        return $this->hasMany(WorkshopPeriod::class)->orderBy('starts_at');
     }
 
     public function requiresVgp(): bool

@@ -5,6 +5,7 @@ use App\Http\Controllers\AnomalyController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MachineController;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\WorkshopPeriodController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('login', [AuthController::class, 'login'])->middleware('throttle:10,1');
@@ -15,7 +16,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('agencies', [AgencyController::class, 'index']);
     Route::get('machine-types', [MachineController::class, 'types']);
     Route::get('machines', [MachineController::class, 'index']);
-    Route::patch('machines/{machine:ref}/workshop', [MachineController::class, 'updateWorkshop']);
+    Route::post('machines/{machine:ref}/workshop-periods', [WorkshopPeriodController::class, 'store']);
+    Route::delete('workshop-periods/{period}', [WorkshopPeriodController::class, 'destroy']);
     Route::patch('machines/{machine:ref}/vgp', [MachineController::class, 'updateVgp']);
     Route::get('reservations', [ReservationController::class, 'index']);
     Route::get('reservation-history', [ReservationController::class, 'history']);

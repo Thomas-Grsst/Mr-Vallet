@@ -17,18 +17,22 @@ class ValletSeeder extends Seeder
     private const AGENCIES = ['Lyon Est', 'Villeurbanne', 'Grenoble', 'Saint-Etienne', 'Clermont-Ferrand', 'Annecy', 'Valence'];
 
     private const MACHINES = [
-        ['NAC112', 'Nacelle 12 m', 'Lyon Est', '2026-07-10', null, null],
-        ['NAC140', 'Nacelle 12 m', 'Grenoble', '2026-08-20', null, null],
-        ['NAC118', 'Nacelle 12 m', 'Annecy', '2026-04-15', null, null],
-        ['NAC089', 'Nacelle 16 m', 'Lyon Est', '2026-03-05', null, null],
-        ['NAC201', 'Nacelle 20 m', 'Villeurbanne', '2026-09-02', null, null],
-        ['MINI07', 'Mini-pelle 1.8 t', 'Lyon Est', null, '2026-10-20', 'verin casse'],
-        ['MINI12', 'Mini-pelle 1.8 t', 'Saint-Etienne', null, null, null],
-        ['MINI15', 'Mini-pelle 3.5 t', 'Clermont-Ferrand', null, null, null],
-        ['COMP21', 'Compacteur', 'Lyon Est', null, null, null],
-        ['COMP30', 'Compacteur', 'Annecy', null, null, null],
-        ['ECH40', 'Echafaudage 40 m2', 'Lyon Est', null, null, null],
-        ['ECH41', 'Echafaudage 40 m2', 'Valence', null, null, null],
+        ['NAC112', 'Nacelle 12 m', 'Lyon Est', '2026-07-10'],
+        ['NAC140', 'Nacelle 12 m', 'Grenoble', '2026-08-20'],
+        ['NAC118', 'Nacelle 12 m', 'Annecy', '2026-04-15'],
+        ['NAC089', 'Nacelle 16 m', 'Lyon Est', '2026-03-05'],
+        ['NAC201', 'Nacelle 20 m', 'Villeurbanne', '2026-09-02'],
+        ['MINI07', 'Mini-pelle 1.8 t', 'Lyon Est', null],
+        ['MINI12', 'Mini-pelle 1.8 t', 'Saint-Etienne', null],
+        ['MINI15', 'Mini-pelle 3.5 t', 'Clermont-Ferrand', null],
+        ['COMP21', 'Compacteur', 'Lyon Est', null],
+        ['COMP30', 'Compacteur', 'Annecy', null],
+        ['ECH40', 'Echafaudage 40 m2', 'Lyon Est', null],
+        ['ECH41', 'Echafaudage 40 m2', 'Valence', null],
+    ];
+
+    private const WORKSHOP_PERIODS = [
+        ['MINI07', '2026-10-01', '2026-10-20', 'verin casse'],
     ];
 
     private const RESERVATIONS = [
@@ -52,9 +56,11 @@ class ValletSeeder extends Seeder
                 'type' => $row[1],
                 'agency_id' => $agencies[$row[2]]->id,
                 'last_vgp_at' => $row[3],
-                'workshop_until' => $row[4],
-                'workshop_note' => $row[5],
             ])]);
+
+        foreach (self::WORKSHOP_PERIODS as [$ref, $from, $to, $reason]) {
+            $machines[$ref]->workshopPeriods()->create(['starts_at' => $from, 'ends_at' => $to, 'reason' => $reason]);
+        }
 
         $agencies->each(fn (Agency $agency) => User::query()->create([
             'name' => $agency->name,

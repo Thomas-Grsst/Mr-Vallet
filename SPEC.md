@@ -7,44 +7,49 @@ Chaque agence tient son propre Excel de planning et personne ne connaît la disp
 
 ## Les utilisateurs
 - **Agences** (Sandrine Morin, Lyon Est) : cherchent une machine dans les 7 agences et la réservent pour un client.
-- **Atelier** (Mehdi Arfaoui et ses techniciens) : déclarent une machine en atelier et enregistrent les VGP.
+- **Atelier** (Mehdi Arfaoui et ses techniciens) : déclarent et prévoient les passages en atelier, et enregistrent les VGP.
 - **Commerciale grands comptes** (Julie Ferrand) : consulte en temps réel ce qui est disponible.
 
 ## Ce que l'outil permet
 1. En tant qu'agence, je veux chercher une machine par type et par période dans les 7 agences, afin de ne plus appeler les agences une par une (jusqu'à 30 min aujourd'hui, DOC 2).
 2. En tant qu'agence, je veux réserver une machine pour un client, sur la période cherchée ou à d'autres dates choisies depuis le bouton « Réserver », afin que toutes les agences voient la réservation immédiatement.
 3. En tant qu'agence, je veux annuler une réservation, afin de libérer la machine et corriger une double réservation.
-4. En tant qu'atelier, je veux passer une machine en atelier jusqu'à une date et enregistrer une VGP, afin qu'on ne promette plus une machine en panne ou non conforme (DOC 5).
-5. En tant qu'utilisateur, je veux voir les réservations reprises des Excel qui violent une règle, afin de les traiter.
+4. En tant qu'atelier, je veux déclarer ou prévoir un passage en atelier avec une date de début et de fin, et enregistrer une VGP, afin qu'on ne promette plus une machine en panne, en entretien ou non conforme (DOC 5).
+5. En tant qu'utilisateur, je veux voir les réservations qui violent une règle, afin de les traiter.
 6. En tant qu'utilisateur, je dois me connecter, afin que personne d'extérieur ne puisse modifier le planning ou une VGP.
 
 ## Les règles que l'outil doit faire respecter
 - R1. Une machine ne peut pas avoir deux réservations qui se chevauchent, dates incluses (DOC 2, DOC 3).
-- R2. Une machine en atelier n'est pas réservable sur une période qui commence au plus tard à sa date de retour (DOC 5 : MINI07 jusqu'au 20/10).
-- R3. Une nacelle n'est réservable que si sa VGP, valable 6 mois, couvre toute la période ; sans VGP, elle n'est pas réservable (DOC 5 : « une nacelle sans VGP à jour ne doit pas sortir »).
+- R2. Une machine n'est pas réservable sur une période qui chevauche un de ses passages en atelier, dates incluses (DOC 5 : MINI07 à l'atelier depuis le jeudi 01/10 jusqu'au 20/10).
+- R3. Une nacelle n'est réservable que si sa dernière VGP réalisée, valable 6 mois, couvre toute la période ; sans VGP, elle n'est pas réservable (DOC 5 : « une nacelle sans VGP à jour ne doit pas sortir »).
 - R4. La date de fin est égale ou postérieure à la date de début.
 - R5. On ne réserve pas dans le passé (avant le 12/10/2026).
 - R6. Une réservation indique le client, la machine, les dates et l'agence qui l'a saisie ; l'agence est celle du compte connecté.
-- R7. Une machine indisponible affiche son motif (période occupée et par qui, en atelier jusqu'au…, « VGP non à jour, contacter l'atelier ») ; son bouton devient « Réserver à d'autres dates » (retour de Brice).
+- R7. Une machine indisponible affiche son motif (période occupée et par qui, « en atelier du … au … », « VGP non à jour, contacter l'atelier ») ; son bouton devient « Réserver à d'autres dates » (retour de Brice).
+- R8. Seules les agences réservent et annulent ; seul l'atelier gère les passages en atelier et enregistre les VGP ; la commerciale consulte.
 - R9. Dans le formulaire de réservation, les dates sont pré-remplies avec la période cherchée et modifiables sans relancer la recherche ; les règles R1 à R5 sont revérifiées à l'envoi et un refus affiche son motif (retour de Brice).
-- R10. Dans le planning, chaque réservation concernée par une anomalie (double réservation ou VGP non à jour) affiche sous sa machine un avertissement « Attention : anomalie » avec son type (retour de Brice).
+- R10. Dans le planning, chaque réservation concernée par une anomalie (double réservation, VGP non à jour, machine en atelier) affiche sous sa machine un avertissement « Attention : anomalie » avec son type (retour de Brice).
 - R11. Le planning se filtre par client, choisi dans la liste des clients qui ont une réservation, pour voir toutes les machines réservées par une entreprise ; « Tous les clients » réaffiche tout (retour de Brice).
 - R12. Le planning se filtre aussi par machine, par agence de la machine, par agence de saisie et par période (réservations qui chevauchent la période) ; les filtres se cumulent, un bouton « Réinitialiser les filtres » les vide tous, et le message « Aucune réservation ne correspond aux filtres » s'affiche si rien ne correspond (initiative du binôme, non demandée par Brice).
 - R13. Pendant un chargement (onglet, recherche, réservation), l'écran affiche un indicateur « Chargement… » ; tant que les données ne sont pas chargées, il n'affiche jamais « Aucune anomalie », « Aucune réservation » ni une liste vide. Si le chargement échoue, il affiche « Impossible de charger les données » avec un bouton « Réessayer », jamais un résultat vide (retour de Brice).
 - R14. Un onglet « Historique » liste toutes les réservations, y compris annulées, avec leur statut : « à venir » (début après aujourd'hui), « en cours » (aujourd'hui dans la période), « terminée » (fin avant aujourd'hui), « annulée » (avec la date et l'agence qui a annulé). Il a les mêmes filtres que le planning, plus un filtre par statut (retour de Brice).
 - R15. Annuler une réservation ne l'efface plus : elle est marquée annulée, disparaît du planning et des anomalies, et libère la machine ; une réservation déjà annulée ne peut pas l'être une seconde fois (retour de Brice, nécessaire à R14).
-- R8. Seules les agences réservent et annulent ; seul l'atelier passe une machine en atelier et enregistre une VGP ; la commerciale consulte.
+- R16. Un passage en atelier a une date de début, une date de fin (égale ou postérieure au début) et un motif facultatif (ex. « VGP », « vérin cassé ») ; le début est aujourd'hui ou plus tard, sauf pour les données reprises ; deux passages d'une même machine ne peuvent pas se chevaucher (retour de Brice).
+- R17. L'atelier peut prévoir un passage dans le futur, par exemple une VGP ; une VGP prévue ne compte pas comme réalisée : R3 continue de s'appliquer tant que l'atelier n'a pas enregistré la VGP réalisée (retour de Brice ; prudence légale, DOC 5).
+- R18. Un passage en cours se termine avec « Remettre en service » (la machine redevient disponible dès aujourd'hui) ; un passage prévu s'annule avec « Annuler ce passage » (retour de Brice).
+- R19. Un passage en atelier peut chevaucher une réservation existante (une panne ne se refuse pas) : l'atelier voit alors la liste des réservations concernées, et chacune apparaît dans les anomalies comme « réservée pendant un passage en atelier » (conséquence de R16).
 
 ## Ce que l'outil ne fait pas ce matin
 - Pas de réservation en ligne par les particuliers (étape 2, une fois la disponibilité fiable).
 - Pas de tarifs, bons de commande, cautions ni facturation.
 - Pas de photos d'état des lieux, pas de vente d'occasion, pas de transfert de machine entre agences.
 - Pas de gestion des comptes (comptes de démonstration fournis) ni de HTTPS : prototype local.
-- L'historique ne montre que les réservations, pas les actions de l'atelier (mises en atelier, VGP) : question à poser à Brice.
+- L'historique ne montre que les réservations, pas les actions de l'atelier : question à poser à Brice.
+- Une VGP prévue ne débloque pas la nacelle à l'avance : question à poser à Brice.
 
 ## Nos 5 tests
 1. Étant donné que NAC112 est réservée du 14/10 au 18/10 pour BTP Rhone, quand Villeurbanne cherche une « Nacelle 12 m » du 16/10 au 17/10, alors NAC112 apparaît indisponible avec le motif « Période déjà occupée par BTP Rhone du 14/10/2026 au 18/10/2026 » et son bouton affiche « Réserver à d'autres dates ».
-2. Étant donné que MINI07 est en atelier jusqu'au 20/10, quand une agence cherche une « Mini-pelle 1.8 t » du 15/10 au 16/10, alors MINI07 apparaît indisponible (en atelier) et MINI12 (Saint-Etienne) est proposée.
+2. Étant donné que MINI07 est en atelier du 01/10 au 20/10, quand une agence cherche une « Mini-pelle 1.8 t » du 15/10 au 16/10, alors MINI07 apparaît indisponible (en atelier) et MINI12 (Saint-Etienne) est proposée.
 3. Étant donné que la dernière VGP de NAC089 date du 05/03/2026, quand une agence cherche une « Nacelle 16 m » du 02/11 au 05/11, alors NAC089 apparaît indisponible avec le motif « VGP non à jour, contacter l'atelier ».
 4. Étant donné que NAC140 (Grenoble) est libre du 26/10 au 28/10 et que sa VGP est à jour, quand Lyon Est la réserve pour Facades Martin, alors la réservation est acceptée et apparaît dans le planning, saisie par Lyon Est.
 5. Étant donné que les réservations ont été reprises des Excel, quand on ouvre l'onglet Anomalies, alors on voit la double réservation NAC112 (BTP Rhone / Maconnerie Duclos) et NAC089 réservée pour Facades Martin avec une VGP échue.
@@ -59,3 +64,6 @@ Chaque agence tient son propre Excel de planning et personne ne connaît la disp
 12. Étant donné que le serveur ne répond pas, quand on ouvre l'onglet Anomalies, alors on voit « Impossible de charger les données » avec un bouton « Réessayer », et pas « Aucune anomalie ».
 13. Étant donné qu'aujourd'hui est le 12/10/2026, quand on ouvre l'historique, alors ECH40 (Constructions Alpes, 06/10 → 24/10) et COMP21 (M. Pereira, 12/10 → 12/10) sont « en cours », et NAC112 (BTP Rhone, 14/10 → 18/10) est « à venir ».
 14. Étant donné que Lyon Est annule la réservation NAC112 de Maconnerie Duclos, quand on ouvre l'historique et qu'on filtre sur le statut « annulée », alors on voit cette réservation « annulée le 12/10/2026 par Lyon Est » ; elle n'apparaît plus dans le planning ni dans les anomalies.
+15. Étant donné que NAC201 (Villeurbanne) est libre, quand l'atelier prévoit un passage « VGP » du 02/11 au 03/11, alors l'onglet Atelier affiche ce passage « prévu du 02/11/2026 au 03/11/2026 », NAC201 reste réservable du 26/10 au 30/10, et une recherche du 02/11 au 05/11 la montre indisponible avec le motif « Machine en atelier du 02/11/2026 au 03/11/2026 (VGP) ».
+16. Étant donné que MINI07 est en atelier du 01/10 au 20/10, quand l'atelier clique sur « Remettre en service », alors MINI07 devient réservable dès le 12/10 ; et quand l'atelier annule un passage prévu, la machine redevient réservable sur cette période.
+17. Étant donné que NAC140 est réservée par BTP Rhone du 19/10 au 23/10, quand l'atelier déclare un passage du 20/10 au 21/10 (« panne moteur »), alors le passage est enregistré, l'atelier voit « Réservation concernée : BTP Rhone du 19/10/2026 au 23/10/2026 », et la réservation apparaît dans les anomalies comme « réservée pendant un passage en atelier ».

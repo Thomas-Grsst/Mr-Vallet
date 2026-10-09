@@ -4,6 +4,7 @@ import type { Anomaly, Reservation } from '~/types/vallet'
 const anomalyLabels: Record<string, string> = {
   overlap: 'double réservation',
   vgp_expired: 'VGP non à jour',
+  workshop: 'en atelier',
 }
 
 const { $api } = useNuxtApp()
