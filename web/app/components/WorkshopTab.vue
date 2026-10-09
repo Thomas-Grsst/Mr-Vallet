@@ -11,7 +11,7 @@ const workshopUntil = ref<Record<string, string>>({})
 const workshopNote = ref<Record<string, string>>({})
 const vgpDate = ref<Record<string, string>>({})
 
-const { data: machines, refresh } = await useApiFetch<Machine[]>('/api/machines', { default: () => [] })
+const { data: machines, refresh } = useApiFetch<Machine[]>('/api/machines', { default: () => [] })
 
 const save = async (url: string, body: Record<string, string | null>) => {
   errors.value = []

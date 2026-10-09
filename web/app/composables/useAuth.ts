@@ -34,6 +34,9 @@ export const useAuth = () => {
     try {
       await $api('/api/logout', { method: 'POST' })
     }
+    catch {
+      return
+    }
     finally {
       setToken(null)
       user.value = null

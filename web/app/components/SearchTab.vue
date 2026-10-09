@@ -21,7 +21,7 @@ const reservationErrors = ref<string[]>([])
 const confirmation = ref<string | null>(null)
 const isSubmitting = ref(false)
 
-const { data: types } = await useApiFetch<string[]>('/api/machine-types', { default: () => [] })
+const { data: types } = useApiFetch<string[]>('/api/machine-types', { default: () => [] })
 
 const search = async () => {
   searchErrors.value = []

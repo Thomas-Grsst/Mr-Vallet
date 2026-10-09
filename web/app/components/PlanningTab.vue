@@ -7,7 +7,7 @@ const { formatDate } = useFormatDate()
 const { toMessages } = useApiErrors()
 const errors = ref<string[]>([])
 
-const { data: reservations, refresh } = await useApiFetch<Reservation[]>('/api/reservations', { default: () => [] })
+const { data: reservations, refresh } = useApiFetch<Reservation[]>('/api/reservations', { default: () => [] })
 
 const cancel = async (reservation: Reservation) => {
   if (!confirm(`Annuler la réservation de ${reservation.machine_ref} pour ${reservation.client} ?`)) {
