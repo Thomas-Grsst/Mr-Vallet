@@ -162,6 +162,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - **FR-027 (R19)**: Un passage en atelier MAY chevaucher une réservation existante ; l'atelier MUST alors voir la liste des réservations concernées, et chacune MUST apparaître dans les anomalies (conséquence de FR-024).
 - **FR-028 (R20)**: L'onglet Atelier MUST pouvoir être filtré par nom de machine (saisie libre, correspondance partielle, sans tenir compte des majuscules) et par type de machine (liste) ; les filtres se cumulent et « Aucune machine ne correspond » s'affiche si rien ne correspond (retour de Brice).
 - **FR-029 (R21)**: Dans l'onglet Atelier, l'état VGP d'une nacelle MUST être écrit en toutes lettres : « VGP en retard » si elle n'est plus valable aujourd'hui ou absente, sinon « VGP à jour », suivi de la date de la dernière VGP réalisée et de sa fin de validité ; la couleur seule ne suffit pas (retour de Brice).
+- **FR-030 (R22)**: Dans l'onglet Atelier, les machines « VGP en retard » MUST apparaître en premier, puis les autres par type puis par nom ; l'ordre MUST être conservé avec les filtres (retour de Brice).
 
 ### Key Entities
 
@@ -219,6 +220,7 @@ Tests ajoutés après la recette de Brice :
 17. Étant donné que NAC140 est réservée par BTP Rhone du 19/10 au 23/10, quand l'atelier déclare un passage du 20/10 au 21/10 (« panne moteur »), alors le passage est enregistré, l'atelier voit « Réservation concernée : BTP Rhone du 19/10/2026 au 23/10/2026 », et la réservation apparaît dans les anomalies comme « réservée pendant un passage en atelier ».
 18. Étant donné le parc de 12 machines, quand l'atelier tape « nac1 » dans le filtre par nom, alors seules NAC112, NAC118 et NAC140 s'affichent ; quand il choisit en plus le type « Nacelle 12 m », les trois restent ; quand il choisit seulement le type « Compacteur », alors seules COMP21 et COMP30 s'affichent ; quand il tape « XYZ », alors « Aucune machine ne correspond » s'affiche.
 19. Étant donné qu'aujourd'hui est le 12/10/2026 et que la VGP de NAC089 était valable jusqu'au 05/09/2026, quand l'atelier ouvre l'onglet Atelier, alors NAC089 affiche « VGP en retard · dernière VGP 05/03/2026, valable jusqu'au 05/09/2026 », et NAC112 affiche « VGP à jour · dernière VGP 10/07/2026, valable jusqu'au 10/01/2027 ».
+20. Étant donné que NAC089 est la seule nacelle « VGP en retard », quand l'atelier ouvre l'onglet Atelier, alors NAC089 est la première ligne ; et quand il filtre sur le type « Nacelle 16 m » ou tape « nac », NAC089 reste en premier.
 
 ## Assumptions
 

@@ -26,10 +26,12 @@ const machineTypes = computed(() => [...new Set(machines.value.map((machine) => 
 const visibleMachines = computed(() => {
   const name = nameFilter.value.trim().toLowerCase()
 
-  return machines.value.filter((machine) =>
-    (!name || machine.ref.toLowerCase().includes(name))
-    && (!typeFilter.value || machine.type === typeFilter.value),
-  )
+  return machines.value
+    .filter((machine) =>
+      (!name || machine.ref.toLowerCase().includes(name))
+      && (!typeFilter.value || machine.type === typeFilter.value),
+    )
+    .sort((first, second) => Number(first.vgp_ok_today) - Number(second.vgp_ok_today))
 })
 
 const emptyDraft = (): PeriodDraft => ({ startsAt: today, endsAt: today, reason: '' })
