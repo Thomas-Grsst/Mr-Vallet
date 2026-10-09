@@ -27,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('reservations', [ReservationController::class, 'index']);
     Route::get('reservation-history', [ReservationController::class, 'history']);
     Route::post('reservations', [ReservationController::class, 'store']);
+    Route::patch('reservations/{reservation}', [ReservationController::class, 'update']);
     Route::delete('reservations/{reservation}', [ReservationController::class, 'destroy']);
     Route::get('anomalies', AnomalyController::class);
 });

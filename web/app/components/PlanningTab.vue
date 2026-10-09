@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Anomaly, Machine, Reservation } from '~/types/vallet'
+import type { Anomaly, Machine, Reservation, ReservationChanges } from '~/types/vallet'
 
 type View = 'timeline' | 'list'
 
@@ -29,6 +29,8 @@ const days = ref(14)
 const rangeStart = ref(today)
 const selectedId = ref<number | null>(null)
 const isCancelling = ref(false)
+const isSaving = ref(false)
+const editErrors = ref<string[]>([])
 
 const { data: reservations, status: reservationsStatus, refresh } = useApiFetch<Reservation[]>('/api/reservations', { default: () => [] })
 const { data: anomalies, status: anomaliesStatus, refresh: refreshAnomalies } = useApiFetch<Anomaly[]>('/api/anomalies', { default: () => [] })
@@ -83,6 +85,26 @@ const move = (direction: number) => {
 
 const select = (reservation: Reservation) => {
   selectedId.value = reservation.id
+  editErrors.value = []
+}
+
+const saveSelected = async (changes: ReservationChanges) => {
+  if (!selected.value) {
+    return
+  }
+
+  editErrors.value = []
+  isSaving.value = true
+  try {
+    await $api(`/api/reservations/${selected.value.id}`, { method: 'PATCH', body: changes })
+    await reload()
+  }
+  catch (error) {
+    editErrors.value = toMessages(error)
+  }
+  finally {
+    isSaving.value = false
+  }
 }
 
 const cancelSelected = async () => {
@@ -194,9 +216,13 @@ const cancelSelected = async () => {
         :reservation="selected"
         :anomalies="selectedAnomalies"
         :can-cancel="!!user?.can_book"
+        :can-edit="!!user?.can_book"
         :is-cancelling="isCancelling"
+        :is-saving="isSaving"
+        :edit-errors="editErrors"
         @close="selectedId = null"
         @cancel="cancelSelected"
+        @save="saveSelected"
       />
     </div>
   </section>

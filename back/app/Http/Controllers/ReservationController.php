@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
 use App\Http\Requests\StoreReservationRequest;
+use App\Http\Requests\UpdateReservationRequest;
 use App\Models\KeyAccount;
 use App\Models\Machine;
 use App\Models\Reservation;
@@ -21,7 +22,7 @@ class ReservationController extends Controller
     {
         $reservations = Reservation::query()
             ->whereNull('cancelled_at')
-            ->with(['machine.agency', 'enteredBy'])
+            ->with(['machine.agency', 'enteredBy', 'modifiedBy'])
             ->orderBy('starts_at')
             ->get()
             ->map(fn (Reservation $reservation) => $this->present($reservation));
@@ -34,7 +35,7 @@ class ReservationController extends Controller
         $today = ReservationRules::today();
 
         $reservations = Reservation::query()
-            ->with(['machine.agency', 'enteredBy', 'cancelledBy'])
+            ->with(['machine.agency', 'enteredBy', 'cancelledBy', 'modifiedBy'])
             ->orderByDesc('starts_at')
             ->get()
             ->map(fn (Reservation $reservation) => [
@@ -83,9 +84,66 @@ class ReservationController extends Controller
         ]);
 
         return response()->json(
-            $this->present($reservation->load(['machine.agency', 'enteredBy'])),
+            $this->present($reservation->load(['machine.agency', 'enteredBy', 'modifiedBy'])),
             Response::HTTP_CREATED,
         );
+    }
+
+    public function update(UpdateReservationRequest $request, Reservation $reservation): JsonResponse
+    {
+        abort_unless($request->user()->role->canBook(), Response::HTTP_FORBIDDEN, 'Seules les agences et la Direction peuvent modifier une réservation.');
+        abort_if($reservation->isCancelled(), Response::HTTP_CONFLICT, 'Une réservation annulée ne peut pas être modifiée.');
+
+        $today = ReservationRules::today();
+        $from = Carbon::parse($request->string('starts_at'));
+        $to = Carbon::parse($request->string('ends_at'));
+        $startChanges = ! $from->equalTo($reservation->starts_at);
+
+        if (! $reservation->isCancellableOn($today) && ($startChanges || $to->lt($reservation->ends_at))) {
+            return $this->refused([[
+                'code' => 'locked',
+                'message' => "Moins de 48 h avant le début : la location peut seulement être prolongée (début le {$reservation->starts_at->format('d/m/Y')}, fin au plus tôt le {$reservation->ends_at->format('d/m/Y')})",
+            ]]);
+        }
+
+        if ($startChanges && $from->lt($today)) {
+            return $this->refused([[
+                'code' => 'past',
+                'message' => "On ne peut pas réserver dans le passé : la date de début doit être le {$today->format('d/m/Y')} ou après.",
+            ]]);
+        }
+
+        $purchaseOrder = $request->filled('purchase_order')
+            ? $request->string('purchase_order')->trim()->toString()
+            : $reservation->purchase_order;
+
+        $violations = [
+            ...$this->rules->purchaseOrder($reservation->client, $purchaseOrder),
+            ...$this->rules->check($reservation->machine, $from, $to, $reservation->id, $reservation->entered_by_agency_id),
+        ];
+
+        if ($violations !== []) {
+            return $this->refused($violations);
+        }
+
+        $reservation->update([
+            'purchase_order' => $purchaseOrder,
+            'starts_at' => $from->toDateString(),
+            'ends_at' => $to->toDateString(),
+            'modified_at' => $today->toDateString(),
+            'modified_by_agency_id' => $request->user()->agency_id,
+        ]);
+
+        return response()->json($this->present($reservation->fresh(['machine.agency', 'enteredBy', 'modifiedBy'])));
+    }
+
+    /** @param list<array{code: string, message: string}> $violations */
+    private function refused(array $violations): JsonResponse
+    {
+        return response()->json([
+            'message' => 'Modification refusée',
+            'violations' => $violations,
+        ], Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     public function destroy(Request $request, Reservation $reservation): Response
@@ -121,6 +179,8 @@ class ReservationController extends Controller
             'entered_by' => $reservation->enteredBy->name,
             'cancellable_until' => $reservation->cancellableUntil()->toDateString(),
             'cancellable' => $reservation->isCancellableOn(ReservationRules::today()),
+            'modified_at' => $reservation->modified_at?->toDateString(),
+            'modified_by' => $reservation->modified_at ? ($reservation->modifiedBy?->name ?? UserRole::Director->label()) : null,
         ];
     }
 }

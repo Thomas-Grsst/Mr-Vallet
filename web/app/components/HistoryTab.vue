@@ -68,6 +68,9 @@ const resetAllFilters = () => {
             <div v-if="reservation.status === 'cancelled'" class="muted">
               le {{ formatDate(reservation.cancelled_at) }} par {{ reservation.cancelled_by }}
             </div>
+            <div v-if="reservation.modified_at" class="muted">
+              modifiée le {{ formatDate(reservation.modified_at) }} par {{ reservation.modified_by }}
+            </div>
           </td>
         </tr>
         <tr v-if="!visibleReservations.length">

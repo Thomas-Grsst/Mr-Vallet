@@ -13,7 +13,7 @@ class Reservation extends Model
 
     protected $dateFormat = 'Y-m-d';
 
-    protected $fillable = ['machine_id', 'client', 'purchase_order', 'starts_at', 'ends_at', 'entered_by_agency_id', 'cancelled_at', 'cancelled_by_agency_id'];
+    protected $fillable = ['machine_id', 'client', 'purchase_order', 'starts_at', 'ends_at', 'entered_by_agency_id', 'cancelled_at', 'cancelled_by_agency_id', 'modified_at', 'modified_by_agency_id'];
 
     protected function casts(): array
     {
@@ -21,6 +21,7 @@ class Reservation extends Model
             'starts_at' => 'date:Y-m-d',
             'ends_at' => 'date:Y-m-d',
             'cancelled_at' => 'date:Y-m-d',
+            'modified_at' => 'date:Y-m-d',
         ];
     }
 
@@ -45,6 +46,12 @@ class Reservation extends Model
     public function isCancelled(): bool
     {
         return $this->cancelled_at !== null;
+    }
+
+    /** @return BelongsTo<Agency, $this> */
+    public function modifiedBy(): BelongsTo
+    {
+        return $this->belongsTo(Agency::class, 'modified_by_agency_id');
     }
 
     public function cancellableUntil(): Carbon

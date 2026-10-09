@@ -61,6 +61,8 @@ export type Reservation = {
   entered_by: string
   cancellable_until: string
   cancellable: boolean
+  modified_at: string | null
+  modified_by: string | null
 }
 
 export type ReservationStatus = 'upcoming' | 'ongoing' | 'finished' | 'cancelled'
@@ -82,4 +84,10 @@ export type Anomaly = {
 export type KeyAccount = {
   id: number
   name: string
+}
+
+export type ReservationChanges = {
+  starts_at: string
+  ends_at: string
+  purchase_order: string | null
 }

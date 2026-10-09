@@ -12,6 +12,7 @@ Tout ce qui est dans le prototype sans être écrit dans la spec.
 | 6 | Dans la recherche, ce qui occupe chaque machine et ses créneaux libres sur 60 jours (R27) | Initiative du binôme : éviter de relancer la recherche date après date pour trouver un créneau | Non |
 | 7 | Planning en frise par machine (design B choisi parmi 3 propositions), avec vue « Liste » conservée (R30) | Initiative du binôme : lecture du planning « comme sur Teams », proche des Excel d'agence (DOC 3) | Non |
 | 8 | Panneau de détail au clic sur une réservation, avec ses anomalies et l'annulation (R31) | Initiative du binôme | Non |
+| 9 | Modification des dates d'une réservation par les agences et la Direction, prolongation seule à moins de 48 h (R34) | Initiative du binôme : le client veut décaler ou rallonger sa location ; la commerciale reste en consultation | Non |
 
 ## Cartes révélation
 

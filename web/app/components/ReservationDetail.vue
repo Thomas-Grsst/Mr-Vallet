@@ -1,16 +1,41 @@
 <script setup lang="ts">
-import type { Reservation } from '~/types/vallet'
+import type { Reservation, ReservationChanges } from '~/types/vallet'
 
-defineProps<{
+const props = defineProps<{
   reservation: Reservation
   anomalies: string[]
   canCancel: boolean
+  canEdit: boolean
   isCancelling: boolean
+  isSaving: boolean
+  editErrors: string[]
 }>()
 
-defineEmits<{ close: [], cancel: [] }>()
+const emit = defineEmits<{ close: [], cancel: [], save: [changes: ReservationChanges] }>()
 
 const { formatDate } = useFormatDate()
+
+const isEditing = ref(false)
+const startsAt = ref('')
+const endsAt = ref('')
+const purchaseOrder = ref('')
+
+const startEditing = () => {
+  startsAt.value = props.reservation.starts_at
+  endsAt.value = props.reservation.ends_at
+  purchaseOrder.value = props.reservation.purchase_order ?? ''
+  isEditing.value = true
+}
+
+watch(() => props.reservation, () => {
+  isEditing.value = false
+})
+
+const save = () => emit('save', {
+  starts_at: startsAt.value,
+  ends_at: endsAt.value,
+  purchase_order: purchaseOrder.value.trim() || null,
+})
 </script>
 
 <template>
@@ -31,6 +56,10 @@ const { formatDate } = useFormatDate()
       <dd>du {{ formatDate(reservation.starts_at) }} au {{ formatDate(reservation.ends_at) }}</dd>
       <dt>Agence de saisie</dt>
       <dd>saisie par {{ reservation.entered_by }}</dd>
+      <template v-if="reservation.modified_at">
+        <dt>Modification</dt>
+        <dd>modifiée le {{ formatDate(reservation.modified_at) }} par {{ reservation.modified_by }}</dd>
+      </template>
       <dt>Annulation</dt>
       <dd :class="{ 'detail__locked': !reservation.cancellable }">
         {{ reservation.cancellable ? `Annulable jusqu'au ${formatDate(reservation.cancellable_until)}` : 'Plus annulable (moins de 48 h avant le début)' }}
@@ -42,15 +71,42 @@ const { formatDate } = useFormatDate()
       <span v-for="message in anomalies" :key="message" class="status-block__detail">{{ message }}</span>
     </div>
 
-    <button
-      v-if="canCancel && reservation.cancellable"
-      type="button"
-      class="button button--ghost detail__cancel"
-      :disabled="isCancelling"
-      @click="$emit('cancel')"
-    >
-      {{ isCancelling ? 'Annulation…' : 'Annuler la réservation' }}
-    </button>
+    <form v-if="isEditing" class="detail__edit" @submit.prevent="save">
+      <p v-if="!reservation.cancellable" class="muted detail__hint">Moins de 48 h avant le début : la location peut seulement être prolongée.</p>
+      <label>
+        Du
+        <input v-model="startsAt" type="date" :disabled="!reservation.cancellable">
+      </label>
+      <label>
+        Au
+        <input v-model="endsAt" type="date" :min="reservation.cancellable ? startsAt : reservation.ends_at">
+      </label>
+      <label>
+        N° de bon de commande
+        <input v-model="purchaseOrder" type="text" placeholder="ex. BC-2026-0412">
+      </label>
+      <div v-if="editErrors.length" class="alert alert--ko">
+        <strong>Modification refusée</strong>
+        <ul><li v-for="message in editErrors" :key="message">{{ message }}</li></ul>
+      </div>
+      <div class="detail__actions">
+        <button type="submit" class="button" :disabled="isSaving">{{ isSaving ? 'Enregistrement…' : 'Enregistrer' }}</button>
+        <button type="button" class="button button--ghost" @click="isEditing = false">Abandonner</button>
+      </div>
+    </form>
+
+    <div v-else class="detail__actions">
+      <button v-if="canEdit" type="button" class="button" @click="startEditing">Modifier</button>
+      <button
+        v-if="canCancel && reservation.cancellable"
+        type="button"
+        class="button button--ghost"
+        :disabled="isCancelling"
+        @click="$emit('cancel')"
+      >
+        {{ isCancelling ? 'Annulation…' : 'Annuler la réservation' }}
+      </button>
+    </div>
   </aside>
 </template>
 
@@ -100,7 +156,36 @@ const { formatDate } = useFormatDate()
   font-weight: 600;
 }
 
-.detail__cancel {
-  align-self: flex-start;
+.detail__edit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail__edit label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-muted);
+}
+
+.detail__edit input {
+  color: var(--color-text);
+  text-transform: none;
+}
+
+.detail__hint {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 </style>
