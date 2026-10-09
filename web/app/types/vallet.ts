@@ -59,6 +59,8 @@ export type Reservation = {
   starts_at: string
   ends_at: string
   entered_by: string
+  cancellable_until: string
+  cancellable: boolean
 }
 
 export type ReservationStatus = 'upcoming' | 'ongoing' | 'finished' | 'cancelled'

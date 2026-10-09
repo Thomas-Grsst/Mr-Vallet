@@ -47,6 +47,16 @@ class Reservation extends Model
         return $this->cancelled_at !== null;
     }
 
+    public function cancellableUntil(): Carbon
+    {
+        return $this->starts_at->copy()->subDays(2);
+    }
+
+    public function isCancellableOn(Carbon $today): bool
+    {
+        return ! $this->isCancelled() && $today->lte($this->cancellableUntil());
+    }
+
     public function statusOn(Carbon $today): ReservationStatus
     {
         return match (true) {

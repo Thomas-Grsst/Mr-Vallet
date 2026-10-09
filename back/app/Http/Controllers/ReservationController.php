@@ -92,6 +92,11 @@ class ReservationController extends Controller
     {
         abort_unless($request->user()->role->canBook(), Response::HTTP_FORBIDDEN, 'Seules les agences peuvent annuler une réservation.');
         abort_if($reservation->isCancelled(), Response::HTTP_CONFLICT, 'Cette réservation est déjà annulée.');
+        abort_unless(
+            $reservation->isCancellableOn(ReservationRules::today()),
+            Response::HTTP_UNPROCESSABLE_ENTITY,
+            "Annulation impossible : la location commence le {$reservation->starts_at->format('d/m/Y')}, il fallait annuler au plus tard le {$reservation->cancellableUntil()->format('d/m/Y')}. Le client doit garder la réservation.",
+        );
 
         $reservation->update([
             'cancelled_at' => ReservationRules::today()->toDateString(),
@@ -114,6 +119,8 @@ class ReservationController extends Controller
             'starts_at' => $reservation->starts_at->toDateString(),
             'ends_at' => $reservation->ends_at->toDateString(),
             'entered_by' => $reservation->enteredBy->name,
+            'cancellable_until' => $reservation->cancellableUntil()->toDateString(),
+            'cancellable' => $reservation->isCancellableOn(ReservationRules::today()),
         ];
     }
 }

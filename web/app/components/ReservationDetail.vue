@@ -31,6 +31,10 @@ const { formatDate } = useFormatDate()
       <dd>du {{ formatDate(reservation.starts_at) }} au {{ formatDate(reservation.ends_at) }}</dd>
       <dt>Agence de saisie</dt>
       <dd>saisie par {{ reservation.entered_by }}</dd>
+      <dt>Annulation</dt>
+      <dd :class="{ 'detail__locked': !reservation.cancellable }">
+        {{ reservation.cancellable ? `Annulable jusqu'au ${formatDate(reservation.cancellable_until)}` : 'Plus annulable (moins de 48 h avant le début)' }}
+      </dd>
     </dl>
 
     <div v-if="anomalies.length" class="status-block status-block--ko">
@@ -39,7 +43,7 @@ const { formatDate } = useFormatDate()
     </div>
 
     <button
-      v-if="canCancel"
+      v-if="canCancel && reservation.cancellable"
       type="button"
       class="button button--ghost detail__cancel"
       :disabled="isCancelling"
@@ -89,6 +93,11 @@ const { formatDate } = useFormatDate()
 
 .detail__list dd {
   margin: 0;
+}
+
+.detail__locked {
+  color: var(--color-ko);
+  font-weight: 600;
 }
 
 .detail__cancel {
