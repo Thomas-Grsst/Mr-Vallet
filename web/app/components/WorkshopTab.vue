@@ -172,7 +172,7 @@ const recordVgp = (machine: Machine) => run(machine.ref, () => $api(`/api/machin
                   VGP réalisée le
                   <input v-model="vgpDate[machine.ref]" type="date" :max="today">
                 </label>
-                <button type="button" class="button button--ghost" :disabled="savingRef === machine.ref" @click="recordVgp(machine)">Enregistrer la VGP</button>
+                <button type="button" class="button button--ghost" :disabled="savingRef === machine.ref" @click="recordVgp(machine)">Mettre à jour la VGP</button>
               </div>
             </template>
             <span v-else class="muted">Non soumise</span>

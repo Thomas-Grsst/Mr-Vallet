@@ -7,14 +7,14 @@ Chaque agence tient son propre Excel de planning et personne ne connaît la disp
 
 ## Les utilisateurs
 - **Agences** (Sandrine Morin, Lyon Est) : cherchent une machine dans les 7 agences et la réservent pour un client.
-- **Atelier** (Mehdi Arfaoui et ses techniciens) : déclarent et prévoient les passages en atelier, et enregistrent les VGP.
+- **Atelier** (Mehdi Arfaoui et ses techniciens) : déclarent et prévoient les passages en atelier, et mettent à jour les VGP.
 - **Commerciale grands comptes** (Julie Ferrand) : consulte en temps réel ce qui est disponible.
 
 ## Ce que l'outil permet
 1. En tant qu'agence, je veux chercher une machine par type et par période dans les 7 agences, afin de ne plus appeler les agences une par une (jusqu'à 30 min aujourd'hui, DOC 2).
 2. En tant qu'agence, je veux réserver une machine pour un client, sur la période cherchée ou à d'autres dates choisies depuis le bouton « Réserver », afin que toutes les agences voient la réservation immédiatement.
 3. En tant qu'agence, je veux annuler une réservation, afin de libérer la machine et corriger une double réservation.
-4. En tant qu'atelier, je veux déclarer ou prévoir un passage en atelier avec une date de début et de fin, et enregistrer une VGP, afin qu'on ne promette plus une machine en panne, en entretien ou non conforme (DOC 5).
+4. En tant qu'atelier, je veux déclarer ou prévoir un passage en atelier avec une date de début et de fin, et mettre à jour la VGP, afin qu'on ne promette plus une machine en panne, en entretien ou non conforme (DOC 5).
 5. En tant qu'utilisateur, je veux voir les réservations qui violent une règle, afin de les traiter.
 6. En tant qu'utilisateur, je dois me connecter, afin que personne d'extérieur ne puisse modifier le planning ou une VGP.
 
@@ -26,7 +26,7 @@ Chaque agence tient son propre Excel de planning et personne ne connaît la disp
 - R5. On ne réserve pas dans le passé (avant le 12/10/2026).
 - R6. Une réservation indique le client, la machine, les dates et l'agence qui l'a saisie ; l'agence est celle du compte connecté.
 - R7. Une machine indisponible affiche son motif (période occupée et par qui, « en atelier du … au … », « VGP non à jour, contacter l'atelier ») ; son bouton devient « Réserver à d'autres dates » (retour de Brice).
-- R8. Seules les agences réservent et annulent ; seul l'atelier gère les passages en atelier et enregistre les VGP ; la commerciale consulte.
+- R8. Seules les agences réservent et annulent ; seul l'atelier gère les passages en atelier et met à jour les VGP ; la commerciale consulte.
 - R9. Dans le formulaire de réservation, les dates sont pré-remplies avec la période cherchée et modifiables sans relancer la recherche ; les règles R1 à R5 sont revérifiées à l'envoi et un refus affiche son motif (retour de Brice).
 - R10. Dans le planning, chaque réservation concernée par une anomalie (double réservation, VGP non à jour, machine en atelier) affiche sous sa machine un avertissement « Attention : anomalie » avec son type (retour de Brice).
 - R11. Le planning se filtre par client, choisi dans la liste des clients qui ont une réservation, pour voir toutes les machines réservées par une entreprise ; « Tous les clients » réaffiche tout (retour de Brice).
@@ -35,12 +35,13 @@ Chaque agence tient son propre Excel de planning et personne ne connaît la disp
 - R14. Un onglet « Historique » liste toutes les réservations, y compris annulées, avec leur statut : « à venir » (début après aujourd'hui), « en cours » (aujourd'hui dans la période), « terminée » (fin avant aujourd'hui), « annulée » (avec la date et l'agence qui a annulé). Il a les mêmes filtres que le planning, plus un filtre par statut (retour de Brice).
 - R15. Annuler une réservation ne l'efface plus : elle est marquée annulée, disparaît du planning et des anomalies, et libère la machine ; une réservation déjà annulée ne peut pas l'être une seconde fois (retour de Brice, nécessaire à R14).
 - R16. Un passage en atelier a une date de début, une date de fin (égale ou postérieure au début) et un motif facultatif (ex. « VGP », « vérin cassé ») ; le début est aujourd'hui ou plus tard, sauf pour les données reprises ; deux passages d'une même machine ne peuvent pas se chevaucher (retour de Brice).
-- R17. L'atelier peut prévoir un passage dans le futur, par exemple une VGP ; une VGP prévue ne compte pas comme réalisée : R3 continue de s'appliquer tant que l'atelier n'a pas enregistré la VGP réalisée (retour de Brice ; prudence légale, DOC 5).
+- R17. L'atelier peut prévoir un passage dans le futur, par exemple une VGP ; une VGP prévue ne compte pas comme réalisée : R3 continue de s'appliquer tant que l'atelier n'a pas mis à jour la VGP avec la date de la VGP réalisée (retour de Brice ; prudence légale, DOC 5).
 - R18. Un passage en cours se termine avec « Remettre en service » (la machine redevient disponible dès aujourd'hui) ; un passage prévu s'annule avec « Annuler ce passage » (retour de Brice).
 - R19. Un passage en atelier peut chevaucher une réservation existante (une panne ne se refuse pas) : l'atelier voit alors la liste des réservations concernées, et chacune apparaît dans les anomalies comme « réservée pendant un passage en atelier » (conséquence de R16).
 - R20. L'onglet Atelier se filtre par nom de machine (saisie libre, une partie du nom suffit, majuscules ou minuscules indifférentes) et par type de machine (liste) ; les deux filtres se cumulent et le message « Aucune machine ne correspond » s'affiche si rien ne correspond (retour de Brice : retrouver une machine parmi les 400 du parc).
 - R21. Dans l'onglet Atelier, l'état VGP d'une nacelle s'écrit en toutes lettres, pas seulement en couleur : « VGP en retard » (en rouge) si elle n'est plus valable aujourd'hui ou s'il n'y en a aucune, sinon « VGP à jour » (en vert), suivi de la date de la dernière VGP réalisée et de sa date de fin de validité (retour de Brice).
 - R22. Dans l'onglet Atelier, les machines « VGP en retard » apparaissent en premier, puis les autres dans l'ordre habituel (type puis nom) ; l'ordre est conservé quand on filtre (retour de Brice).
+- R23. Dans l'onglet Atelier, l'action sur la VGP s'appelle « Mettre à jour la VGP » : l'atelier indique la date de la VGP réalisée (aujourd'hui ou avant) et valide avec ce bouton (retour de Brice).
 
 ## Ce que l'outil ne fait pas ce matin
 - Pas de réservation en ligne par les particuliers (étape 2, une fois la disponibilité fiable).
@@ -73,3 +74,4 @@ Chaque agence tient son propre Excel de planning et personne ne connaît la disp
 18. Étant donné le parc de 12 machines, quand l'atelier tape « nac1 » dans le filtre par nom, alors seules NAC112, NAC118 et NAC140 s'affichent ; quand il choisit en plus le type « Nacelle 12 m », les trois restent ; quand il choisit seulement le type « Compacteur », alors seules COMP21 et COMP30 s'affichent ; quand il tape « XYZ », alors « Aucune machine ne correspond » s'affiche.
 19. Étant donné qu'aujourd'hui est le 12/10/2026 et que la VGP de NAC089 était valable jusqu'au 05/09/2026, quand l'atelier ouvre l'onglet Atelier, alors NAC089 affiche « VGP en retard · dernière VGP 05/03/2026, valable jusqu'au 05/09/2026 », et NAC112 affiche « VGP à jour · dernière VGP 10/07/2026, valable jusqu'au 10/01/2027 ».
 20. Étant donné que NAC089 est la seule nacelle « VGP en retard », quand l'atelier ouvre l'onglet Atelier, alors NAC089 est la première ligne ; et quand il filtre sur le type « Nacelle 16 m » ou tape « nac », NAC089 reste en premier.
+21. Étant donné que la VGP de NAC089 est en retard, quand l'atelier saisit « VGP réalisée le 12/10/2026 » et clique sur « Mettre à jour la VGP », alors NAC089 affiche « VGP à jour · dernière VGP 12/10/2026, valable jusqu'au 12/04/2027 ».

@@ -48,7 +48,7 @@ class MachineController extends Controller
 
     public function updateVgp(UpdateVgpRequest $request, Machine $machine): JsonResponse
     {
-        abort_unless($request->user()->role->canMaintain(), Response::HTTP_FORBIDDEN, "Seul l'atelier peut enregistrer une VGP.");
+        abort_unless($request->user()->role->canMaintain(), Response::HTTP_FORBIDDEN, "Seul l'atelier peut mettre à jour la VGP.");
 
         $machine->update(['last_vgp_at' => $request->input('last_vgp_at')]);
 

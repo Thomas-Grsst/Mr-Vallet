@@ -17,7 +17,7 @@ Chaque agence tient son propre Excel de planning : personne ne connaît la dispo
 ## Les utilisateurs
 
 - **Agences** (Sandrine Morin, Lyon Est) : cherchent une machine dans les 7 agences et la réservent pour un client.
-- **Atelier** (Mehdi Arfaoui et ses techniciens) : déclarent une machine en atelier et enregistrent une nouvelle VGP.
+- **Atelier** (Mehdi Arfaoui et ses techniciens) : déclarent et prévoient les passages en atelier, et mettent à jour les VGP.
 - **Commerciale grands comptes** (Julie Ferrand) : consulte en temps réel ce qui est disponible pour ses clients.
 
 ## User Scenarios & Testing *(mandatory)*
@@ -84,13 +84,13 @@ En tant qu'agence, je veux annuler une réservation, afin de libérer la machine
 
 ### User Story 5 - Tenir à jour l'atelier et la VGP (Priority: P2)
 
-En tant qu'atelier, je veux déclarer ou prévoir un passage en atelier avec une date de début et de fin, remettre une machine en service, annuler un passage prévu, et enregistrer la date d'une VGP réalisée, afin qu'on ne promette plus une machine en panne, en entretien ou non conforme (DOC 5, retours de Brice).
+En tant qu'atelier, je veux déclarer ou prévoir un passage en atelier avec une date de début et de fin, remettre une machine en service, annuler un passage prévu, et mettre à jour la VGP avec la date de la VGP réalisée, afin qu'on ne promette plus une machine en panne, en entretien ou non conforme (DOC 5, retours de Brice).
 
 **Independent Test**: Prévoir un passage « VGP » sur NAC201 du 02/11 au 03/11 ; elle n'est indisponible que sur ces dates.
 
 **Acceptance Scenarios**:
 
-1. **Given** NAC089 a une VGP échue, **When** l'atelier enregistre une VGP réalisée au 12/10/2026, **Then** NAC089 peut être réservée du 02/11 au 05/11.
+1. **Given** NAC089 a une VGP échue, **When** l'atelier met à jour la VGP au 12/10/2026, **Then** NAC089 peut être réservée du 02/11 au 05/11.
 2. **Given** COMP21 est en service, **When** l'atelier déclare un passage du 12/10 au 25/10, **Then** elle n'est plus proposée sur une période qui chevauche le 12/10 → 25/10.
 3. **Given** NAC201 est libre, **When** l'atelier prévoit un passage « VGP » du 02/11 au 03/11, **Then** NAC201 reste réservable du 26/10 au 30/10 et est indisponible du 02/11 au 05/11 avec le motif « Machine en atelier du 02/11/2026 au 03/11/2026 (VGP) ».
 4. **Given** MINI07 est en atelier du 01/10 au 20/10, **When** l'atelier la remet en service, **Then** elle est réservable dès le 12/10.
@@ -111,7 +111,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 
 1. **Given** je ne suis pas connecté, **When** j'ouvre l'outil ou j'appelle une de ses fonctions, **Then** je ne vois que l'écran de connexion et rien n'est modifiable.
 2. **Given** je suis connecté avec le compte de l'agence Villeurbanne, **When** je réserve une machine, **Then** la réservation est saisie par Villeurbanne, sans que je puisse choisir une autre agence.
-3. **Given** je suis connecté avec un compte agence, **When** je tente d'enregistrer une VGP ou de passer une machine en atelier, **Then** c'est refusé : seul l'atelier peut le faire.
+3. **Given** je suis connecté avec un compte agence, **When** je tente de mettre à jour la VGP ou de passer une machine en atelier, **Then** c'est refusé : seul l'atelier peut le faire.
 4. **Given** je suis connecté avec le compte atelier ou le compte commercial, **When** je tente de réserver ou d'annuler, **Then** c'est refusé : seules les agences réservent.
 5. **Given** je saisis un mauvais mot de passe, **When** je valide, **Then** la connexion est refusée avec le message « Identifiants incorrects ».
 
@@ -143,7 +143,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - **FR-014**: Toute l'application MUST exiger une connexion par e-mail et mot de passe ; sans connexion, rien n'est consultable ni modifiable.
 - **FR-015**: Il existe trois profils de compte :
   - **Agence** (un compte par agence) : rechercher, réserver, annuler, consulter le planning et les anomalies.
-  - **Atelier** : rechercher, consulter, déclarer et prévoir des passages en atelier, remettre en service, annuler un passage prévu, enregistrer une VGP.
+  - **Atelier** : rechercher, consulter, déclarer et prévoir des passages en atelier, remettre en service, annuler un passage prévu, mettre à jour la VGP.
   - **Commercial** (Julie Ferrand) : rechercher et consulter uniquement.
 - **FR-016**: Une action non autorisée pour le profil MUST être refusée avec un message, et le bouton correspondant n'est pas proposé.
 - **FR-017**: L'utilisateur MUST pouvoir se déconnecter.
@@ -155,7 +155,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - **FR-022 (R14)**: Un onglet « Historique » MUST lister toutes les réservations, y compris annulées, avec leur statut calculé par rapport à aujourd'hui : « à venir », « en cours », « terminée », ou « annulée » avec la date et l'agence qui a annulé ; il MUST proposer les mêmes filtres que le planning plus un filtre par statut (retour de Brice).
 - **FR-023 (R15)**: Annuler une réservation MUST la marquer annulée (date et agence) au lieu de l'effacer ; une réservation annulée n'apparaît plus dans le planning ni dans les anomalies et ne bloque plus la machine ; une réservation déjà annulée MUST NOT pouvoir être annulée à nouveau (retour de Brice, nécessaire à FR-022).
 - **FR-012**: L'outil MUST permettre d'annuler une réservation.
-- **FR-013**: L'atelier MUST pouvoir enregistrer la date d'une VGP réalisée (aujourd'hui ou avant).
+- **FR-013**: L'atelier MUST pouvoir mettre à jour la VGP avec la date de la VGP réalisée (aujourd'hui ou avant).
 - **FR-024 (R16)**: Un passage en atelier MUST avoir une date de début, une date de fin égale ou postérieure, et un motif facultatif ; le début MUST être aujourd'hui ou plus tard (sauf données reprises) ; deux passages d'une même machine MUST NOT se chevaucher (retour de Brice).
 - **FR-025 (R17)**: L'atelier MUST pouvoir prévoir un passage dans le futur (par exemple une VGP) ; une VGP prévue MUST NOT compter comme réalisée pour FR-005 (retour de Brice).
 - **FR-026 (R18)**: Un passage en cours MUST pouvoir être terminé (« Remettre en service » : la machine est disponible dès aujourd'hui) et un passage prévu MUST pouvoir être annulé (« Annuler ce passage ») (retour de Brice).
@@ -163,6 +163,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - **FR-028 (R20)**: L'onglet Atelier MUST pouvoir être filtré par nom de machine (saisie libre, correspondance partielle, sans tenir compte des majuscules) et par type de machine (liste) ; les filtres se cumulent et « Aucune machine ne correspond » s'affiche si rien ne correspond (retour de Brice).
 - **FR-029 (R21)**: Dans l'onglet Atelier, l'état VGP d'une nacelle MUST être écrit en toutes lettres : « VGP en retard » si elle n'est plus valable aujourd'hui ou absente, sinon « VGP à jour », suivi de la date de la dernière VGP réalisée et de sa fin de validité ; la couleur seule ne suffit pas (retour de Brice).
 - **FR-030 (R22)**: Dans l'onglet Atelier, les machines « VGP en retard » MUST apparaître en premier, puis les autres par type puis par nom ; l'ordre MUST être conservé avec les filtres (retour de Brice).
+- **FR-031 (R23)**: Dans l'onglet Atelier, l'action sur la VGP MUST s'appeler « Mettre à jour la VGP » (retour de Brice, remplace « Enregistrer la VGP »).
 
 ### Key Entities
 
@@ -221,6 +222,7 @@ Tests ajoutés après la recette de Brice :
 18. Étant donné le parc de 12 machines, quand l'atelier tape « nac1 » dans le filtre par nom, alors seules NAC112, NAC118 et NAC140 s'affichent ; quand il choisit en plus le type « Nacelle 12 m », les trois restent ; quand il choisit seulement le type « Compacteur », alors seules COMP21 et COMP30 s'affichent ; quand il tape « XYZ », alors « Aucune machine ne correspond » s'affiche.
 19. Étant donné qu'aujourd'hui est le 12/10/2026 et que la VGP de NAC089 était valable jusqu'au 05/09/2026, quand l'atelier ouvre l'onglet Atelier, alors NAC089 affiche « VGP en retard · dernière VGP 05/03/2026, valable jusqu'au 05/09/2026 », et NAC112 affiche « VGP à jour · dernière VGP 10/07/2026, valable jusqu'au 10/01/2027 ».
 20. Étant donné que NAC089 est la seule nacelle « VGP en retard », quand l'atelier ouvre l'onglet Atelier, alors NAC089 est la première ligne ; et quand il filtre sur le type « Nacelle 16 m » ou tape « nac », NAC089 reste en premier.
+21. Étant donné que la VGP de NAC089 est en retard, quand l'atelier saisit « VGP réalisée le 12/10/2026 » et clique sur « Mettre à jour la VGP », alors NAC089 affiche « VGP à jour · dernière VGP 12/10/2026, valable jusqu'au 12/04/2027 ».
 
 ## Assumptions
 
