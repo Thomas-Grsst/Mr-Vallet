@@ -24,6 +24,7 @@ class CancellationDeadlineTest extends ValletTestCase
             'cancellable' => true,
         ]);
 
+        $this->actingAsAccount('villeurbanne@vallet.test');
         $this->deleteJson("/api/reservations/{$duclos->id}")->assertNoContent();
     }
 

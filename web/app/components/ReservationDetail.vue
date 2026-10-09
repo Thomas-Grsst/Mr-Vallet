@@ -5,6 +5,7 @@ const props = defineProps<{
   reservation: Reservation
   anomalies: string[]
   canCancel: boolean
+  cancelBlockedReason: string | null
   canEdit: boolean
   isCancelling: boolean
   isSaving: boolean
@@ -106,6 +107,7 @@ const save = () => emit('save', {
       >
         {{ isCancelling ? 'Annulation…' : 'Annuler la réservation' }}
       </button>
+      <p v-if="cancelBlockedReason && reservation.cancellable" class="muted detail__hint">{{ cancelBlockedReason }}</p>
     </div>
   </aside>
 </template>

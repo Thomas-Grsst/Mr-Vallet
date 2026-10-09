@@ -5,6 +5,7 @@ namespace App\Enums;
 enum UserRole: string
 {
     case Agency = 'agency';
+    case AgencyManager = 'agency_manager';
     case Workshop = 'workshop';
     case Sales = 'sales';
     case Director = 'director';
@@ -13,6 +14,7 @@ enum UserRole: string
     {
         return match ($this) {
             self::Agency => 'Agence',
+            self::AgencyManager => "Responsable d'agence",
             self::Workshop => 'Atelier',
             self::Sales => 'Commercial',
             self::Director => 'Direction',
@@ -21,7 +23,12 @@ enum UserRole: string
 
     public function canBook(): bool
     {
-        return $this === self::Agency || $this === self::Director;
+        return in_array($this, [self::Agency, self::AgencyManager, self::Director], true);
+    }
+
+    public function canCancelOtherAgencies(): bool
+    {
+        return $this === self::AgencyManager || $this === self::Director;
     }
 
     public function canMaintain(): bool

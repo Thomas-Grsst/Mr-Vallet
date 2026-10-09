@@ -1,13 +1,14 @@
 export type User = {
   name: string
   email: string
-  role: 'agency' | 'workshop' | 'sales'
+  role: 'agency' | 'agency_manager' | 'workshop' | 'sales' | 'director'
   role_label: string
   agency: string | null
   can_book: boolean
   can_maintain: boolean
   chooses_entering_agency: boolean
   can_manage_key_accounts: boolean
+  can_cancel_other_agencies: boolean
 }
 
 export type Agency = {

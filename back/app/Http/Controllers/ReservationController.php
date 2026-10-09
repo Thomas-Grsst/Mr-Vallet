@@ -155,6 +155,11 @@ class ReservationController extends Controller
             Response::HTTP_UNPROCESSABLE_ENTITY,
             "Annulation impossible : la location commence le {$reservation->starts_at->format('d/m/Y')}, il fallait annuler au plus tard le {$reservation->cancellableUntil()->format('d/m/Y')}. Le client doit garder la réservation.",
         );
+        abort_unless(
+            $request->user()->role->canCancelOtherAgencies() || $reservation->entered_by_agency_id === $request->user()->agency_id,
+            Response::HTTP_FORBIDDEN,
+            "Seul un responsable d'agence peut annuler une réservation saisie par une autre agence (saisie par {$reservation->enteredBy->name})",
+        );
 
         $reservation->update([
             'cancelled_at' => ReservationRules::today()->toDateString(),

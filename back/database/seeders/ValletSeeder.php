@@ -32,6 +32,8 @@ class ValletSeeder extends Seeder
         ['ECH41', 'Echafaudage 40 m2', 'Valence', null],
     ];
 
+    private const AGENCY_MANAGERS = ['Lyon Est' => 'Sandrine Morin'];
+
     private const KEY_ACCOUNTS = ['BTP Rhone'];
 
     private const WORKSHOP_PERIODS = [
@@ -70,6 +72,14 @@ class ValletSeeder extends Seeder
             'email' => Str::slug($agency->name).'@vallet.test',
             'password' => self::DEMO_PASSWORD,
             'role' => UserRole::Agency,
+            'agency_id' => $agency->id,
+        ]));
+
+        $agencies->each(fn (Agency $agency) => User::query()->create([
+            'name' => self::AGENCY_MANAGERS[$agency->name] ?? "Responsable {$agency->name}",
+            'email' => 'responsable.'.Str::slug($agency->name).'@vallet.test',
+            'password' => self::DEMO_PASSWORD,
+            'role' => UserRole::AgencyManager,
             'agency_id' => $agency->id,
         ]));
 
