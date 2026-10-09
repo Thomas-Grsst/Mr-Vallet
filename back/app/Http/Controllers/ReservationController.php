@@ -1,0 +1,77 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StoreReservationRequest;
+use App\Models\Machine;
+use App\Models\Reservation;
+use App\Services\ReservationRules;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
+
+class ReservationController extends Controller
+{
+    public function __construct(private ReservationRules $rules) {}
+
+    public function index(): JsonResponse
+    {
+        $reservations = Reservation::query()
+            ->with(['machine.agency', 'enteredBy'])
+            ->orderBy('starts_at')
+            ->get()
+            ->map(fn (Reservation $reservation) => $this->present($reservation));
+
+        return response()->json($reservations);
+    }
+
+    public function store(StoreReservationRequest $request): JsonResponse
+    {
+        $machine = Machine::query()->where('ref', $request->string('machine_ref'))->firstOrFail();
+        $from = Carbon::parse($request->string('starts_at'));
+        $to = Carbon::parse($request->string('ends_at'));
+
+        $violations = $this->rules->check($machine, $from, $to);
+
+        if ($violations !== []) {
+            return response()->json([
+                'message' => 'Réservation refusée',
+                'violations' => $violations,
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $reservation = $machine->reservations()->create([
+            'client' => $request->string('client')->trim()->toString(),
+            'starts_at' => $from->toDateString(),
+            'ends_at' => $to->toDateString(),
+            'entered_by_agency_id' => $request->integer('agency_id'),
+        ]);
+
+        return response()->json(
+            $this->present($reservation->load(['machine.agency', 'enteredBy'])),
+            Response::HTTP_CREATED,
+        );
+    }
+
+    public function destroy(Reservation $reservation): Response
+    {
+        $reservation->delete();
+
+        return response()->noContent();
+    }
+
+    /** @return array<string, mixed> */
+    private function present(Reservation $reservation): array
+    {
+        return [
+            'id' => $reservation->id,
+            'machine_ref' => $reservation->machine->ref,
+            'machine_type' => $reservation->machine->type,
+            'machine_agency' => $reservation->machine->agency->name,
+            'client' => $reservation->client,
+            'starts_at' => $reservation->starts_at->toDateString(),
+            'ends_at' => $reservation->ends_at->toDateString(),
+            'entered_by' => $reservation->enteredBy->name,
+        ];
+    }
+}
