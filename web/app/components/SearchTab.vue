@@ -8,10 +8,18 @@ const { formatDate } = useFormatDate()
 const { toMessages } = useApiErrors()
 
 const type = ref('')
+const machineName = ref('')
 const from = ref(today)
 const to = ref(today)
 
 const machines = ref<Machine[]>([])
+
+const machineNames = computed(() => machines.value.map((machine) => machine.ref).sort())
+
+const visibleMachines = computed(() => {
+  const name = machineName.value.trim().toLowerCase()
+  return machines.value.filter((machine) => !name || machine.ref.toLowerCase().includes(name))
+})
 const hasSearched = ref(false)
 const searchErrors = ref<string[]>([])
 
@@ -149,6 +157,13 @@ const reserve = async () => {
   <section>
     <form class="filter-bar" @submit.prevent="search">
       <label>
+        Nom de la machine
+        <input v-model="machineName" type="search" placeholder="ex. NAC112" list="search-machine-names" autocomplete="off">
+        <datalist id="search-machine-names">
+          <option v-for="ref in machineNames" :key="ref" :value="ref" />
+        </datalist>
+      </label>
+      <label>
         Type de machine
         <select v-model="type" :disabled="typesStatus !== 'success'">
           <option value="">{{ typesStatus === 'success' ? 'Tous les types' : 'Chargement des types…' }}</option>
@@ -181,7 +196,7 @@ const reserve = async () => {
     </div>
 
     <div v-else-if="hasSearched && !searchFailed" class="card table-wrapper" :class="{ 'search-results--refreshing': isSearching }">
-      <p class="muted">Du {{ formatDate(from) }} au {{ formatDate(to) }} · {{ machines.filter((machine) => machine.available).length }} disponible(s) sur {{ machines.length }}</p>
+      <p class="muted">Du {{ formatDate(from) }} au {{ formatDate(to) }} · {{ visibleMachines.filter((machine) => machine.available).length }} disponible(s) sur {{ visibleMachines.length }}</p>
       <table>
         <thead>
           <tr>
@@ -193,7 +208,7 @@ const reserve = async () => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="machine in machines" :key="machine.ref">
+          <tr v-for="machine in visibleMachines" :key="machine.ref">
             <td><strong>{{ machine.ref }}</strong></td>
             <td>{{ machine.type }}</td>
             <td>{{ machine.agency }}</td>
@@ -217,8 +232,8 @@ const reserve = async () => {
               </button>
             </td>
           </tr>
-          <tr v-if="!machines.length">
-            <td colspan="5" class="muted">Aucune machine de ce type.</td>
+          <tr v-if="!visibleMachines.length">
+            <td colspan="5" class="muted">Aucune machine ne correspond.</td>
           </tr>
         </tbody>
       </table>

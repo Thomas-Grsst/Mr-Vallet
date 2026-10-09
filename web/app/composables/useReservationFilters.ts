@@ -29,7 +29,7 @@ export const useReservationFilters = <T extends Reservation>(reservations: Ref<T
   const matches = (reservation: T) => {
     const { machine, machineAgency, client, enteredBy, from, to } = filters.value
 
-    return (!machine || reservation.machine_ref === machine)
+    return (!machine || reservation.machine_ref.toLowerCase().includes(machine.trim().toLowerCase()))
       && (!machineAgency || reservation.machine_agency === machineAgency)
       && (!client || reservation.client === client)
       && (!enteredBy || reservation.entered_by === enteredBy)

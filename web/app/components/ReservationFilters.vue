@@ -15,7 +15,9 @@ type Options = {
   enteringAgencies: string[]
 }
 
-defineProps<{ options: Options, hasFilters: boolean }>()
+defineProps<{ options: Options, hasFilters: boolean, machineSuggestions?: string[] }>()
+
+const suggestionsId = useId()
 defineEmits<{ reset: [] }>()
 
 const filters = defineModel<Filters>({ required: true })
@@ -24,11 +26,11 @@ const filters = defineModel<Filters>({ required: true })
 <template>
   <div class="filter-bar">
     <label>
-      Machine
-      <select v-model="filters.machine">
-        <option value="">Toutes les machines</option>
-        <option v-for="machineRef in options.machineRefs" :key="machineRef" :value="machineRef">{{ machineRef }}</option>
-      </select>
+      Nom de la machine
+      <input v-model="filters.machine" type="search" placeholder="ex. NAC112" :list="suggestionsId" autocomplete="off">
+      <datalist :id="suggestionsId">
+        <option v-for="machineRef in machineSuggestions ?? options.machineRefs" :key="machineRef" :value="machineRef" />
+      </datalist>
     </label>
     <label>
       Agence de la machine

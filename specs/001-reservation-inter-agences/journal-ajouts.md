@@ -14,6 +14,7 @@ Tout ce qui est dans le prototype sans être écrit dans la spec.
 | 8 | Panneau de détail au clic sur une réservation, avec ses anomalies et l'annulation (R31) | Initiative du binôme | Non |
 | 9 | Modification des dates d'une réservation par les agences et la Direction, prolongation seule à moins de 48 h (R34) | Initiative du binôme : le client veut décaler ou rallonger sa location ; la commerciale reste en consultation | Non |
 | 10 | Suivi dans l'historique : chaque modification et l'annulation, avec la personne et ce qui a changé (R36) | Initiative du binôme : savoir qui a touché une réservation, utile avec les droits de la carte 5 | Non |
+| 11 | Recherche par nom de machine dans Rechercher, Planning et Historique ; la liste « Machine » du planning devient un champ de saisie (R42) | Initiative du binôme : retrouver une machine précise parmi les 400, comme dans l'atelier (R20) | Non |
 
 ## Cartes révélation
 

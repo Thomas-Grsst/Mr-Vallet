@@ -45,13 +45,19 @@ const { filters, options, hasFilters, matches, resetFilters } = useReservationFi
 
 const visibleReservations = computed(() => reservations.value.filter(matches))
 
+const allMachineRefs = computed(() => machines.value.map((machine) => machine.ref).sort())
+
 const timelineMachines = computed(() => {
-  if (!hasFilters.value) {
-    return machines.value
+  const { machine: machineName, ...otherFilters } = filters.value
+  const name = machineName.trim().toLowerCase()
+  const byName = machines.value.filter((machine) => !name || machine.ref.toLowerCase().includes(name))
+
+  if (!Object.values(otherFilters).some(Boolean)) {
+    return byName
   }
 
   const refs = new Set(visibleReservations.value.map((reservation) => reservation.machine_ref))
-  return machines.value.filter((machine) => refs.has(machine.ref))
+  return byName.filter((machine) => refs.has(machine.ref))
 })
 
 const anomaliesByReservation = computed(() => {
@@ -191,7 +197,7 @@ const endSelectedWorkshop = async () => {
       <ul><li v-for="message in errors" :key="message">{{ message }}</li></ul>
     </div>
 
-    <ReservationFilters v-model="filters" :options="options" :has-filters="hasFilters" @reset="resetFilters" />
+    <ReservationFilters v-model="filters" :options="options" :has-filters="hasFilters" :machine-suggestions="allMachineRefs" @reset="resetFilters" />
 
     <div class="planning-toolbar">
       <div class="planning-toolbar__group" role="group" aria-label="Affichage">

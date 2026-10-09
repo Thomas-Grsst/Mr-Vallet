@@ -184,6 +184,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - **FR-047 (R39)**: Après une action, la liste MUST rester affichée à sa place pendant la mise à jour (pas de « Chargement… », pas de retour en haut de page) et un message MUST confirmer l'action ; « Chargement… » MUST n'apparaître qu'au premier chargement (retour de Brice, précise FR-021).
 - **FR-048 (R40)**: Le champ « VGP réalisée le » MUST être pré-rempli avec la date du jour (retour de Brice).
 - **FR-049 (R41)**: Un clic n'importe où dans un champ de date MUST ouvrir le calendrier (retour de Brice).
+- **FR-050 (R42)**: Un champ « Nom de la machine » (saisie libre, correspondance partielle, sans tenir compte des majuscules, suggestions) MUST permettre de chercher une machine dans Rechercher (filtre des résultats), dans le Planning et dans l'Historique (à la place de la liste « Machine » de FR-020) ; la frise MUST ne garder que les machines dont le nom correspond (initiative du binôme).
 
 ### Key Entities
 
@@ -267,6 +268,7 @@ Tests ajoutés après la deuxième recette de Brice :
 36. Étant donné qu'aujourd'hui est le 12/10/2026 et que MINI12 d'Artisan Ferreira commence le 13/10, quand Brice (Direction) ouvre son détail, alors il voit « Délai de 48 h dépassé : annulation possible par la Direction » et le bouton « Annuler la réservation », et l'annulation est acceptée ; il peut aussi annuler COMP21 de M. Pereira, en cours aujourd'hui ; le responsable de Saint-Etienne, lui, ne peut pas annuler MINI12.
 37. Étant donné que le planning est affiché et défilé jusqu'en bas, quand on modifie ou annule une réservation, alors la frise reste affichée sans « Chargement… », la page ne remonte pas, et le message « Réservation modifiée » (ou « Réservation annulée ») s'affiche ; de même dans l'onglet Atelier après « Mettre à jour la VGP », avec « VGP de NAC089 mise à jour ».
 38. Étant donné que l'atelier ouvre l'onglet Atelier, quand il regarde le champ « VGP réalisée le » de NAC089, alors il contient la date du jour (12/10/2026) ; et un clic sur le texte d'un champ de date ouvre le calendrier.
+39. Étant donné les données de départ, quand on tape « nac1 » dans « Nom de la machine » de l'onglet « Rechercher et réserver », alors seules NAC112, NAC118 et NAC140 s'affichent ; quand on tape « NAC112 » dans le Planning, alors la frise ne garde que la ligne NAC112 avec ses deux réservations ; quand on tape « mini » dans l'Historique, alors seules les réservations de MINI12 s'affichent ; « xyz » affiche « Aucune machine ne correspond » dans Rechercher.
 
 ## Assumptions
 
