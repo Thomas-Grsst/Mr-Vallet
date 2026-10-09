@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Agency, Machine, Reservation } from '~/types/vallet'
+import type { Agency, KeyAccount, Machine, Reservation } from '~/types/vallet'
 
 const today = useRuntimeConfig().public.today
 const { $api } = useNuxtApp()
@@ -22,15 +22,33 @@ const reservationTo = ref(today)
 const client = ref('')
 const enteringAgencyId = ref<number | null>(null)
 const purchaseOrder = ref('')
+const purchaseOrderRequiredByServer = ref(false)
 
-const { data: keyAccounts } = useApiFetch<string[]>('/api/key-accounts', {
+const { data: keyAccounts, refresh: refreshKeyAccounts } = useApiFetch<KeyAccount[]>('/api/key-accounts', {
   default: () => [],
   immediate: !!user.value?.can_book,
 })
 
+const { data: knownClients, refresh: refreshKnownClients } = useApiFetch<string[]>('/api/clients', {
+  default: () => [],
+  immediate: !!user.value?.can_book,
+})
+
+const keyAccountNames = computed(() => keyAccounts.value.map((account) => account.name))
+
 const keyAccount = computed(() => {
   const typed = client.value.trim().toLowerCase()
-  return keyAccounts.value.find((name) => name.toLowerCase() === typed) ?? null
+  return keyAccountNames.value.find((name) => name.toLowerCase() === typed) ?? null
+})
+
+const clientSuggestions = computed(() => {
+  const keyNames = new Set(keyAccountNames.value.map((name) => name.toLowerCase()))
+  const others = knownClients.value.filter((name) => !keyNames.has(name.toLowerCase()))
+
+  return [
+    ...keyAccountNames.value.map((name) => ({ name, isKeyAccount: true })),
+    ...others.map((name) => ({ name, isKeyAccount: false })),
+  ].sort((first, second) => first.name.localeCompare(second.name, 'fr'))
 })
 
 const { data: agencies } = useApiFetch<Agency[]>('/api/agencies', {
@@ -79,6 +97,8 @@ const selectMachine = async (machine: Machine) => {
   reservationTo.value = to.value
   reservationErrors.value = []
   confirmation.value = null
+  purchaseOrderRequiredByServer.value = false
+  refreshKeyAccounts()
   await nextTick()
   reservationForm.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
@@ -108,9 +128,13 @@ const reserve = async () => {
     selectedMachine.value = null
     client.value = ''
     purchaseOrder.value = ''
+    purchaseOrderRequiredByServer.value = false
+    refreshKnownClients()
     await search()
   }
   catch (error) {
+    const violationCodes = ((error as { data?: { violations?: { code: string }[] } })?.data?.violations ?? []).map((violation) => violation.code)
+    purchaseOrderRequiredByServer.value = violationCodes.includes('missing_purchase_order')
     reservationErrors.value = isValidationError(error)
       ? toMessages(error)
       : ['Le serveur ne répond pas : la réservation n\'a pas été enregistrée. Réessayez.']
@@ -214,12 +238,17 @@ const reserve = async () => {
         </label>
         <label>
           Client
-          <input v-model="client" type="text" placeholder="Nom du client">
+          <input v-model="client" type="text" placeholder="Nom du client" list="client-suggestions" autocomplete="off">
+          <datalist id="client-suggestions">
+            <option v-for="suggestion in clientSuggestions" :key="suggestion.name" :value="suggestion.name">
+              {{ suggestion.isKeyAccount ? `${suggestion.name} (grand compte)` : suggestion.name }}
+            </option>
+          </datalist>
         </label>
-        <label v-if="keyAccount">
+        <label v-if="keyAccount || purchaseOrderRequiredByServer">
           N° de bon de commande
           <input v-model="purchaseOrder" type="text" placeholder="ex. BC-2026-0412">
-          <small class="muted">{{ keyAccount }} est un grand compte : obligatoire</small>
+          <small class="muted">{{ keyAccount ?? client.trim() }} est un grand compte : obligatoire</small>
         </label>
         <label v-if="user?.chooses_entering_agency">
           Agence de saisie

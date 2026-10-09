@@ -144,7 +144,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - **FR-015**: Il existe quatre profils de compte :
   - **Agence** (un compte par agence) : rechercher, réserver, annuler, consulter le planning et les anomalies.
   - **Atelier** : rechercher, consulter, déclarer et prévoir des passages en atelier, remettre en service, annuler un passage prévu, mettre à jour la VGP.
-  - **Commercial** (Julie Ferrand) : rechercher et consulter uniquement.
+  - **Commercial** (Julie Ferrand) : rechercher et consulter, et tenir la liste des grands comptes (FR-037).
   - **Direction** (Brice Vallet) : tous les droits des trois autres profils (FR-032).
 - **FR-016**: Une action non autorisée pour le profil MUST être refusée avec un message, et le bouton correspondant n'est pas proposé.
 - **FR-017**: L'utilisateur MUST pouvoir se déconnecter.
@@ -170,6 +170,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - **FR-034 (R26)**: Quand l'agence qui réserve n'est pas l'agence de la machine, la machine MUST aussi être libre la veille du départ (ni réservée, ni en atelier) ; sinon la réservation MUST être refusée avec « Transfert depuis <agence> impossible : la machine doit être libre la veille du départ (<date>) » suivi de ce qui l'occupe. La recherche d'un compte agence MUST appliquer la même règle ; le compte Direction y est soumis à la réservation, pour l'agence choisie (carte révélation 1).
 - **FR-035 (R27)**: Dans les résultats de recherche, chaque machine MUST afficher, sur les 60 prochains jours, ce qui l'occupe (réservations avec client, passages en atelier avec motif, date d'échéance VGP) et ses créneaux libres ; un créneau libre MUST être calculé avec les mêmes règles que la réservation pour l'agence connectée, de sorte que toute réservation comprise dans ce créneau soit acceptée ; « Libre à partir du … » s'affiche si le créneau dépasse l'horizon (initiative du binôme, non demandée par Brice).
 - **FR-036 (R28)**: Une réservation pour un grand compte MUST avoir un numéro de bon de commande. L'outil MUST connaître la liste des grands comptes (au départ : BTP Rhone, DOC 6) et la reconnaître sans tenir compte des majuscules ni des espaces autour, en enregistrant le client sous son nom de la liste ; sans numéro, la réservation MUST être refusée avec « <client> est un grand compte : le numéro de bon de commande est obligatoire ». Le numéro MUST s'afficher dans le planning et l'historique ; une réservation de grand compte existante sans numéro MUST apparaître dans les anomalies (carte révélation 2).
+- **FR-037 (R29)**: Un onglet « Grands comptes » MUST afficher la liste ; la Direction et la commerciale grands comptes MUST pouvoir ajouter une entreprise (nom obligatoire, sans doublon quelles que soient les majuscules) ou en retirer une ; les autres profils la consultent. Le champ « Client » du formulaire de réservation MUST proposer les clients connus et les grands comptes, marqués « (grand compte) » (conséquence de la carte révélation 2).
 
 ### Key Entities
 
@@ -188,7 +189,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - Pas de gestion des comptes : les comptes de démonstration sont créés au démarrage, sans création de compte, mot de passe oublié ni changement de mot de passe.
 - Sécurité limitée à la connexion : prototype en local, sans HTTPS ; à renforcer avant toute mise en service.
 - Question ouverte pour Brice : une agence peut-elle annuler une réservation saisie par une autre agence ? Ce matin, oui.
-- La liste des grands comptes ne contient que BTP Rhone (seul nommé dans le dossier) et ne se modifie pas dans l'outil : question à poser à Brice (quels sont les 40 grands comptes, qui tient la liste ?).
+- La liste des grands comptes démarre avec BTP Rhone seul (seul nommé dans le dossier) : question à poser à Brice (quels sont les 40 grands comptes ? la commerciale grands comptes doit-elle pouvoir la modifier ?).
 - L'historique ne montre que les réservations, pas les actions de l'atelier (mises en atelier, VGP) : question à poser à Brice.
 - Une VGP prévue ne débloque pas la nacelle à l'avance : question à poser à Brice.
 - Pas de transfert physique de machine entre agences.
@@ -238,6 +239,7 @@ Tests ajoutés avec les cartes révélation :
 24. Étant donné que NAC140 (Grenoble) est réservée par BTP Rhone du 19/10 au 23/10, quand Villeurbanne la réserve du 24/10 au 25/10, alors c'est refusé avec « Transfert depuis Grenoble impossible : la machine doit être libre la veille du départ (23/10/2026) — Période déjà occupée par BTP Rhone du 19/10/2026 au 23/10/2026 » ; quand Grenoble la réserve sur les mêmes dates, c'est accepté (pas de transfert) ; quand Villeurbanne la réserve du 25/10 au 26/10, c'est accepté (la veille, le 24/10, est libre). De même, MINI07 (Lyon Est, en atelier jusqu'au 20/10) est refusée à Villeurbanne à partir du 21/10 mais acceptée pour Lyon Est.
 25. Étant donné que NAC140 (Grenoble) est réservée par BTP Rhone du 19/10 au 23/10, quand Villeurbanne lance une recherche, alors NAC140 affiche « Réservée du 19/10/2026 au 23/10/2026 · BTP Rhone », « Libre du 12/10/2026 au 18/10/2026 » et « Libre à partir du 25/10/2026 » ; pour Grenoble, le second créneau est « Libre à partir du 24/10/2026 ». NAC118 (VGP valable jusqu'au 15/10) affiche « Libre du 12/10/2026 au 14/10/2026 » et « VGP échue à partir du 15/10/2026 ».
 26. Étant donné que BTP Rhone est un grand compte, quand Lyon Est réserve COMP30 du 26/10 au 27/10 pour « btp rhone » sans bon de commande, alors c'est refusé avec « BTP Rhone est un grand compte : le numéro de bon de commande est obligatoire » ; avec le bon de commande « BC-2026-0412 », c'est accepté, enregistré au nom de « BTP Rhone », et le planning affiche « BC BC-2026-0412 » ; pour Facades Martin (pas grand compte), aucun bon de commande n'est demandé. Les deux réservations BTP Rhone reprises des Excel (NAC112, NAC140) apparaissent dans les anomalies comme « grand compte sans bon de commande ».
+27. Étant donné que Facades Martin n'est pas un grand compte, quand Julie l'ajoute dans l'onglet « Grands comptes », alors la réservation NAC089 de Facades Martin apparaît dans les anomalies comme « grand compte sans bon de commande », et une nouvelle réservation pour Facades Martin sans bon de commande est refusée ; ajouter « facades martin » une deuxième fois est refusé (« Facades Martin est déjà un grand compte ») ; un compte agence voit la liste mais ne peut pas la modifier ; dans le formulaire de réservation, « Facades Martin (grand compte) » est proposé.
 
 ## Assumptions
 

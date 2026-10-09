@@ -64,6 +64,6 @@ class PurchaseOrderTest extends ValletTestCase
 
     public function test_key_accounts_are_listed(): void
     {
-        $this->getJson('/api/key-accounts')->assertOk()->assertExactJson(['BTP Rhone']);
+        $this->getJson('/api/key-accounts')->assertOk()->assertJsonPath('0.name', 'BTP Rhone')->assertJsonCount(1);
     }
 }

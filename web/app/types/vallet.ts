@@ -7,6 +7,7 @@ export type User = {
   can_book: boolean
   can_maintain: boolean
   chooses_entering_agency: boolean
+  can_manage_key_accounts: boolean
 }
 
 export type Agency = {
@@ -74,4 +75,9 @@ export type Anomaly = {
   machine_ref: string
   reservation_ids: number[]
   message: string
+}
+
+export type KeyAccount = {
+  id: number
+  name: string
 }

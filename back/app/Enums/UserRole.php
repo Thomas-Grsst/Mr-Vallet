@@ -29,6 +29,11 @@ enum UserRole: string
         return $this === self::Workshop || $this === self::Director;
     }
 
+    public function canManageKeyAccounts(): bool
+    {
+        return $this === self::Director || $this === self::Sales;
+    }
+
     public function choosesEnteringAgency(): bool
     {
         return $this === self::Director;

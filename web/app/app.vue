@@ -1,5 +1,5 @@
 <script setup lang="ts">
-type Tab = 'search' | 'planning' | 'history' | 'anomalies' | 'workshop'
+type Tab = 'search' | 'planning' | 'history' | 'anomalies' | 'key-accounts' | 'workshop'
 
 const { user, fetchCurrentUser, logout } = useAuth()
 const { formatDate } = useFormatDate()
@@ -12,6 +12,7 @@ const tabs = computed(() => [
   { key: 'planning' as Tab, label: 'Planning' },
   { key: 'history' as Tab, label: 'Historique' },
   { key: 'anomalies' as Tab, label: 'Anomalies' },
+  { key: 'key-accounts' as Tab, label: 'Grands comptes' },
   ...(user.value?.can_maintain ? [{ key: 'workshop' as Tab, label: 'Atelier' }] : []),
 ])
 
@@ -56,6 +57,7 @@ watch(user, () => {
       <PlanningTab v-else-if="activeTab === 'planning'" />
       <HistoryTab v-else-if="activeTab === 'history'" />
       <AnomaliesTab v-else-if="activeTab === 'anomalies'" />
+      <KeyAccountsTab v-else-if="activeTab === 'key-accounts'" />
       <WorkshopTab v-else />
     </main>
     </template>

@@ -16,6 +16,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('agencies', [AgencyController::class, 'index']);
     Route::get('key-accounts', [KeyAccountController::class, 'index']);
+    Route::post('key-accounts', [KeyAccountController::class, 'store']);
+    Route::delete('key-accounts/{keyAccount}', [KeyAccountController::class, 'destroy']);
+    Route::get('clients', [KeyAccountController::class, 'clients']);
     Route::get('machine-types', [MachineController::class, 'types']);
     Route::get('machines', [MachineController::class, 'index']);
     Route::post('machines/{machine:ref}/workshop-periods', [WorkshopPeriodController::class, 'store']);

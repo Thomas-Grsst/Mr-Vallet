@@ -37,8 +37,8 @@ Mot de passe commun : `vallet-demo-2026` (comptes fictifs, recréés à chaque d
 |---|---|---|
 | Agence | `lyon-est@vallet.test`, `villeurbanne@vallet.test`, `grenoble@vallet.test`, `saint-etienne@vallet.test`, `clermont-ferrand@vallet.test`, `annecy@vallet.test`, `valence@vallet.test` | rechercher, réserver, annuler |
 | Atelier | `atelier@vallet.test` | rechercher, gérer les passages en atelier, mettre à jour la VGP |
-| Commercial | `julie.ferrand@vallet.test` | rechercher et consulter |
-| Direction | `brice.vallet@vallet.test` | tout : réserver (en choisissant l'agence), annuler, atelier, VGP, consulter |
+| Commercial | `julie.ferrand@vallet.test` | rechercher, consulter, tenir la liste des grands comptes |
+| Direction | `brice.vallet@vallet.test` | tout : réserver (en choisissant l'agence), annuler, atelier, VGP, grands comptes, consulter |
 
 ## Tests
 
