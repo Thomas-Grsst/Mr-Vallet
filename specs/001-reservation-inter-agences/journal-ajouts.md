@@ -18,6 +18,7 @@ Tout ce qui est dans le prototype sans être écrit dans la spec.
 - Carte 1 : « Une machine qui vient d'une autre agence voyage une demi-journée : elle doit être libre la veille du départ. » FR-034 / R26 ajoutée, test 24. Test 2 décalé du 15-16/10 au 16-17/10 : avec cette règle, MINI12 (Saint-Etienne) n'est plus proposée à Lyon Est le 15/10 car elle est réservée la veille (14/10).
 - Carte 2 : « Une réservation pour un grand compte n'est valable qu'avec un numéro de bon de commande. » FR-036 / R28 ajoutée, test 26. Liste des grands comptes limitée à BTP Rhone (seul nommé, DOC 6) : question ouverte pour Brice. Les réservations BTP Rhone reprises des Excel n'ont pas de bon de commande, elles deviennent des anomalies ; test 8, R10, FR-011 et FR-018 mis à jour en conséquence.
 - Carte 2, suite : en recette, une réservation pour Facades Martin passait sans bon de commande car seul BTP Rhone était dans la liste, sans moyen de la compléter. FR-037 / R29 ajoutée (onglet « Grands comptes » tenu par la Direction et la commerciale, grands comptes signalés dans le champ Client), test 27, R8 et FR-015 mis à jour. Conséquence de la carte 2, à présenter à Brice.
+- Carte 3 : « Au retour, une machine est nettoyée et contrôlée : on ne peut pas la relouer le jour même. » Déjà respectée grâce aux dates incluses de R1 (une machine rendue le 23 n'est relouable que le 24). FR-040 / R32 ajoutée pour l'écrire explicitement et figer les dates incluses, avec un motif de refus qui explique le nettoyage. Test 30.
 
 ## Style
 
