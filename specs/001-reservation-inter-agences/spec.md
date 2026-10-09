@@ -111,6 +111,7 @@ En tant qu'atelier, je veux passer une machine « en atelier » jusqu'à une dat
 - **FR-007 (R5)**: La date de début MUST être égale ou postérieure à la date du jour (12/10/2026).
 - **FR-008 (R6)**: Une réservation MUST indiquer le client, la machine, les dates et l'agence qui l'a saisie.
 - **FR-009 (R7)**: Quand une réservation est refusée, l'outil MUST donner le motif : période occupée (avec le client et les dates), machine en atelier (avec la date de retour), ou « VGP non à jour, contacter l'atelier ».
+- **FR-002b**: Dans les résultats de recherche, le bouton « Réserver » MUST être grisé et non cliquable pour une machine indisponible ; seules les machines disponibles peuvent être réservées.
 - **FR-010**: L'utilisateur MUST pouvoir choisir son agence dans une liste ; elle est enregistrée comme agence de saisie.
 - **FR-011**: L'outil MUST lister les réservations existantes qui violent R1 ou R3.
 - **FR-012**: L'outil MUST permettre d'annuler une réservation.

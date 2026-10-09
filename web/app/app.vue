@@ -172,7 +172,9 @@ input, select, button {
 }
 
 .button:disabled {
-  opacity: 0.5;
+  background: #d1d5db;
+  color: #6b7280;
+  border-color: #d1d5db;
   cursor: not-allowed;
 }
 

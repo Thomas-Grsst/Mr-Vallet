@@ -136,7 +136,9 @@ const reserve = async () => {
             <td>
               <button
                 type="button"
-                :class="machine.available ? 'button' : 'button button--ghost'"
+                class="button"
+                :disabled="!machine.available"
+                :title="machine.available ? undefined : 'Machine indisponible sur cette période'"
                 @click="selectMachine(machine)"
               >
                 Réserver
