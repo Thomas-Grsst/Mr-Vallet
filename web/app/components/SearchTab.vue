@@ -168,6 +168,7 @@ const reserve = async () => {
                   <li v-for="reason in machine.reasons" :key="reason">{{ reason }}</li>
                 </ul>
               </template>
+              <MachineTimeline v-if="machine.timeline" :timeline="machine.timeline" />
             </td>
             <td v-if="user?.can_book" class="cell-action">
               <button

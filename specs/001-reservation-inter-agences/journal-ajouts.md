@@ -9,6 +9,7 @@ Tout ce qui est dans le prototype sans être écrit dans la spec.
 | 3 | Champ « Motif » quand on passe une machine en atelier | Reprend la colonne « remarque » des données (« verin casse ») | Non (vient des données) |
 | 4 | Filtres du planning par machine, agence de la machine, agence de saisie et période, avec « Réinitialiser les filtres » (R12) | Initiative du binôme pour retrouver vite une réservation, dans le prolongement du filtre client demandé par Brice | Non |
 | 5 | Recherche lancée automatiquement à l'arrivée sur l'onglet « Rechercher », tout le parc affiché pour aujourd'hui (R25) | Initiative du binôme : voir l'état du parc sans clic | Non |
+| 6 | Dans la recherche, ce qui occupe chaque machine et ses créneaux libres sur 60 jours (R27) | Initiative du binôme : éviter de relancer la recherche date après date pour trouver un créneau | Non |
 
 ## Cartes révélation
 

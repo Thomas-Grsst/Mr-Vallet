@@ -168,6 +168,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - **FR-032 (R24)**: Un compte « Direction » (Brice Vallet) MUST voir tous les onglets et avoir tous les droits : réserver, annuler, gérer les passages en atelier, mettre à jour la VGP ; il MUST choisir l'agence de saisie dans le formulaire de réservation (refus sans agence) ; ses annulations MUST apparaître « par Direction » dans l'historique (retour de Brice).
 - **FR-033 (R25)**: En arrivant sur l'onglet « Rechercher », la recherche MUST être lancée automatiquement sur tous les types pour aujourd'hui, pour afficher tout le parc avec sa disponibilité du jour (initiative du binôme, non demandée par Brice).
 - **FR-034 (R26)**: Quand l'agence qui réserve n'est pas l'agence de la machine, la machine MUST aussi être libre la veille du départ (ni réservée, ni en atelier) ; sinon la réservation MUST être refusée avec « Transfert depuis <agence> impossible : la machine doit être libre la veille du départ (<date>) » suivi de ce qui l'occupe. La recherche d'un compte agence MUST appliquer la même règle ; le compte Direction y est soumis à la réservation, pour l'agence choisie (carte révélation 1).
+- **FR-035 (R27)**: Dans les résultats de recherche, chaque machine MUST afficher, sur les 60 prochains jours, ce qui l'occupe (réservations avec client, passages en atelier avec motif, date d'échéance VGP) et ses créneaux libres ; un créneau libre MUST être calculé avec les mêmes règles que la réservation pour l'agence connectée, de sorte que toute réservation comprise dans ce créneau soit acceptée ; « Libre à partir du … » s'affiche si le créneau dépasse l'horizon (initiative du binôme, non demandée par Brice).
 
 ### Key Entities
 
@@ -233,6 +234,7 @@ Tests ajoutés après la recette de Brice :
 Tests ajoutés avec les cartes révélation :
 
 24. Étant donné que NAC140 (Grenoble) est réservée par BTP Rhone du 19/10 au 23/10, quand Villeurbanne la réserve du 24/10 au 25/10, alors c'est refusé avec « Transfert depuis Grenoble impossible : la machine doit être libre la veille du départ (23/10/2026) — Période déjà occupée par BTP Rhone du 19/10/2026 au 23/10/2026 » ; quand Grenoble la réserve sur les mêmes dates, c'est accepté (pas de transfert) ; quand Villeurbanne la réserve du 25/10 au 26/10, c'est accepté (la veille, le 24/10, est libre). De même, MINI07 (Lyon Est, en atelier jusqu'au 20/10) est refusée à Villeurbanne à partir du 21/10 mais acceptée pour Lyon Est.
+25. Étant donné que NAC140 (Grenoble) est réservée par BTP Rhone du 19/10 au 23/10, quand Villeurbanne lance une recherche, alors NAC140 affiche « Réservée du 19/10/2026 au 23/10/2026 · BTP Rhone », « Libre du 12/10/2026 au 18/10/2026 » et « Libre à partir du 25/10/2026 » ; pour Grenoble, le second créneau est « Libre à partir du 24/10/2026 ». NAC118 (VGP valable jusqu'au 15/10) affiche « Libre du 12/10/2026 au 14/10/2026 » et « VGP échue à partir du 15/10/2026 ».
 
 ## Assumptions
 

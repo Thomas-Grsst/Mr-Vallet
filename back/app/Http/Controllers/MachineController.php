@@ -6,6 +6,7 @@ use App\Http\Requests\SearchMachinesRequest;
 use App\Http\Requests\UpdateVgpRequest;
 use App\Models\Machine;
 use App\Models\WorkshopPeriod;
+use App\Services\MachineTimeline;
 use App\Services\ReservationRules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -13,7 +14,7 @@ use Illuminate\Support\Carbon;
 
 class MachineController extends Controller
 {
-    public function __construct(private ReservationRules $rules) {}
+    public function __construct(private ReservationRules $rules, private MachineTimeline $timeline) {}
 
     public function index(SearchMachinesRequest $request): JsonResponse
     {
@@ -22,7 +23,7 @@ class MachineController extends Controller
         $bookingAgencyId = $request->user()->agency_id;
 
         $machines = Machine::query()
-            ->with(['agency', 'workshopPeriods'])
+            ->with(['agency', 'workshopPeriods', 'reservations'])
             ->when($request->filled('type'), fn ($query) => $query->where('type', $request->string('type')))
             ->orderBy('type')
             ->orderBy('ref')
@@ -34,6 +35,7 @@ class MachineController extends Controller
                     ...self::present($machine, $this->rules),
                     'available' => $violations === null ? null : $violations === [],
                     'reasons' => $violations === null ? [] : array_column($violations, 'message'),
+                    'timeline' => $violations === null ? null : $this->timeline->for($machine, $bookingAgencyId),
                 ];
             })
             ->sortByDesc('available')

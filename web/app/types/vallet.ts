@@ -33,6 +33,19 @@ export type Machine = {
   workshop_periods: WorkshopPeriod[]
   available: boolean | null
   reasons: string[]
+  timeline?: MachineTimeline | null
+}
+
+export type Occupation = {
+  kind: 'reservation' | 'workshop' | 'vgp'
+  starts_at: string | null
+  ends_at: string | null
+  label: string | null
+}
+
+export type MachineTimeline = {
+  occupations: Occupation[]
+  free_windows: { starts_at: string, ends_at: string | null }[]
 }
 
 export type Reservation = {

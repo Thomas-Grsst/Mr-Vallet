@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\Violation;
 use App\Models\Machine;
+use App\Models\Reservation;
 use App\Models\WorkshopPeriod;
 use Illuminate\Support\Carbon;
 
@@ -58,14 +59,13 @@ class ReservationRules
     /** @return list<array{code: string, message: string}> */
     public function overlaps(Machine $machine, Carbon $from, Carbon $to, ?int $ignoredReservationId = null): array
     {
-        return $machine->reservations()
-            ->whereNull('cancelled_at')
-            ->where('starts_at', '<=', $to->toDateString())
-            ->where('ends_at', '>=', $from->toDateString())
-            ->when($ignoredReservationId, fn ($query) => $query->whereKeyNot($ignoredReservationId))
-            ->orderBy('starts_at')
-            ->get()
-            ->map(fn ($reservation) => [
+        return $machine->reservations
+            ->filter(fn (Reservation $reservation) => ! $reservation->isCancelled()
+                && $reservation->id !== $ignoredReservationId
+                && $reservation->starts_at->lte($to)
+                && $reservation->ends_at->gte($from))
+            ->sortBy('starts_at')
+            ->map(fn (Reservation $reservation) => [
                 'code' => Violation::Overlap->value,
                 'message' => "Période déjà occupée par {$reservation->client} du {$reservation->starts_at->format('d/m/Y')} au {$reservation->ends_at->format('d/m/Y')}",
             ])
