@@ -110,7 +110,7 @@ const reserve = async () => {
 
 <template>
   <section>
-    <form class="card form-row" @submit.prevent="search">
+    <form class="filter-bar" @submit.prevent="search">
       <label>
         Type de machine
         <select v-model="type" :disabled="typesStatus !== 'success'">
@@ -164,12 +164,12 @@ const reserve = async () => {
               <span v-if="machine.available" class="badge badge--ok">Disponible</span>
               <template v-else>
                 <span class="badge badge--ko">Indisponible</span>
-                <ul class="muted">
+                <ul class="reasons">
                   <li v-for="reason in machine.reasons" :key="reason">{{ reason }}</li>
                 </ul>
               </template>
             </td>
-            <td v-if="user?.can_book">
+            <td v-if="user?.can_book" class="cell-action">
               <button
                 type="button"
                 :class="machine.available ? 'button' : 'button button--ghost'"

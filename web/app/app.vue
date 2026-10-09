@@ -251,4 +251,119 @@ th, td {
 .muted {
   color: var(--color-muted);
 }
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.15);
+}
+
+.button {
+  white-space: nowrap;
+}
+
+.button--small {
+  padding: 4px 10px;
+  font-size: 0.85rem;
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+  padding: 12px;
+  margin-bottom: 16px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.filter-bar label {
+  flex: 1 1 170px;
+  max-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.filter-bar input,
+.filter-bar select {
+  width: 100%;
+  height: 38px;
+  background: #fff;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.filter-bar .button {
+  flex: 0 0 auto;
+  height: 38px;
+}
+
+.reasons {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reasons li {
+  padding-left: 8px;
+  border-left: 3px solid var(--color-ko-bg);
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+
+.cell-action {
+  text-align: right;
+  white-space: nowrap;
+  width: 1%;
+}
+
+.status-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-left: 4px solid;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.status-block__title {
+  font-weight: 700;
+}
+
+.status-block__detail {
+  color: var(--color-text);
+  opacity: 0.8;
+}
+
+.status-block--ok {
+  background: var(--color-ok-bg);
+  border-color: var(--color-ok);
+  color: var(--color-ok);
+}
+
+.status-block--ko {
+  background: var(--color-ko-bg);
+  border-color: var(--color-ko);
+  color: var(--color-ko);
+}
+
+.status-block--planned {
+  background: #eff6ff;
+  border-color: #2563eb;
+  color: #1d4ed8;
+}
 </style>

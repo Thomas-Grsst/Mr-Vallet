@@ -22,7 +22,7 @@ const filters = defineModel<Filters>({ required: true })
 </script>
 
 <template>
-  <div class="form-row reservation-filters">
+  <div class="filter-bar">
     <label>
       Machine
       <select v-model="filters.machine">
@@ -64,8 +64,3 @@ const filters = defineModel<Filters>({ required: true })
   </div>
 </template>
 
-<style scoped>
-.reservation-filters {
-  margin-bottom: 12px;
-}
-</style>

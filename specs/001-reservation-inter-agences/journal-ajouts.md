@@ -10,6 +10,10 @@ Tout ce qui est dans le prototype sans être écrit dans la spec.
 | 4 | Filtres du planning par machine, agence de la machine, agence de saisie et période, avec « Réinitialiser les filtres » (R12) | Initiative du binôme pour retrouver vite une réservation, dans le prolongement du filtre client demandé par Brice | Non |
 | 5 | Recherche lancée automatiquement à l'arrivée sur l'onglet « Rechercher », tout le parc affiché pour aujourd'hui (R25) | Initiative du binôme : voir l'état du parc sans clic | Non |
 
+## Style
+
+- 09/10, demande du binôme : style revu sans changer aucune règle. Filtres présentés en barre homogène (Rechercher, Planning, Historique, Atelier), motifs d'indisponibilité alignés à gauche sans puces, bouton « Réserver à d'autres dates » sur une ligne, états VGP et passages en atelier présentés en blocs lisibles. Tests 19 et 21 reformulés : l'état VGP et sa date sont sur deux lignes au lieu d'être séparés par « · ».
+
 ## Corrections de la spec
 
 - 09/10 : test n°2, période passée du 13/10–15/10 au 15/10–16/10. MINI12 est réservée par Artisan Ferreira du 13 au 14/10 dans les données, le test tel qu'écrit ne pouvait pas passer.

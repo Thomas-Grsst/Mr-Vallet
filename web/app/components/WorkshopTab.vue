@@ -98,7 +98,7 @@ const recordVgp = (machine: Machine) => run(machine.ref, () => $api(`/api/machin
       </template>
       <template v-else>Passage en atelier enregistré pour {{ notice.machine }}. Aucune réservation concernée.</template>
     </div>
-    <div class="form-row workshop-filters">
+    <div class="filter-bar workshop-filters">
       <label>
         Nom de la machine
         <input v-model="nameFilter" type="search" placeholder="ex. NAC112">
@@ -124,26 +124,31 @@ const recordVgp = (machine: Machine) => run(machine.ref, () => $api(`/api/machin
       </thead>
       <tbody>
         <tr v-for="machine in visibleMachines" :key="machine.ref">
-          <td><strong>{{ machine.ref }}</strong><br><span class="muted">{{ machine.type }}</span></td>
+          <td class="workshop-machine"><strong>{{ machine.ref }}</strong><br><span class="muted">{{ machine.type }}</span></td>
           <td>{{ machine.agency }}</td>
           <td>
-            <ul v-if="machine.workshop_periods.length" class="workshop-periods">
-              <li v-for="period in machine.workshop_periods" :key="period.id">
-                <span :class="period.status === 'current' ? 'badge badge--ko' : 'badge workshop-planned'">
+            <div v-if="machine.workshop_periods.length" class="workshop-periods">
+              <div
+                v-for="period in machine.workshop_periods"
+                :key="period.id"
+                class="status-block"
+                :class="period.status === 'current' ? 'status-block--ko' : 'status-block--planned'"
+              >
+                <span class="status-block__title">
                   {{ period.status === 'current' ? 'En atelier' : 'Prévu' }} du {{ formatDate(period.starts_at) }} au {{ formatDate(period.ends_at) }}
                 </span>
-                <span v-if="period.reason" class="muted"> {{ period.reason }}</span>
+                <span v-if="period.reason" class="status-block__detail">Motif : {{ period.reason }}</span>
                 <button
                   type="button"
-                  class="button button--ghost workshop-action"
+                  class="button button--ghost button--small workshop-period__action"
                   :disabled="savingRef === machine.ref"
                   @click="endPeriod(machine, period)"
                 >
                   {{ period.status === 'current' ? 'Remettre en service' : 'Annuler ce passage' }}
                 </button>
-              </li>
-            </ul>
-            <div v-if="drafts[machine.ref]" class="form-row">
+              </div>
+            </div>
+            <div v-if="drafts[machine.ref]" class="workshop-form">
               <label>
                 Début
                 <input v-model="drafts[machine.ref].startsAt" type="date" :min="today">
@@ -152,7 +157,7 @@ const recordVgp = (machine: Machine) => run(machine.ref, () => $api(`/api/machin
                 Fin
                 <input v-model="drafts[machine.ref].endsAt" type="date" :min="drafts[machine.ref].startsAt">
               </label>
-              <label>
+              <label class="workshop-form__reason">
                 Motif
                 <input v-model="drafts[machine.ref].reason" type="text" placeholder="ex. VGP, vérin cassé">
               </label>
@@ -161,13 +166,15 @@ const recordVgp = (machine: Machine) => run(machine.ref, () => $api(`/api/machin
               </button>
             </div>
           </td>
-          <td>
+          <td class="workshop-vgp">
             <template v-if="machine.requires_vgp">
-              <span :class="machine.vgp_ok_today ? 'badge badge--ok' : 'badge badge--ko'">
-                <strong>{{ machine.vgp_ok_today ? 'VGP à jour' : 'VGP en retard' }}</strong>
-                · {{ machine.last_vgp_at ? `dernière VGP ${formatDate(machine.last_vgp_at)}, valable jusqu'au ${formatDate(machine.vgp_expires_at)}` : 'aucune VGP enregistrée' }}
-              </span>
-              <div class="form-row">
+              <div class="status-block" :class="machine.vgp_ok_today ? 'status-block--ok' : 'status-block--ko'">
+                <span class="status-block__title">{{ machine.vgp_ok_today ? '✓ VGP à jour' : '⚠ VGP en retard' }}</span>
+                <span class="status-block__detail">
+                  {{ machine.last_vgp_at ? `dernière VGP ${formatDate(machine.last_vgp_at)}, valable jusqu'au ${formatDate(machine.vgp_expires_at)}` : 'aucune VGP enregistrée' }}
+                </span>
+              </div>
+              <div class="workshop-form">
                 <label>
                   VGP réalisée le
                   <input v-model="vgpDate[machine.ref]" type="date" :max="today">
@@ -187,27 +194,57 @@ const recordVgp = (machine: Machine) => run(machine.ref, () => $api(`/api/machin
 </template>
 
 <style scoped>
-.workshop-filters {
-  margin-bottom: 12px;
+.workshop-machine {
+  white-space: nowrap;
+}
+
+.workshop-vgp {
+  min-width: 240px;
 }
 
 .workshop-periods {
-  list-style: none;
-  margin: 0 0 8px;
-  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
-.workshop-planned {
-  background: #dbeafe;
-  color: #1d4ed8;
+.workshop-period__action {
+  align-self: flex-start;
+  margin-top: 6px;
 }
 
-.workshop-action {
-  margin-left: 8px;
-  padding: 2px 8px;
-  font-size: 0.85rem;
+.workshop-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.workshop-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-muted);
+}
+
+.workshop-form input {
+  height: 36px;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  text-transform: none;
+}
+
+.workshop-form__reason input {
+  width: 160px;
+}
+
+.workshop-form .button {
+  height: 36px;
 }
 </style>
