@@ -65,12 +65,15 @@ const resetAllFilters = () => {
           <td>{{ reservation.entered_by }}</td>
           <td>
             <span class="badge" :class="`history-status--${reservation.status}`">{{ reservation.status_label }}</span>
-            <div v-if="reservation.status === 'cancelled'" class="muted">
-              le {{ formatDate(reservation.cancelled_at) }} par {{ reservation.cancelled_by }}
-            </div>
-            <div v-if="reservation.modified_at" class="muted">
-              modifiée le {{ formatDate(reservation.modified_at) }} par {{ reservation.modified_by }}
-            </div>
+            <ol v-if="reservation.events.length" class="history-events">
+              <li
+                v-for="event in reservation.events"
+                :key="`${event.type}-${event.description}`"
+                :class="`history-events__item--${event.type}`"
+              >
+                {{ event.description }}
+              </li>
+            </ol>
           </td>
         </tr>
         <tr v-if="!visibleReservations.length">
@@ -82,6 +85,26 @@ const resetAllFilters = () => {
 </template>
 
 <style scoped>
+.history-events {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.history-events li {
+  padding-left: 8px;
+  border-left: 3px solid var(--color-border);
+}
+
+.history-events__item--cancelled {
+  border-left-color: var(--color-ko-bg) !important;
+}
+
 .history-status--upcoming {
   background: #dbeafe;
   color: #1d4ed8;

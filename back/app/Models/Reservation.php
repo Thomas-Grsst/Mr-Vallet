@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\ReservationStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 class Reservation extends Model
@@ -46,6 +47,12 @@ class Reservation extends Model
     public function isCancelled(): bool
     {
         return $this->cancelled_at !== null;
+    }
+
+    /** @return HasMany<ReservationEvent, $this> */
+    public function events(): HasMany
+    {
+        return $this->hasMany(ReservationEvent::class)->orderBy('id');
     }
 
     /** @return BelongsTo<Agency, $this> */

@@ -2,18 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ReservationEventType;
 use App\Enums\UserRole;
 use App\Http\Requests\StoreReservationRequest;
 use App\Http\Requests\UpdateReservationRequest;
 use App\Models\KeyAccount;
 use App\Models\Machine;
 use App\Models\Reservation;
+use App\Models\ReservationEvent;
 use App\Services\ReservationPermissions;
 use App\Services\ReservationRules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ReservationController extends Controller
 {
@@ -36,11 +39,16 @@ class ReservationController extends Controller
         $today = ReservationRules::today();
 
         $reservations = Reservation::query()
-            ->with(['machine.agency', 'enteredBy', 'cancelledBy', 'modifiedBy'])
+            ->with(['machine.agency', 'enteredBy', 'cancelledBy', 'modifiedBy', 'events.user.agency'])
             ->orderByDesc('starts_at')
             ->get()
             ->map(fn (Reservation $reservation) => [
                 ...$this->present($reservation),
+                'events' => $reservation->events->map(fn (ReservationEvent $event) => [
+                    'type' => $event->type->value,
+                    'occurred_on' => $event->occurred_on->toDateString(),
+                    'description' => $event->describe(),
+                ])->values(),
                 'status' => $reservation->statusOn($today)->value,
                 'status_label' => $reservation->statusOn($today)->label(),
                 'cancelled_at' => $reservation->cancelled_at?->toDateString(),
@@ -129,13 +137,27 @@ class ReservationController extends Controller
             return $this->refused($violations);
         }
 
-        $reservation->update([
-            'purchase_order' => $purchaseOrder,
-            'starts_at' => $from->toDateString(),
-            'ends_at' => $to->toDateString(),
-            'modified_at' => $today->toDateString(),
-            'modified_by_agency_id' => $request->user()->agency_id,
-        ]);
+        DB::transaction(function () use ($reservation, $request, $today, $from, $to, $purchaseOrder) {
+            $reservation->events()->create([
+                'type' => ReservationEventType::Modified,
+                'occurred_on' => $today->toDateString(),
+                'user_id' => $request->user()->id,
+                'previous_starts_at' => $reservation->starts_at->toDateString(),
+                'previous_ends_at' => $reservation->ends_at->toDateString(),
+                'new_starts_at' => $from->toDateString(),
+                'new_ends_at' => $to->toDateString(),
+                'previous_purchase_order' => $reservation->purchase_order,
+                'new_purchase_order' => $purchaseOrder,
+            ]);
+
+            $reservation->update([
+                'purchase_order' => $purchaseOrder,
+                'starts_at' => $from->toDateString(),
+                'ends_at' => $to->toDateString(),
+                'modified_at' => $today->toDateString(),
+                'modified_by_agency_id' => $request->user()->agency_id,
+            ]);
+        });
 
         return response()->json($this->present($reservation->fresh(['machine.agency', 'enteredBy', 'modifiedBy'])));
     }
@@ -161,10 +183,18 @@ class ReservationController extends Controller
         $denial = $this->permissions->cancelDenial($request->user(), $reservation);
         abort_if($denial !== null, Response::HTTP_FORBIDDEN, (string) $denial);
 
-        $reservation->update([
-            'cancelled_at' => ReservationRules::today()->toDateString(),
-            'cancelled_by_agency_id' => $request->user()->agency_id,
-        ]);
+        DB::transaction(function () use ($reservation, $request) {
+            $reservation->events()->create([
+                'type' => ReservationEventType::Cancelled,
+                'occurred_on' => ReservationRules::today()->toDateString(),
+                'user_id' => $request->user()->id,
+            ]);
+
+            $reservation->update([
+                'cancelled_at' => ReservationRules::today()->toDateString(),
+                'cancelled_by_agency_id' => $request->user()->agency_id,
+            ]);
+        });
 
         return response()->noContent();
     }

@@ -13,6 +13,7 @@ Tout ce qui est dans le prototype sans être écrit dans la spec.
 | 7 | Planning en frise par machine (design B choisi parmi 3 propositions), avec vue « Liste » conservée (R30) | Initiative du binôme : lecture du planning « comme sur Teams », proche des Excel d'agence (DOC 3) | Non |
 | 8 | Panneau de détail au clic sur une réservation, avec ses anomalies et l'annulation (R31) | Initiative du binôme | Non |
 | 9 | Modification des dates d'une réservation par les agences et la Direction, prolongation seule à moins de 48 h (R34) | Initiative du binôme : le client veut décaler ou rallonger sa location ; la commerciale reste en consultation | Non |
+| 10 | Suivi dans l'historique : chaque modification et l'annulation, avec la personne et ce qui a changé (R36) | Initiative du binôme : savoir qui a touché une réservation, utile avec les droits de la carte 5 | Non |
 
 ## Cartes révélation
 

@@ -75,6 +75,7 @@ export type HistoryReservation = Reservation & {
   status_label: string
   cancelled_at: string | null
   cancelled_by: string | null
+  events: { type: 'modified' | 'cancelled', occurred_on: string, description: string }[]
 }
 
 export type Anomaly = {
