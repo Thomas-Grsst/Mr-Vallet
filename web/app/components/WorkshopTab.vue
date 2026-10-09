@@ -162,7 +162,8 @@ const recordVgp = (machine: Machine) => run(machine.ref, () => $api(`/api/machin
           <td>
             <template v-if="machine.requires_vgp">
               <span :class="machine.vgp_ok_today ? 'badge badge--ok' : 'badge badge--ko'">
-                {{ machine.last_vgp_at ? `Dernière VGP réalisée ${formatDate(machine.last_vgp_at)}, valable jusqu'au ${formatDate(machine.vgp_expires_at)}` : 'Aucune VGP' }}
+                <strong>{{ machine.vgp_ok_today ? 'VGP à jour' : 'VGP en retard' }}</strong>
+                · {{ machine.last_vgp_at ? `dernière VGP ${formatDate(machine.last_vgp_at)}, valable jusqu'au ${formatDate(machine.vgp_expires_at)}` : 'aucune VGP enregistrée' }}
               </span>
               <div class="form-row">
                 <label>
