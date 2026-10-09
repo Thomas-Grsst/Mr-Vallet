@@ -19,6 +19,7 @@ Les deux vivent dans le même dépôt `Mr-Vallet` (choix du binôme, écart assu
 - **Stockage** : SQLite, base reconstruite et seedée au démarrage
 - **Tests** : PHPUnit, un test de feature par test de la spec
 - **Exécution** : Docker Compose (`back` sur le port 8000, `web` sur le port 3000) ; rien à installer sur le poste
+- **Performance** : images Docker de production, sans partage de fichiers avec Windows (trop lent) : front Nuxt compilé (`nuxt build`), back avec OPcache et 4 processus PHP en parallèle
 - **Date du jour** : configurable, `VALLET_TODAY=2026-10-12` par défaut
 
 ## Data Model
