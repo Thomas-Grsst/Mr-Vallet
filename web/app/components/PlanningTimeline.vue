@@ -287,7 +287,6 @@ const rows = computed(() => [...props.machines].sort((first, second) => first.re
 }
 
 .timeline__cell--today {
-  background: #fff7ed;
   border-left: 2px solid var(--color-primary);
 }
 
