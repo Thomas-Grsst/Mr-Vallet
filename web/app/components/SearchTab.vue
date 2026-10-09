@@ -24,10 +24,17 @@ const reservationErrors = ref<string[]>([])
 const confirmation = ref<string | null>(null)
 const isSubmitting = ref(false)
 
-const { data: types } = useApiFetch<string[]>('/api/machine-types', { default: () => [] })
+const { data: types, status: typesStatus, refresh: refreshTypes } = useApiFetch<string[]>('/api/machine-types', { default: () => [] })
+
+const isSearching = ref(false)
+const searchFailed = ref(false)
+
+const isValidationError = (error: unknown) => (error as { statusCode?: number })?.statusCode === 422
 
 const search = async () => {
   searchErrors.value = []
+  searchFailed.value = false
+  isSearching.value = true
   try {
     machines.value = await $api<Machine[]>('/api/machines', {
       query: { type: type.value || undefined, from: from.value, to: to.value },
@@ -35,7 +42,15 @@ const search = async () => {
     hasSearched.value = true
   }
   catch (error) {
-    searchErrors.value = toMessages(error)
+    if (isValidationError(error)) {
+      searchErrors.value = toMessages(error)
+    }
+    else {
+      searchFailed.value = true
+    }
+  }
+  finally {
+    isSearching.value = false
   }
 }
 
@@ -74,7 +89,9 @@ const reserve = async () => {
     await search()
   }
   catch (error) {
-    reservationErrors.value = toMessages(error)
+    reservationErrors.value = isValidationError(error)
+      ? toMessages(error)
+      : ['Le serveur ne répond pas : la réservation n\'a pas été enregistrée. Réessayez.']
   }
   finally {
     isSubmitting.value = false
@@ -87,8 +104,8 @@ const reserve = async () => {
     <form class="card form-row" @submit.prevent="search">
       <label>
         Type de machine
-        <select v-model="type">
-          <option value="">Tous les types</option>
+        <select v-model="type" :disabled="typesStatus !== 'success'">
+          <option value="">{{ typesStatus === 'success' ? 'Tous les types' : 'Chargement des types…' }}</option>
           <option v-for="machineType in types" :key="machineType" :value="machineType">{{ machineType }}</option>
         </select>
       </label>
@@ -100,8 +117,10 @@ const reserve = async () => {
         Au
         <input v-model="to" type="date" required>
       </label>
-      <button class="button" type="submit">Rechercher dans les 7 agences</button>
+      <button class="button" type="submit" :disabled="isSearching">{{ isSearching ? 'Recherche…' : 'Rechercher dans les 7 agences' }}</button>
     </form>
+
+    <LoadError v-if="typesStatus === 'error'" @retry="refreshTypes()" />
 
     <div v-if="searchErrors.length" class="alert alert--ko">
       <ul><li v-for="message in searchErrors" :key="message">{{ message }}</li></ul>
@@ -109,7 +128,13 @@ const reserve = async () => {
 
     <div v-if="confirmation" class="alert alert--ok">{{ confirmation }}</div>
 
-    <div v-if="hasSearched" class="card table-wrapper">
+    <LoadError v-if="searchFailed" @retry="search()" />
+
+    <div v-if="isSearching" class="card">
+      <LoadingMessage label="Recherche dans les 7 agences…" />
+    </div>
+
+    <div v-else-if="hasSearched && !searchFailed" class="card table-wrapper">
       <p class="muted">Du {{ formatDate(from) }} au {{ formatDate(to) }} · {{ machines.filter((machine) => machine.available).length }} disponible(s) sur {{ machines.length }}</p>
       <table>
         <thead>
@@ -168,7 +193,7 @@ const reserve = async () => {
           Client
           <input v-model="client" type="text" placeholder="Nom du client">
         </label>
-        <button class="button" type="submit" :disabled="isSubmitting">Confirmer la réservation</button>
+        <button class="button" type="submit" :disabled="isSubmitting">{{ isSubmitting ? 'Enregistrement…' : 'Confirmer la réservation' }}</button>
         <button class="button button--ghost" type="button" @click="selectedMachine = null">Annuler</button>
       </div>
       <div v-if="reservationErrors.length" class="alert alert--ko">

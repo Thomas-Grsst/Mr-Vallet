@@ -11,7 +11,7 @@ const workshopUntil = ref<Record<string, string>>({})
 const workshopNote = ref<Record<string, string>>({})
 const vgpDate = ref<Record<string, string>>({})
 
-const { data: machines, refresh } = useApiFetch<Machine[]>('/api/machines', { default: () => [] })
+const { data: machines, status, refresh } = useApiFetch<Machine[]>('/api/machines', { default: () => [] })
 
 const save = async (url: string, body: Record<string, string | null>) => {
   errors.value = []
@@ -41,7 +41,9 @@ const recordVgp = (machine: Machine) => save(`/api/machines/${machine.ref}/vgp`,
     <div v-if="errors.length" class="alert alert--ko">
       <ul><li v-for="message in errors" :key="message">{{ message }}</li></ul>
     </div>
-    <table>
+    <LoadError v-if="status === 'error'" @retry="refresh()" />
+    <LoadingMessage v-else-if="status !== 'success'" label="Chargement des machines…" />
+    <table v-else>
       <thead>
         <tr>
           <th>Machine</th>

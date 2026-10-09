@@ -12,8 +12,13 @@ const { formatDate } = useFormatDate()
 const { toMessages } = useApiErrors()
 const errors = ref<string[]>([])
 
-const { data: reservations, refresh } = useApiFetch<Reservation[]>('/api/reservations', { default: () => [] })
-const { data: anomalies, refresh: refreshAnomalies } = useApiFetch<Anomaly[]>('/api/anomalies', { default: () => [] })
+const { data: reservations, status: reservationsStatus, refresh } = useApiFetch<Reservation[]>('/api/reservations', { default: () => [] })
+const { data: anomalies, status: anomaliesStatus, refresh: refreshAnomalies } = useApiFetch<Anomaly[]>('/api/anomalies', { default: () => [] })
+
+const hasLoadError = computed(() => reservationsStatus.value === 'error' || anomaliesStatus.value === 'error')
+const isLoaded = computed(() => reservationsStatus.value === 'success' && anomaliesStatus.value === 'success')
+
+const reload = () => Promise.all([refresh(), refreshAnomalies()])
 
 const emptyFilters = () => ({ machine: '', machineAgency: '', client: '', enteredBy: '', from: '', to: '' })
 const filters = ref(emptyFilters())
@@ -72,7 +77,7 @@ const cancel = async (reservation: Reservation) => {
   errors.value = []
   try {
     await $api(`/api/reservations/${reservation.id}`, { method: 'DELETE' })
-    await Promise.all([refresh(), refreshAnomalies()])
+    await reload()
   }
   catch (error) {
     errors.value = toMessages(error)
@@ -124,7 +129,9 @@ const cancel = async (reservation: Reservation) => {
       </label>
       <button type="button" class="button button--ghost" :disabled="!hasFilters" @click="resetFilters">Réinitialiser les filtres</button>
     </div>
-    <table>
+    <LoadError v-if="hasLoadError" @retry="reload()" />
+    <LoadingMessage v-else-if="!isLoaded" label="Chargement du planning…" />
+    <table v-else>
       <thead>
         <tr>
           <th>Machine</th>
