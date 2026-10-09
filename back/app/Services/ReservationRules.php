@@ -15,13 +15,44 @@ class ReservationRules
     }
 
     /** @return list<array{code: string, message: string}> */
-    public function check(Machine $machine, Carbon $from, Carbon $to, ?int $ignoredReservationId = null): array
+    public function check(Machine $machine, Carbon $from, Carbon $to, ?int $ignoredReservationId = null, ?int $bookingAgencyId = null): array
     {
-        return [
+        $occupation = [
             ...$this->overlaps($machine, $from, $to, $ignoredReservationId),
             ...$this->workshop($machine, $from, $to),
+        ];
+
+        return [
+            ...$occupation,
+            ...$this->transfer($machine, $from, $bookingAgencyId, $occupation, $ignoredReservationId),
             ...$this->vgp($machine, $to),
         ];
+    }
+
+    /**
+     * @param  list<array{code: string, message: string}>  $alreadyReported
+     * @return list<array{code: string, message: string}>
+     */
+    public function transfer(Machine $machine, Carbon $from, ?int $bookingAgencyId, array $alreadyReported = [], ?int $ignoredReservationId = null): array
+    {
+        if ($bookingAgencyId === null || $bookingAgencyId === $machine->agency_id) {
+            return [];
+        }
+
+        $eve = $from->copy()->subDay();
+        $reported = array_column($alreadyReported, 'message');
+
+        return collect([
+            ...$this->overlaps($machine, $eve, $eve, $ignoredReservationId),
+            ...$this->workshop($machine, $eve, $eve),
+        ])
+            ->reject(fn (array $violation) => in_array($violation['message'], $reported, true))
+            ->map(fn (array $violation) => [
+                'code' => Violation::Transfer->value,
+                'message' => "Transfert depuis {$machine->agency->name} impossible : la machine doit être libre la veille du départ ({$eve->format('d/m/Y')}) — {$violation['message']}",
+            ])
+            ->values()
+            ->all();
     }
 
     /** @return list<array{code: string, message: string}> */

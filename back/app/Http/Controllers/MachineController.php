@@ -19,6 +19,7 @@ class MachineController extends Controller
     {
         $from = $request->filled('from') ? Carbon::parse($request->string('from')) : null;
         $to = $request->filled('to') ? Carbon::parse($request->string('to')) : null;
+        $bookingAgencyId = $request->user()->agency_id;
 
         $machines = Machine::query()
             ->with(['agency', 'workshopPeriods'])
@@ -26,8 +27,8 @@ class MachineController extends Controller
             ->orderBy('type')
             ->orderBy('ref')
             ->get()
-            ->map(function (Machine $machine) use ($from, $to) {
-                $violations = $from && $to ? $this->rules->check($machine, $from, $to) : null;
+            ->map(function (Machine $machine) use ($from, $to, $bookingAgencyId) {
+                $violations = $from && $to ? $this->rules->check($machine, $from, $to, bookingAgencyId: $bookingAgencyId) : null;
 
                 return [
                     ...self::present($machine, $this->rules),

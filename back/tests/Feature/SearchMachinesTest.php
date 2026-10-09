@@ -18,7 +18,7 @@ class SearchMachinesTest extends ValletTestCase
 
     public function test_free_machine_from_another_agency_is_proposed(): void
     {
-        $response = $this->getJson('/api/machines?type=Mini-pelle%201.8%20t&from=2026-10-15&to=2026-10-16')
+        $response = $this->getJson('/api/machines?type=Mini-pelle%201.8%20t&from=2026-10-16&to=2026-10-17')
             ->assertOk();
 
         $machines = collect($response->json())->keyBy('ref');

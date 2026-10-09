@@ -55,7 +55,11 @@ class ReservationController extends Controller
         $from = Carbon::parse($request->string('starts_at'));
         $to = Carbon::parse($request->string('ends_at'));
 
-        $violations = $this->rules->check($machine, $from, $to);
+        $enteringAgencyId = $request->user()->role->choosesEnteringAgency()
+            ? $request->integer('agency_id')
+            : $request->user()->agency_id;
+
+        $violations = $this->rules->check($machine, $from, $to, bookingAgencyId: $enteringAgencyId);
 
         if ($violations !== []) {
             return response()->json([
@@ -68,9 +72,7 @@ class ReservationController extends Controller
             'client' => $request->string('client')->trim()->toString(),
             'starts_at' => $from->toDateString(),
             'ends_at' => $to->toDateString(),
-            'entered_by_agency_id' => $request->user()->role->choosesEnteringAgency()
-                ? $request->integer('agency_id')
-                : $request->user()->agency_id,
+            'entered_by_agency_id' => $enteringAgencyId,
         ]);
 
         return response()->json(

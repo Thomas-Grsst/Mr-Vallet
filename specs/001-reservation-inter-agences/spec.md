@@ -32,7 +32,7 @@ En tant qu'agence, je veux chercher une machine par type et par période dans le
 
 **Acceptance Scenarios**:
 
-1. **Given** MINI07 est en atelier jusqu'au 20/10, **When** une agence cherche une « Mini-pelle 1.8 t » du 15/10 au 16/10, **Then** MINI07 n'est pas disponible (motif : en atelier) et MINI12 (Saint-Etienne) est proposée.
+1. **Given** MINI07 est en atelier jusqu'au 20/10, **When** Lyon Est cherche une « Mini-pelle 1.8 t » du 16/10 au 17/10, **Then** MINI07 n'est pas disponible (motif : en atelier) et MINI12 (Saint-Etienne) est proposée.
 2. **Given** NAC140 est réservée du 19/10 au 23/10, **When** on cherche une « Nacelle 12 m » du 20/10 au 21/10, **Then** NAC140 n'est pas disponible (motif : réservée par BTP Rhone).
 
 ---
@@ -167,6 +167,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - **FR-031 (R23)**: Dans l'onglet Atelier, l'action sur la VGP MUST s'appeler « Mettre à jour la VGP » (retour de Brice, remplace « Enregistrer la VGP »).
 - **FR-032 (R24)**: Un compte « Direction » (Brice Vallet) MUST voir tous les onglets et avoir tous les droits : réserver, annuler, gérer les passages en atelier, mettre à jour la VGP ; il MUST choisir l'agence de saisie dans le formulaire de réservation (refus sans agence) ; ses annulations MUST apparaître « par Direction » dans l'historique (retour de Brice).
 - **FR-033 (R25)**: En arrivant sur l'onglet « Rechercher », la recherche MUST être lancée automatiquement sur tous les types pour aujourd'hui, pour afficher tout le parc avec sa disponibilité du jour (initiative du binôme, non demandée par Brice).
+- **FR-034 (R26)**: Quand l'agence qui réserve n'est pas l'agence de la machine, la machine MUST aussi être libre la veille du départ (ni réservée, ni en atelier) ; sinon la réservation MUST être refusée avec « Transfert depuis <agence> impossible : la machine doit être libre la veille du départ (<date>) » suivi de ce qui l'occupe. La recherche d'un compte agence MUST appliquer la même règle ; le compte Direction y est soumis à la réservation, pour l'agence choisie (carte révélation 1).
 
 ### Key Entities
 
@@ -203,7 +204,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 Identiques à `SPEC.md` à la racine (version une page au format des consignes).
 
 1. Étant donné que NAC112 est réservée du 14/10 au 18/10 pour BTP Rhone, quand Villeurbanne cherche une « Nacelle 12 m » du 16/10 au 17/10, alors NAC112 apparaît indisponible avec le motif « Période déjà occupée par BTP Rhone du 14/10/2026 au 18/10/2026 » et son bouton affiche « Réserver à d'autres dates ».
-2. Étant donné que MINI07 est en atelier du 01/10 au 20/10, quand une agence cherche une « Mini-pelle 1.8 t » du 15/10 au 16/10, alors MINI07 apparaît indisponible (en atelier) et MINI12 (Saint-Etienne) est proposée.
+2. Étant donné que MINI07 est en atelier du 01/10 au 20/10, quand Lyon Est cherche une « Mini-pelle 1.8 t » du 16/10 au 17/10, alors MINI07 apparaît indisponible (en atelier) et MINI12 (Saint-Etienne) est proposée.
 3. Étant donné que la dernière VGP de NAC089 date du 05/03/2026, quand une agence cherche une « Nacelle 16 m » du 02/11 au 05/11, alors NAC089 apparaît indisponible avec le motif « VGP non à jour, contacter l'atelier ».
 4. Étant donné que NAC140 (Grenoble) est libre du 26/10 au 28/10 et que sa VGP est à jour, quand Lyon Est la réserve pour Facades Martin, alors la réservation est acceptée et apparaît dans le planning, saisie par Lyon Est.
 5. Étant donné que les réservations ont été reprises des Excel, quand on ouvre l'onglet Anomalies, alors on voit la double réservation NAC112 (BTP Rhone / Maconnerie Duclos) et NAC089 réservée pour Facades Martin avec une VGP échue.
@@ -228,6 +229,10 @@ Tests ajoutés après la recette de Brice :
 21. Étant donné que la VGP de NAC089 est en retard, quand l'atelier saisit « VGP réalisée le 12/10/2026 » et clique sur « Mettre à jour la VGP », alors NAC089 affiche « VGP à jour » avec en dessous « dernière VGP 12/10/2026, valable jusqu'au 12/04/2027 ».
 22. Étant donné que Brice est connecté avec le compte Direction, quand il ouvre l'outil, alors il voit les 5 onglets ; quand il réserve COMP30 du 20/10 au 21/10 pour BTP Rhone en choisissant l'agence « Annecy », alors la réservation est acceptée et saisie par Annecy (sans agence choisie, elle est refusée) ; quand il annule la réservation de Maconnerie Duclos, alors l'historique affiche « annulée le 12/10/2026 par Direction » ; et il peut prévoir un passage en atelier et mettre à jour une VGP.
 23. Étant donné qu'aujourd'hui est le 12/10/2026, quand un utilisateur se connecte et arrive sur l'onglet « Rechercher », alors les 12 machines du parc s'affichent sans clic, avec « Du 12/10/2026 au 12/10/2026 » ; COMP21 (réservée par M. Pereira ce jour-là), ECH40 (Constructions Alpes), MINI07 (en atelier) et NAC089 (VGP en retard) sont indisponibles, les 8 autres disponibles.
+
+Tests ajoutés avec les cartes révélation :
+
+24. Étant donné que NAC140 (Grenoble) est réservée par BTP Rhone du 19/10 au 23/10, quand Villeurbanne la réserve du 24/10 au 25/10, alors c'est refusé avec « Transfert depuis Grenoble impossible : la machine doit être libre la veille du départ (23/10/2026) — Période déjà occupée par BTP Rhone du 19/10/2026 au 23/10/2026 » ; quand Grenoble la réserve sur les mêmes dates, c'est accepté (pas de transfert) ; quand Villeurbanne la réserve du 25/10 au 26/10, c'est accepté (la veille, le 24/10, est libre). De même, MINI07 (Lyon Est, en atelier jusqu'au 20/10) est refusée à Villeurbanne à partir du 21/10 mais acceptée pour Lyon Est.
 
 ## Assumptions
 

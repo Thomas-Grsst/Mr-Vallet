@@ -10,6 +10,10 @@ Tout ce qui est dans le prototype sans être écrit dans la spec.
 | 4 | Filtres du planning par machine, agence de la machine, agence de saisie et période, avec « Réinitialiser les filtres » (R12) | Initiative du binôme pour retrouver vite une réservation, dans le prolongement du filtre client demandé par Brice | Non |
 | 5 | Recherche lancée automatiquement à l'arrivée sur l'onglet « Rechercher », tout le parc affiché pour aujourd'hui (R25) | Initiative du binôme : voir l'état du parc sans clic | Non |
 
+## Cartes révélation
+
+- Carte 1 : « Une machine qui vient d'une autre agence voyage une demi-journée : elle doit être libre la veille du départ. » FR-034 / R26 ajoutée, test 24. Test 2 décalé du 15-16/10 au 16-17/10 : avec cette règle, MINI12 (Saint-Etienne) n'est plus proposée à Lyon Est le 15/10 car elle est réservée la veille (14/10).
+
 ## Style
 
 - 09/10, demande du binôme : style revu sans changer aucune règle. Filtres présentés en barre homogène (Rechercher, Planning, Historique, Atelier), motifs d'indisponibilité alignés à gauche sans puces, bouton « Réserver à d'autres dates » sur une ligne, états VGP et passages en atelier présentés en blocs lisibles. Tests 19 et 21 reformulés : l'état VGP et sa date sont sur deux lignes au lieu d'être séparés par « · ».
