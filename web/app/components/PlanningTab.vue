@@ -15,6 +15,24 @@ const errors = ref<string[]>([])
 const { data: reservations, refresh } = useApiFetch<Reservation[]>('/api/reservations', { default: () => [] })
 const { data: anomalies, refresh: refreshAnomalies } = useApiFetch<Anomaly[]>('/api/anomalies', { default: () => [] })
 
+const clientFilter = ref('')
+
+const clients = computed(() =>
+  [...new Set(reservations.value.map((reservation) => reservation.client))].sort((first, second) => first.localeCompare(second, 'fr')),
+)
+
+const visibleReservations = computed(() =>
+  clientFilter.value
+    ? reservations.value.filter((reservation) => reservation.client === clientFilter.value)
+    : reservations.value,
+)
+
+watch(clients, (available) => {
+  if (clientFilter.value && !available.includes(clientFilter.value)) {
+    clientFilter.value = ''
+  }
+})
+
 const anomaliesByReservation = computed(() => {
   const labels = new Map<number, Set<string>>()
 
@@ -50,6 +68,15 @@ const cancel = async (reservation: Reservation) => {
     <div v-if="errors.length" class="alert alert--ko">
       <ul><li v-for="message in errors" :key="message">{{ message }}</li></ul>
     </div>
+    <div class="form-row planning-filter">
+      <label>
+        Client
+        <select v-model="clientFilter">
+          <option value="">Tous les clients</option>
+          <option v-for="client in clients" :key="client" :value="client">{{ client }}</option>
+        </select>
+      </label>
+    </div>
     <table>
       <thead>
         <tr>
@@ -63,7 +90,7 @@ const cancel = async (reservation: Reservation) => {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="reservation in reservations" :key="reservation.id">
+        <tr v-for="reservation in visibleReservations" :key="reservation.id">
           <td>
             <strong>{{ reservation.machine_ref }}</strong> <span class="muted">{{ reservation.machine_type }}</span>
             <div v-if="anomaliesByReservation.has(reservation.id)" class="planning-anomaly">
@@ -83,6 +110,10 @@ const cancel = async (reservation: Reservation) => {
 </template>
 
 <style scoped>
+.planning-filter {
+  margin-bottom: 12px;
+}
+
 .planning-anomaly {
   display: inline-block;
   margin-top: 6px;

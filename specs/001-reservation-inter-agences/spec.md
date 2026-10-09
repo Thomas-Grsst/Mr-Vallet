@@ -144,6 +144,7 @@ En tant qu'utilisateur, je dois me connecter avant d'utiliser l'outil, afin que 
 - **FR-017**: L'utilisateur MUST pouvoir se déconnecter.
 - **FR-011**: L'outil MUST lister les réservations existantes qui violent R1 ou R3.
 - **FR-018 (R10)**: Dans le planning, chaque réservation concernée par une anomalie de FR-011 MUST afficher sous sa machine un avertissement « Attention : anomalie » avec son type (double réservation ou VGP non à jour) (retour de Brice).
+- **FR-019 (R11)**: Le planning MUST pouvoir être filtré par client, choisi dans la liste des clients qui ont au moins une réservation ; « Tous les clients » réaffiche toutes les réservations (retour de Brice).
 - **FR-012**: L'outil MUST permettre d'annuler une réservation.
 - **FR-013**: L'atelier MUST pouvoir passer une machine en atelier jusqu'à une date, la remettre en service, et enregistrer une date de dernière VGP.
 
@@ -189,6 +190,7 @@ Tests ajoutés après la recette de Brice :
 6. Étant donné que NAC112 est indisponible sur la recherche du 16/10 au 17/10, quand Villeurbanne clique sur « Réserver à d'autres dates », choisit du 20/10 au 22/10 dans le formulaire et confirme pour Maconnerie Duclos, alors la réservation est acceptée sans avoir changé la recherche.
 7. Étant donné que NAC112 est réservée du 14/10 au 18/10, quand Villeurbanne choisit du 17/10 au 19/10 dans le formulaire de réservation, alors la réservation est refusée avec le motif « Période déjà occupée par BTP Rhone du 14/10/2026 au 18/10/2026 ».
 8. Étant donné que NAC112 est réservée deux fois en même temps (BTP Rhone et Maconnerie Duclos) et que NAC089 est réservée pour Facades Martin avec une VGP échue, quand on ouvre le planning, alors ces trois réservations affichent « Attention : anomalie » sous leur machine (double réservation pour les deux NAC112, VGP non à jour pour NAC089), et les autres réservations n'affichent rien.
+9. Étant donné que BTP Rhone a réservé NAC112 du 14/10 au 18/10 et NAC140 du 19/10 au 23/10, quand on choisit le client « BTP Rhone » dans le filtre du planning, alors seules ces deux réservations s'affichent.
 
 ## Assumptions
 

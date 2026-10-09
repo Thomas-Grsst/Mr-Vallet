@@ -15,3 +15,4 @@ Tout ce qui est dans le prototype sans être écrit dans la spec.
 - 09/10 : US6 et FR-014 à FR-017, connexion obligatoire et trois profils (agence, atelier, commercial). Initiative du binôme : sans connexion, n'importe qui connaissant l'adresse modifie le planning. Non demandé par Brice : à lui présenter et à confirmer.
 - 09/10, retour de Brice : pouvoir réserver une machine indisponible à d'autres dates directement depuis le bouton, sans changer la recherche. FR-002b remplacée (bouton « Réserver à d'autres dates » au lieu du bouton grisé), FR-002c / R9 ajoutée, tests 6 et 7.
 - 09/10, retour de Brice : signaler visuellement dans le planning les réservations qui ont une anomalie. FR-018 / R10 ajoutée, test 8.
+- 09/10, retour de Brice : filtrer le planning pour voir toutes les machines réservées par une entreprise. FR-019 / R11 ajoutée (filtre par client), test 9.
